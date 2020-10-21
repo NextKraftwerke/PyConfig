@@ -4,12 +4,13 @@ from nx_config import SecretString
 
 
 class SecretStringTestCase(TestCase):
-    def test_secret_string_instance_is_just_str(self):
-        for s in ("Hello", 42, 3.14, True, None, SecretString):
-            self.assertIs(type(SecretString(s)), str)  # Stronger than 'isinstance'
+    def test_secret_string_cannot_be_instantiated(self):
+        with self.assertRaises(TypeError):
+            _ = SecretString()
 
-    def test_secret_string_class_is_not_str(self):
-        self.assertNotEqual(SecretString, str)
+        with self.assertRaises(TypeError):
+            # noinspection PyArgumentList
+            _ = SecretString("Hello")
 
-    def test_secret_string_is_a_type(self):
-        self.assertIsInstance(SecretString, type)
+        with self.assertRaises(TypeError):
+            _ = SecretString.__new__(SecretString)
