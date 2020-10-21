@@ -1,3 +1,6 @@
+from nx_config._core.section_entry import SectionEntry
+
+
 class SectionMeta(type):
     def __new__(mcs, typename, bases, ns):
         if ("_nx_config_internal_root" not in ns) and ("__init__" in ns):
@@ -18,5 +21,7 @@ class SectionMeta(type):
                 raise ValueError(
                     "Attributes of 'ConfigSection' subclass cannot start with underscores."
                 )
+
+            ns[entry_name] = SectionEntry()
 
         return super().__new__(mcs, typename, bases, ns)

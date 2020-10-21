@@ -66,6 +66,14 @@ class SectionTestCase(TestCase):
 
         self.assertLess(getsizeof(MySection().my_entry), 20)
 
+    def test_cannot_get_undeclared_entry(self):
+        class MySection(ConfigSection):
+            pass
+
+        with self.assertRaises(AttributeError):
+            # noinspection PyUnresolvedReferences
+            _ = MySection().undeclared_entry
+
     def test_cannot_set_entry(self):
         class MySection(ConfigSection):
             my_entry: int
