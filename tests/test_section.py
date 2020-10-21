@@ -116,15 +116,15 @@ class SectionTestCase(TestCase):
     def test_section_can_have_docstring(self):
         _ = self
 
+        # noinspection PyUnusedLocal
         class MySection(ConfigSection):
             """This is MySection's docstring."""
             pass
 
-        _ = MySection
-
     def test_allowed_entry_non_collection_non_optional_type_hints(self):
         _ = self
 
+        # noinspection PyUnusedLocal
         class MySection(ConfigSection):
             my_int: int
             my_int_d: int = 42
@@ -150,4 +150,8 @@ class SectionTestCase(TestCase):
             my_url_d_ip: URL = "http://127.0.0.1:1234"
             my_url_d_local: URL = "http://localhost:1234"
 
-        _ = MySection
+    def test_secret_string_cannot_have_default_value(self):
+        with self.assertRaises(ValueError):
+            # noinspection PyUnusedLocal
+            class MySection(ConfigSection):
+                my_entry: SecretString = "abcde12345"
