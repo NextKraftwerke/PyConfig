@@ -1,7 +1,7 @@
 from nx_config._core.section_entry import SectionEntry
 from nx_config._core.unset import Unset
 
-_special_section_keys = ("__module__", "__qualname__", "__annotations__")
+_special_section_keys = ("__module__", "__qualname__", "__annotations__", "__doc__")
 
 
 class SectionMeta(type):
