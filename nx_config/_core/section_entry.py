@@ -1,9 +1,14 @@
-from nx_config._core.unset import Unset
+from typing import Any
 
 
 class SectionEntry:
+    __slots__ = ("default",)
+
+    def __init__(self, default: Any):
+        self.default = default
+
     def __get__(self, instance, owner):
-        return Unset
+        return self.default
 
     def __set__(self, instance, value):
         raise AttributeError(

@@ -82,3 +82,32 @@ class SectionTestCase(TestCase):
 
         with self.assertRaises(AttributeError):
             sec.my_entry = 42
+
+    def test_cannot_set_undeclared_entry(self):
+        class MySection(ConfigSection):
+            pass
+
+        sec = MySection()
+
+        with self.assertRaises(AttributeError):
+            sec.undeclared_entry = 42
+
+    def test_cannot_declare_slots(self):
+        with self.assertRaises(ValueError):
+            # noinspection PyUnusedLocal
+            class MySection(ConfigSection):
+                __slots__ = ("some_attribute",)
+
+    def test_cannot_have_class_attr_without_type_hint(self):
+        with self.assertRaises(ValueError):
+            # noinspection PyUnusedLocal
+            class MySection(ConfigSection):
+                my_entry = 42
+
+    def test_entry_can_have_default_value(self):
+        _ = self
+
+        class MySection(ConfigSection):
+            my_entry: int = 42
+
+        self.assertEqual(MySection().my_entry, 42)
