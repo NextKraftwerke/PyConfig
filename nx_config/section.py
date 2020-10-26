@@ -8,7 +8,7 @@ from nx_config._core.section_meta import SectionMeta as _Meta
 
 
 class ConfigSection(metaclass=_Meta):
-    _nx_config_internal_root = True
+    _nx_config_internal__root = True
 
     def __init__(self):
         setattr(self, _mutable_attr, False)

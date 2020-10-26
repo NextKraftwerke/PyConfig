@@ -5,7 +5,7 @@ from nx_config._core.naming_utils import internal_name as _internal_name
 
 
 class Config(metaclass=_Meta):
-    _nx_config_internal_root = True
+    _nx_config_internal__root = True
 
     def __init__(self):
         for section_name, section_type in getattr(type(self), "__annotations__", {}).items():

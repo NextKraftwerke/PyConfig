@@ -191,3 +191,13 @@ class SectionTestCase(TestCase):
         self.assertIn("'my_entry'", msg)
         self.assertIn("'SecretString'", msg)
         self.assertIn("default value", msg.lower())
+
+    def test_entry_mutable_name_collision(self):
+        class MySection(ConfigSection):
+            mutable: bool = True
+            my_int: int = 0
+
+        sec = MySection()
+
+        with self.assertRaises(AttributeError):
+            sec.my_int = 0
