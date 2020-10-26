@@ -28,16 +28,18 @@ class SectionMeta(type):
         for entry_name, entry_type in entries.items():
             if entry_name.startswith("_"):
                 raise ValueError(
-                    "Attributes of 'ConfigSection' subclass cannot start with underscores."
+                    f"Attributes of 'ConfigSection' subclass cannot start with underscores."
+                    f" Non-conforming attribute: '{entry_name}'"
                 )
 
             default = ns.get(entry_name, Unset)
 
             if (entry_type is SecretString) and (default is not Unset):
                 raise ValueError(
-                    "Entries of type 'SecretString' cannot have default values. Secrets should"
-                    " never be hard-coded! Make sure you provide all necessary secrets through"
-                    " (unversioned) configuration files and environment variables."
+                    f"Entries of type 'SecretString' cannot have default values. Secrets should"
+                    f" never be hard-coded! Make sure you provide all necessary secrets through"
+                    f" (unversioned) configuration files and environment variables. Non-conforming"
+                    f" attribute: '{entry_name}'"
                 )
 
             ns[entry_name] = SectionEntry(default)

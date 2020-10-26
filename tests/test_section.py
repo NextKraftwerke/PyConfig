@@ -9,10 +9,13 @@ from nx_config import ConfigSection, SecretString, URL
 
 class SectionTestCase(TestCase):
     def test_section_subclass_init_forbidden(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as ctx:
             class MySection(ConfigSection):
                 def __init__(self):
                     super(MySection, self).__init__()
+
+        msg = str(ctx.exception)
+        self.assertIn("'__init__'", msg)
 
     def test_empty_section_subclass_has_default_init(self):
         _ = self
@@ -30,17 +33,24 @@ class SectionTestCase(TestCase):
             my_entry: int
 
     def test_section_entry_cannot_be_protected(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as ctx:
             # noinspection PyUnusedLocal
             class MySection(ConfigSection):
                 _my_entry: int
 
+        msg = str(ctx.exception)
+        self.assertIn("'_my_entry'", msg)
+        self.assertIn("underscore", msg.lower())
+
     def test_section_entries_must_be_case_insensitively_unique(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as ctx:
             # noinspection PyUnusedLocal
             class MySection(ConfigSection):
                 my_entry: int
                 My_Entry: float
+
+        msg = str(ctx.exception)
+        self.assertIn("case-insensitive", msg.lower())
 
     def test_entry_without_default_is_unset(self):
         class MySection(ConfigSection):
@@ -83,8 +93,11 @@ class SectionTestCase(TestCase):
 
         sec = MySection()
 
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(AttributeError) as ctx:
             sec.my_entry = 42
+
+        msg = str(ctx.exception)
+        self.assertIn("set", msg.lower())
 
     def test_cannot_set_undeclared_entry(self):
         class MySection(ConfigSection):
@@ -96,16 +109,22 @@ class SectionTestCase(TestCase):
             sec.undeclared_entry = 42
 
     def test_cannot_declare_slots(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as ctx:
             # noinspection PyUnusedLocal
             class MySection(ConfigSection):
                 __slots__ = ("some_attribute",)
 
+        msg = str(ctx.exception)
+        self.assertIn("'__slots__'", msg)
+
     def test_cannot_have_class_attr_without_type_hint(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as ctx:
             # noinspection PyUnusedLocal
             class MySection(ConfigSection):
                 my_entry = 42
+
+        msg = str(ctx.exception)
+        self.assertIn("'my_entry'", msg)
 
     def test_entry_can_have_default_value(self):
         class MySection(ConfigSection):
@@ -151,7 +170,12 @@ class SectionTestCase(TestCase):
             my_url_d_local: URL = "http://localhost:1234"
 
     def test_secret_string_cannot_have_default_value(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as ctx:
             # noinspection PyUnusedLocal
             class MySection(ConfigSection):
                 my_entry: SecretString = "abcde12345"
+
+        msg = str(ctx.exception)
+        self.assertIn("'my_entry'", msg)
+        self.assertIn("'SecretString'", msg)
+        self.assertIn("default value", msg.lower())

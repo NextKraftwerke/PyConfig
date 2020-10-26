@@ -1,3 +1,6 @@
+_allowed_attributes = ("__module__", "__qualname__", "__annotations__")
+
+
 class ConfigMeta(type):
     def __new__(mcs, typename, bases, ns):
         if "__init__" in ns:
@@ -16,7 +19,24 @@ class ConfigMeta(type):
         for section_name in sections:
             if section_name.startswith("_"):
                 raise ValueError(
-                    "Attributes of 'Config' subclass cannot start with underscores."
+                    f"Attributes of 'Config' subclass cannot start with underscores."
+                    f" Non-conforming attribute: '{section_name}'"
+                )
+
+            if section_name in ns:
+                raise ValueError(
+                    f"Section annotations cannot have an assigned value. Just write"
+                    f" 'section_name: SectionType' and leave it with no value. The"
+                    f" section instance will be automatically default-initialized."
+                    f" Non-conforming attribute: '{section_name}'"
+                )
+
+        for attr in ns:
+            if attr not in _allowed_attributes:
+                raise ValueError(
+                    f"Subclass of 'Config' can only have annotations for config sections."
+                    f" No annotations of any other kind and no class attributes. Non-conforming"
+                    f" attribute: '{attr}'"
                 )
 
         return super().__new__(mcs, typename, bases, ns)
