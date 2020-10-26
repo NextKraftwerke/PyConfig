@@ -96,6 +96,8 @@ class SectionTestCase(TestCase):
         with self.assertRaises(AttributeError) as ctx:
             sec.my_entry = 42
 
+        self.assertIs(sec.my_entry, MySection().my_entry)
+
         msg = str(ctx.exception)
         self.assertIn("set", msg.lower())
 

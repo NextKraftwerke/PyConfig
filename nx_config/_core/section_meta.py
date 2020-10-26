@@ -1,13 +1,16 @@
+from nx_config._core.naming_utils import mutable_section_attr, root_attr, internal_name
 from nx_config.secret_string import SecretString
 from nx_config._core.section_entry import SectionEntry
 from nx_config._core.unset import Unset
 
-_special_section_keys = ("__module__", "__qualname__", "__annotations__", "__doc__")
+_special_section_keys = ("__module__", "__qualname__", "__annotations__", "__doc__", "__init__")
 
 
 class SectionMeta(type):
     def __new__(mcs, typename, bases, ns):
-        if "__init__" in ns:
+        is_root = ns.pop(root_attr, False)
+
+        if ("__init__" in ns) and (not is_root):
             raise ValueError(
                 "Subclass of 'ConfigSection' cannot define its own '__init__' method."
             )
@@ -42,7 +45,7 @@ class SectionMeta(type):
                     f" attribute: '{entry_name}'"
                 )
 
-            ns[entry_name] = SectionEntry(default)
+            ns[entry_name] = SectionEntry(default, internal_name(entry_name))
 
         special_keys = frozenset(entries).union(_special_section_keys)
 
@@ -55,5 +58,5 @@ class SectionMeta(type):
                 f" Non-conforming member: '{k}'"
             )
 
-        ns["__slots__"] = ()
+        ns["__slots__"] = (mutable_section_attr, *(internal_name(e) for e in entries))
         return super().__new__(mcs, typename, bases, ns)
