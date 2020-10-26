@@ -117,6 +117,16 @@ class SectionTestCase(TestCase):
         msg = str(ctx.exception)
         self.assertIn("'__slots__'", msg)
 
+    def test_section_subclass_does_not_use_dict(self):
+        class MySection(ConfigSection):
+            my_entry: int = 42
+            my_other_entry: float
+
+        sec = MySection()
+
+        with self.assertRaises(AttributeError):
+            _ = sec.__dict__
+
     def test_cannot_have_class_attr_without_type_hint(self):
         with self.assertRaises(ValueError) as ctx:
             # noinspection PyUnusedLocal
