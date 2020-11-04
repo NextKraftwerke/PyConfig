@@ -1,9 +1,10 @@
 from inspect import isroutine, isclass
 
 from nx_config._core.naming_utils import mutable_section_attr, root_attr, internal_name
-from nx_config.secret_string import SecretString
 from nx_config._core.section_entry import SectionEntry
 from nx_config._core.unset import Unset
+from nx_config._core.validator import Validator
+from nx_config.secret_string import SecretString
 
 _special_section_keys = ("__module__", "__qualname__", "__annotations__", "__doc__", "__init__")
 
@@ -52,13 +53,20 @@ class SectionMeta(type):
         special_keys = frozenset(entries).union(_special_section_keys)
 
         for k, v in ns.items():
-            if (k in special_keys) or isroutine(v) or isclass(v):
-                continue
-
-            raise ValueError(
-                f"Sections are not allowed to have attributes without type hints."
-                f" Non-conforming member: '{k}'"
-            )
+            if isinstance(v, Validator):
+                if v.entry_name not in entries:
+                    raise ValueError(
+                        f"'@validate(entry_name)' annotation must be used with the name of an"
+                        f" existent config entry. Non-conforming usage: '@validate(\"{v.entry_name}\")'"
+                    )
+            elif (k not in special_keys) and (not isroutine(v)) and (not isclass(v)):
+                raise ValueError(
+                    f"Sections are not allowed to have attributes without type hints."
+                    f" You can add attributes with (supported) type hints (and optionally"
+                    f" default values), as well as methods, nested types, type aliases and"
+                    f" validators (i.e. methods with the '@validate' annotation)."
+                    f" Non-conforming member: '{k}'"
+                )
 
         ns["__slots__"] = (mutable_section_attr, *(internal_name(e) for e in entries))
         return super().__new__(mcs, typename, bases, ns)
