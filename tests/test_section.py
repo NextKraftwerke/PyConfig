@@ -159,5 +159,15 @@ class SectionTestCase(TestCase):
         with self.assertRaises(AttributeError):
             sec.my_int = 0
 
-    # TODO: Allow methods and nested type definitions (and aliases?). Add validator annotation.
+    def test_methods_are_okay(self):
+        class MySection(ConfigSection):
+            minutes: int = 42
+
+            def seconds(self) -> int:
+                return self.minutes * 60
+
+        sec = MySection()
+        self.assertEqual(sec.seconds(), sec.minutes * 60)
+
+    # TODO: Allow nested type definitions (and aliases?). Add validator annotation.
     #   Default values must satisfy validators. Pretty printing (+SecretString).
