@@ -1,3 +1,4 @@
+from datetime import timedelta
 from sys import getsizeof
 from unittest import TestCase
 
@@ -161,13 +162,41 @@ class SectionTestCase(TestCase):
 
     def test_methods_are_okay(self):
         class MySection(ConfigSection):
-            minutes: int = 42
+            delta_in_minutes: int = 42
 
-            def seconds(self) -> int:
-                return self.minutes * 60
+            def delta(self) -> timedelta:
+                return timedelta(minutes=self.delta_in_minutes)
 
         sec = MySection()
-        self.assertEqual(sec.seconds(), sec.minutes * 60)
+        self.assertEqual(sec.delta(), timedelta(minutes=sec.delta_in_minutes))
 
-    # TODO: Allow nested type definitions (and aliases?). Add validator annotation.
+    def test_nested_types_are_okay(self):
+        class MySection(ConfigSection):
+            temp_in_celsius: float = 36.5
+
+            class Temperature:
+                def __init__(self, *, kelvin: float):
+                    self.kelvin = kelvin
+
+                def celsius(self) -> float:
+                    return self.kelvin - 273.15
+
+                @classmethod
+                def from_celsius(cls, celsius: float):
+                    return cls(kelvin=celsius + 273.15)
+
+            def temp(self) -> Temperature:
+                return MySection.Temperature.from_celsius(self.temp_in_celsius)
+
+        sec = MySection()
+        self.assertEqual(sec.temp().celsius(), sec.temp_in_celsius)
+
+    def test_type_aliases_are_okay(self):
+        _ = self
+
+        # noinspection PyUnusedLocal
+        class MySection(ConfigSection):
+            NumberType = int
+
+    # TODO: Add validator annotation.
     #   Default values must satisfy validators. Pretty printing (+SecretString).

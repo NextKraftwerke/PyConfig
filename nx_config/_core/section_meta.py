@@ -1,4 +1,4 @@
-from inspect import isroutine
+from inspect import isroutine, isclass
 
 from nx_config._core.naming_utils import mutable_section_attr, root_attr, internal_name
 from nx_config.secret_string import SecretString
@@ -52,7 +52,7 @@ class SectionMeta(type):
         special_keys = frozenset(entries).union(_special_section_keys)
 
         for k, v in ns.items():
-            if (k in special_keys) or isroutine(v):
+            if (k in special_keys) or isroutine(v) or isclass(v):
                 continue
 
             raise ValueError(
