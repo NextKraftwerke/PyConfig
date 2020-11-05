@@ -198,89 +198,31 @@ class SectionTestCase(TestCase):
         class MySection(ConfigSection):
             NumberType = int
 
-    def test_can_have_validator_annotation(self):
+    def test_can_have_validation_annotations(self):
         _ = self
 
         # noinspection PyUnusedLocal
         class MySection(ConfigSection):
             my_entry: int
 
-            @validate("my_entry")
-            def nop(self, value):
+            @validate
+            def nop1(self):
                 pass
 
-    def test_validator_must_use_valid_entry_name(self):
-        with self.assertRaises(ValueError) as ctx1:
-            # noinspection PyUnusedLocal
-            class MySection1(ConfigSection):
-                my_entry: int
+            @validate
+            def nop2(self):
+                pass
 
-                @validate("not_my_entry")
-                def nop(self, value):
-                    pass
-
-        msg1 = str(ctx1.exception)
-        self.assertIn("validate", msg1)
-        self.assertIn("name", msg1)
-        self.assertIn("not_my_entry", msg1)
-
-        with self.assertRaises(ValueError) as ctx2:
-            # noinspection PyUnusedLocal
-            class MySection2(ConfigSection):
-                my_entry: int
-
-                def my_method(self):
-                    pass
-
-                @validate("my_method")
-                def nop(self, value):
-                    pass
-
-        msg2 = str(ctx2.exception)
-        self.assertIn("validate", msg2)
-        self.assertIn("name", msg2)
-        self.assertIn("my_method", msg2)
-
-        with self.assertRaises(ValueError) as ctx3:
-            # noinspection PyUnusedLocal
-            class MySection3(ConfigSection):
-                my_entry: int
-
-                class MyClass:
-                    pass
-
-                @validate("MyClass")
-                def nop(self, value):
-                    pass
-
-        msg3 = str(ctx3.exception)
-        self.assertIn("validate", msg3)
-        self.assertIn("name", msg3)
-        self.assertIn("MyClass", msg3)
-
-    def test_unset_entries_do_not_get_validated_on_init(self):
+    def test_no_validation_on_init(self):
         _ = self
 
         class MySection(ConfigSection):
-            kelvin: float
+            my_entry: int = 42
 
-            @validate("kelvin")
-            def zero_kelvin_is_absolute(self, value: float):
-                if value < 0.0:
-                    raise ValueError("Temperature cannot be below absolute zero.")
-
-        _ = MySection()
-
-    def test_default_values_do_not_get_validated_on_init(self):
-        _ = self
-
-        class MySection(ConfigSection):
-            kelvin: float = -42
-
-            @validate("kelvin")
-            def zero_kelvin_is_absolute(self, value: float):
+            @validate
+            def will_never_pass(self):
                 raise ValueError()
 
         _ = MySection()
 
-    # TODO: Only one validator per entry. Pretty printing (+SecretString).
+    # TODO: Pretty printing (+SecretString).

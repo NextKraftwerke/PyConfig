@@ -54,11 +54,7 @@ class SectionMeta(type):
 
         for k, v in ns.items():
             if isinstance(v, Validator):
-                if v.entry_name not in entries:
-                    raise ValueError(
-                        f"'@validate(entry_name)' annotation must be used with the name of an"
-                        f" existent config entry. Non-conforming usage: '@validate(\"{v.entry_name}\")'"
-                    )
+                continue
             elif (k not in special_keys) and (not isroutine(v)) and (not isclass(v)):
                 raise ValueError(
                     f"Sections are not allowed to have attributes without type hints."

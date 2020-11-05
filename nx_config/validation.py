@@ -1,15 +1,10 @@
 from typing import Callable
 
+from nx_config.section import ConfigSection
 # noinspection PyProtectedMember
-from nx_config._core.validator import (
-    Validator as _Validator,
-    ValidatingFunction as _ValidatingFunction,
-)
+from nx_config._core.validator import Validator as _Validator
 
 
-def validate(entry_name: str) -> Callable[[_ValidatingFunction], _Validator]:
-    def build_validator(validating_func: _ValidatingFunction) -> _Validator:
-        _ = validating_func
-        return _Validator(entry_name=entry_name)
-
-    return build_validator
+def validate(func: Callable[[ConfigSection], None]) -> _Validator:
+    _ = func
+    return _Validator()
