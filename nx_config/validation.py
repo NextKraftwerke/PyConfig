@@ -5,6 +5,5 @@ from nx_config.section import ConfigSection
 from nx_config._core.validator import Validator as _Validator
 
 
-def validate(func: Callable[[ConfigSection], None]) -> _Validator:
-    _ = func
-    return _Validator()
+def validate(wrapped: Callable[[ConfigSection], None]) -> _Validator:
+    return _Validator(wrapped=wrapped)

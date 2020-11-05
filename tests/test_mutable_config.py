@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from nx_config import Config, ConfigSection
+from nx_config import Config, ConfigSection, validate
 from nx_config.test_utils import mutable_config
 
 
@@ -131,4 +131,52 @@ class MutableConfigTestCase(TestCase):
 
         self.assertNotEqual(cfg1.my_section.my_entry, cfg2.my_section.my_entry)
 
-    # TODO: Assigned values must satisfy validators.
+    def test_does_validate_after_mutation(self):
+        class MySection(ConfigSection):
+            my_entry: int = 42
+
+            @validate
+            def will_never_pass(self):
+                raise ValueError()
+
+        class MyConfig(Config):
+            my_section: MySection
+
+        cfg = MyConfig()
+
+        with self.assertRaises(ValueError):
+            with mutable_config(cfg):
+                pass
+
+    def test_uses_all_validators(self):
+        class MySection(ConfigSection):
+            my_entry: int = 42
+
+            @validate
+            def must_be_positive(self):
+                if self.my_entry <= 0:
+                    raise ValueError()
+
+            @validate
+            def must_be_even(self):
+                if self.my_entry % 2 != 0:
+                    raise ValueError()
+
+        class MyConfig(Config):
+            my_section: MySection
+
+        cfg = MyConfig()
+
+        with mutable_config(cfg):
+            pass
+
+        with mutable_config(cfg):
+            cfg.my_section.my_entry = 100
+
+        with self.assertRaises(ValueError):
+            with mutable_config(cfg):
+                cfg.my_section.my_entry = -4
+
+        with self.assertRaises(ValueError):
+            with mutable_config(cfg):
+                cfg.my_section.my_entry = 101

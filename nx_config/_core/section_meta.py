@@ -1,6 +1,6 @@
 from inspect import isroutine, isclass
 
-from nx_config._core.naming_utils import mutable_section_attr, root_attr, internal_name
+from nx_config._core.naming_utils import mutable_section_attr, root_attr, internal_name, section_validators_attr
 from nx_config._core.section_entry import SectionEntry
 from nx_config._core.unset import Unset
 from nx_config._core.validator import Validator
@@ -51,10 +51,11 @@ class SectionMeta(type):
             ns[entry_name] = SectionEntry(default, internal_name(entry_name))
 
         special_keys = frozenset(entries).union(_special_section_keys)
+        validators = []
 
         for k, v in ns.items():
             if isinstance(v, Validator):
-                continue
+                validators.append(v.wrapped)
             elif (k not in special_keys) and (not isroutine(v)) and (not isclass(v)):
                 raise ValueError(
                     f"Sections are not allowed to have attributes without type hints."
@@ -64,5 +65,6 @@ class SectionMeta(type):
                     f" Non-conforming member: '{k}'"
                 )
 
+        ns[section_validators_attr] = tuple(validators)
         ns["__slots__"] = (mutable_section_attr, *(internal_name(e) for e in entries))
         return super().__new__(mcs, typename, bases, ns)

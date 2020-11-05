@@ -1,7 +1,10 @@
 from contextlib import contextmanager
 
 # noinspection PyProtectedMember
-from nx_config._core.naming_utils import mutable_section_attr as _mutable_attr
+from nx_config._core.naming_utils import (
+    mutable_section_attr as _mutable_attr,
+    section_validators_attr as _section_validators_attr,
+)
 from nx_config.config import Config
 
 
@@ -17,3 +20,6 @@ def mutable_config(config: Config):
     finally:
         for section in sections:
             setattr(section, _mutable_attr, False)
+
+            for validator in getattr(type(section), _section_validators_attr):
+                validator(section)
