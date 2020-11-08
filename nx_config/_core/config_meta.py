@@ -1,3 +1,5 @@
+from inspect import isroutine, isclass
+
 from nx_config._core.naming_utils import root_attr, internal_name
 from nx_config.section import ConfigSection
 
@@ -74,15 +76,14 @@ class ConfigMeta(type):
 
         special_keys = frozenset(sections).union(_special_config_keys)
 
-        for k in ns:
-            if k in special_keys:
-                continue
-
-            raise ValueError(
-                f"Subclass of 'Config' can only have annotations for config sections."
-                f" No annotations of any other kind and no class attributes. Non-conforming"
-                f" attribute: '{k}'"
-            )
+        for k, v in ns.items():
+            if (k not in special_keys) and (not isroutine(v)) and (not isclass(v)):
+                raise ValueError(
+                    f"Attributes of 'Config' subclass must be sections, i.e., they must"
+                    f" have type hints for 'ConfigSection' subclasses (and no assigned value)."
+                    f" You can also add methods, nested types and type aliases."
+                    f" Non-conforming member: '{k}'"
+                )
 
         ns["__slots__"] = (internal_name(section) for section in sections)
         return super().__new__(mcs, typename, bases, ns)

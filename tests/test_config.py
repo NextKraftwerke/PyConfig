@@ -1,3 +1,4 @@
+from datetime import timedelta
 from unittest import TestCase
 
 from nx_config import Config, ConfigSection
@@ -225,4 +226,48 @@ class ConfigTestCase(TestCase):
         self.assertIs(cfg.my_section.my_entry, MySection().my_entry)
         self.assertEqual(cfg.my_section.my_entry_d, 42)
 
-    # TODO: Allow methods and nested type definitions (and aliases?). Pretty printing (+SecretString).
+    def test_methods_are_okay(self):
+        class MySection(ConfigSection):
+            delta_in_minutes: int = 42
+
+        class MyConfig(Config):
+            my_section: MySection
+
+            def delta(self) -> timedelta:
+                return timedelta(minutes=self.my_section.delta_in_minutes)
+
+        cfg = MyConfig()
+        self.assertEqual(cfg.delta(), timedelta(minutes=cfg.my_section.delta_in_minutes))
+
+    def test_nested_types_are_okay(self):
+        class MySection(ConfigSection):
+            temp_in_celsius: float = 36.5
+
+        class MyConfig(Config):
+            my_section: MySection
+
+            class Temperature:
+                def __init__(self, *, kelvin: float):
+                    self.kelvin = kelvin
+
+                def celsius(self) -> float:
+                    return self.kelvin - 273.15
+
+                @classmethod
+                def from_celsius(cls, celsius: float):
+                    return cls(kelvin=celsius + 273.15)
+
+            def temp(self) -> Temperature:
+                return MyConfig.Temperature.from_celsius(self.my_section.temp_in_celsius)
+
+        cfg = MyConfig()
+        self.assertEqual(cfg.temp().celsius(), cfg.my_section.temp_in_celsius)
+
+    def test_type_aliases_are_okay(self):
+        _ = self
+
+        # noinspection PyUnusedLocal
+        class MyConfig(Config):
+            NumberType = int
+
+    # TODO: Pretty printing (+SecretString).
