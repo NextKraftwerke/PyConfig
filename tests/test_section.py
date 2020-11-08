@@ -224,5 +224,3 @@ class SectionTestCase(TestCase):
                 raise ValueError()
 
         _ = MySection()
-
-    # TODO: Pretty printing (+SecretString).

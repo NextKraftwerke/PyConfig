@@ -269,5 +269,3 @@ class ConfigTestCase(TestCase):
         # noinspection PyUnusedLocal
         class MyConfig(Config):
             NumberType = int
-
-    # TODO: Pretty printing (+SecretString).
