@@ -11,7 +11,9 @@ from nx_config._core.section_meta import SectionMeta as _Meta
 
 
 def _base_value2str(value: Any) -> str:
-    if isinstance(value, (str, Path)):
+    if isinstance(value, str):
+        return repr(value)
+    elif isinstance(value, Path):
         return f"'{value}'"
 
     return str(value)
@@ -37,7 +39,13 @@ class ConfigSection(metaclass=_Meta):
             setattr(self, _internal_name(entry_name), entry.default)
 
     def __str__(self):
-        entry_names = type(self).__annotations__.keys()
+        entry_names = getattr(type(self), "__annotations__", {}).keys()
         entries = ((x, _value2str(getattr(self, x))) for x in entry_names)
         attrs_str = ", ".join((f"{k}={v}" for k, v in entries))
         return f"{type(self).__name__}({attrs_str})"
+
+    def __repr__(self):
+        entry_names = getattr(type(self), "__annotations__", {}).keys()
+        entries = ((x, repr(getattr(self, x))) for x in entry_names)
+        attrs_str = "".join((f"    {k}={v},\n" for k, v in entries))
+        return f"{type(self).__name__}(\n{attrs_str})"
