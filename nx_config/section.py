@@ -5,6 +5,7 @@ from typing import Any
 from nx_config._core.naming_utils import (
     mutable_section_attr as _mutable_attr,
     internal_name as _internal_name,
+    indentation_spaces as _indentation_spaces,
 )
 # noinspection PyProtectedMember
 from nx_config._core.section_meta import SectionMeta as _Meta
@@ -46,6 +47,6 @@ class ConfigSection(metaclass=_Meta):
 
     def __repr__(self):
         entry_names = getattr(type(self), "__annotations__", {}).keys()
-        entries = ((x, repr(getattr(self, x))) for x in entry_names)
-        attrs_str = "".join((f"    {k}={v},\n" for k, v in entries))
+        entries = ((x, getattr(self, x)) for x in entry_names)
+        attrs_str = "".join((f"{_indentation_spaces}{k}={repr(v)},\n" for k, v in entries))
         return f"{type(self).__name__}(\n{attrs_str})"
