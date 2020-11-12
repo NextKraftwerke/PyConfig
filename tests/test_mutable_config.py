@@ -180,3 +180,26 @@ class MutableConfigTestCase(TestCase):
         with self.assertRaises(ValueError):
             with mutable_config(cfg):
                 cfg.my_section.my_entry = 101
+
+    def test_no_mutation_in_validators(self):
+        class MySection(ConfigSection):
+            my_entry: int = 42
+
+            @validate
+            def set_to_seven(self):
+                self.my_entry = 7
+
+        class MyConfig(Config):
+            my_section: MySection
+
+        cfg = MyConfig()
+
+        with self.assertRaises(AttributeError) as ctx:
+            with mutable_config(cfg):
+                cfg.my_section.my_entry = 100
+
+        self.assertEqual(cfg.my_section.my_entry, 100)
+
+        msg = str(ctx.exception)
+        self.assertIn("validat", msg.lower())
+        self.assertIn("set", msg.lower())

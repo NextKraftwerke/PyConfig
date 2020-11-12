@@ -21,5 +21,11 @@ def mutable_config(config: Config):
         for section in sections:
             setattr(section, _mutable_attr, False)
 
+    try:
+        for section in sections:
             for validator in getattr(type(section), _section_validators_attr):
                 validator(section)
+    except AttributeError as xcp:
+        raise AttributeError(
+            f"Error validating sections after leaving 'mutable_config' context: {xcp}"
+        )
