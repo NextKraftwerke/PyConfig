@@ -205,7 +205,79 @@ class PrettyPrintingTestCase(TestCase):
             ),
         )
 
-    # TODO: SecretString masking in section.
-    # TODO: SecretString masking in config.
-    # TODO: SecretString masking in tuple.
-    # TODO: SecretString masking in frozenset.
+    # def test_section_and_config_str_and_repr_with_secret(self):
+    #     class MySection(ConfigSection):
+    #         my_int: int = 42
+    #         my_secret: SecretString
+    #
+    #     class MyConfig(Config):
+    #         my_section: MySection
+    #
+    #     cfg = MyConfig()
+    #
+    #     with mutable_config(cfg):
+    #         cfg.my_section.my_secret = "hello, world!"
+    #
+    #     self.assertEqual(str(cfg.my_section), f"MySection(my_int=42, my_secret='*****')")
+    #     self.assertEqual(
+    #         repr(cfg.my_section),
+    #         (
+    #             f"MySection(\n"
+    #             f"    my_int=42,\n"
+    #             f"    my_secret={repr('*****')},\n"
+    #             f")"
+    #         ),
+    #     )
+    #
+    #     self.assertEqual(str(cfg), f"MyConfig(my_section={cfg.my_section})")
+    #     self.assertEqual(
+    #         repr(cfg),
+    #         (
+    #             f"MyConfig(\n"
+    #             f"    my_section={indent_after_newline(repr(cfg.my_section))},\n"
+    #             f")"
+    #         ),
+    #     )
+
+    # def test_secret_string_masking_in_collections(self):
+    #     class MySection(ConfigSection):
+    #         my_tuple: Tuple[SecretString, ...]
+    #         my_frozenset: Optional[FrozenSet[SecretString]] = None
+    #         my_empty_tuple: Tuple[SecretString, ...] = ()
+    #         my_empty_frozenset: FrozenSet[SecretString] = frozenset()
+    #         my_none: Optional[Tuple[SecretString, ...]] = None
+    #
+    #     class MyConfig(Config):
+    #         my_section: MySection
+    #
+    #     cfg = MyConfig()
+    #
+    #     with mutable_config(cfg):
+    #         cfg.my_section.my_tuple = ("hello",)
+    #         cfg.my_section.my_frozenset = frozenset(("goodbye", "see ya!"))
+    #
+    #     self.assertEqual(
+    #         str(cfg.my_section),
+    #         (
+    #             "MySection(my_tuple=('*****', ...), my_frozenset={'*****', ...},"
+    #             " my_empty_tuple=(), my_empty_frozenset={}, my_none=None)"
+    #         ),
+    #     )
+    #
+    #     my_tuple_str = repr((...,)).replace("Ellipsis", f"{repr('*****')}, ...")
+    #     my_frozenset_str = repr(frozenset((...,))).replace("Ellipsis", f"{repr('*****')}, ...")
+    #
+    #     self.assertEqual(
+    #         repr(cfg.my_section),
+    #         (
+    #             f"MySection(\n"
+    #             f"    my_tuple={my_tuple_str},\n"
+    #             f"    my_frozenset={my_frozenset_str},\n"
+    #             f"    my_empty_tuple={repr(())},\n"
+    #             f"    my_empty_frozenset={repr(frozenset())},\n"
+    #             f"    my_none=None,\n"
+    #             f")"
+    #         ),
+    #     )
+
+    # TODO: Uncomment SecreString tests.
