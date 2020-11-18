@@ -17,16 +17,21 @@ def _check_default_value(value: Any, entry_name: str, type_info: ConfigTypeInfo)
     except TypeError as xcp:
         raise TypeError(f"Invalid default value for attribute '{entry_name}': {xcp}")
 
-    if type_info.base is not SecretString:
+    if (
+        (type_info.base is not SecretString) or
+        (value is None) or
+        ((type_info.collection is not None) and (len(value) == 0))
+    ):
         return
 
-    if value is not None:
-        raise ValueError(
-            f"Entries of type 'SecretString' cannot have default values. Secrets should"
-            f" never be hard-coded! Make sure you provide all necessary secrets through"
-            f" (unversioned) configuration files and environment variables. Non-conforming"
-            f" attribute: '{entry_name}'"
-        )
+    raise ValueError(
+        f"Entries of base type 'SecretString' cannot have default values. Secrets should"
+        f" never be hard-coded! Make sure you provide all necessary secrets through"
+        f" (unversioned) configuration files and environment variables. Exceptions to this"
+        f" rule: (1) Optional types can always have default value 'None'. (2) Collection"
+        f" types can always have the corresponding empty collection as default value."
+        f" Non-conforming attribute: '{entry_name}'"
+    )
 
 
 class SectionMeta(type):

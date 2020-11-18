@@ -277,6 +277,32 @@ class TypeChecksTestCase(TestCase):
         self.assertIn("SecretString", msg)
         self.assertIn("default value", msg.lower())
 
+    def test_optional_collection_of_secret_strings_can_be_none(self):
+        class MySection(ConfigSection):
+            my_entry: Optional[Tuple[SecretString, ...]]
+            my_second_entry: Optional[Tuple[SecretString, ...]] = None
+            my_third_entry: Optional[FrozenSet[SecretString]] = None
+
+        sec = MySection()
+        self.assertIsNotNone(sec.my_entry)
+        self.assertIsNone(sec.my_second_entry)
+        self.assertIsNone(sec.my_third_entry)
+
+    def test_collection_of_secret_strings_can_be_empty(self):
+        class MySection(ConfigSection):
+            my_entry: Tuple[SecretString, ...]
+            my_second_entry: Tuple[SecretString, ...] = ()
+            my_third_entry: FrozenSet[SecretString] = frozenset()
+            my_fourth_entry: Optional[Tuple[SecretString, ...]] = ()
+            my_fifth_entry: Optional[FrozenSet[SecretString]] = frozenset()
+
+        sec = MySection()
+        self.assertEqual(str(sec.my_entry), "Unset")
+        self.assertEqual(sec.my_second_entry, ())
+        self.assertEqual(sec.my_third_entry, frozenset())
+        self.assertEqual(sec.my_fourth_entry, ())
+        self.assertEqual(sec.my_fifth_entry, frozenset())
+
     def test_tuple_can_be_optional(self):
         class MySection(ConfigSection):
             my_entry: Optional[Tuple[int, ...]] = None
