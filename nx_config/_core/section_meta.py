@@ -1,12 +1,32 @@
 from inspect import isroutine, isclass
+from typing import Any
 
+from nx_config.secret_string import SecretString
 from nx_config._core.naming_utils import mutable_section_attr, root_attr, internal_name, section_validators_attr
 from nx_config._core.section_entry import SectionEntry
+from nx_config._core.type_checks import ConfigTypeInfo
 from nx_config._core.unset import Unset
 from nx_config._core.validator import Validator
-from nx_config.secret_string import SecretString
 
 _special_section_keys = ("__module__", "__qualname__", "__annotations__", "__doc__", "__init__")
+
+
+def _check_default_value(value: Any, entry_name: str, type_info: ConfigTypeInfo):
+    try:
+        type_info.check_type(value)
+    except TypeError as xcp:
+        raise TypeError(f"Invalid default value for attribute '{entry_name}': {xcp}")
+
+    if type_info.base is not SecretString:
+        return
+
+    if value is not None:
+        raise ValueError(
+            f"Entries of type 'SecretString' cannot have default values. Secrets should"
+            f" never be hard-coded! Make sure you provide all necessary secrets through"
+            f" (unversioned) configuration files and environment variables. Non-conforming"
+            f" attribute: '{entry_name}'"
+        )
 
 
 class SectionMeta(type):
@@ -38,15 +58,15 @@ class SectionMeta(type):
                     f" Non-conforming attribute: '{entry_name}'"
                 )
 
+            try:
+                type_info = ConfigTypeInfo.from_type_hint(entry_type)
+            except TypeError as xcp:
+                raise TypeError(f"Unsupported type-hint for attribute '{entry_name}': {xcp}")
+
             default = ns.get(entry_name, Unset)
 
-            if (entry_type is SecretString) and (default is not Unset):
-                raise ValueError(
-                    f"Entries of type 'SecretString' cannot have default values. Secrets should"
-                    f" never be hard-coded! Make sure you provide all necessary secrets through"
-                    f" (unversioned) configuration files and environment variables. Non-conforming"
-                    f" attribute: '{entry_name}'"
-                )
+            if default is not Unset:
+                _check_default_value(default, entry_name, type_info)
 
             ns[entry_name] = SectionEntry(default, internal_name(entry_name))
 
