@@ -1,7 +1,5 @@
 from inspect import isroutine, isclass
-from typing import Any
 
-from nx_config.secret_string import SecretString
 from nx_config._core.naming_utils import mutable_section_attr, root_attr, internal_name, section_validators_attr
 from nx_config._core.section_entry import SectionEntry
 from nx_config._core.type_checks import ConfigTypeInfo
@@ -9,29 +7,6 @@ from nx_config._core.unset import Unset
 from nx_config._core.validator import Validator
 
 _special_section_keys = ("__module__", "__qualname__", "__annotations__", "__doc__", "__init__")
-
-
-def _check_default_value(value: Any, entry_name: str, type_info: ConfigTypeInfo):
-    try:
-        type_info.check_type(value)
-    except TypeError as xcp:
-        raise TypeError(f"Invalid default value for attribute '{entry_name}': {xcp}")
-
-    if (
-        (type_info.base is not SecretString) or
-        (value is None) or
-        ((type_info.collection is not None) and (len(value) == 0))
-    ):
-        return
-
-    raise ValueError(
-        f"Entries of base type 'SecretString' cannot have default values. Secrets should"
-        f" never be hard-coded! Make sure you provide all necessary secrets through"
-        f" (unversioned) configuration files and environment variables. Exceptions to this"
-        f" rule: (1) Optional types can always have default value 'None'. (2) Collection"
-        f" types can always have the corresponding empty collection as default value."
-        f" Non-conforming attribute: '{entry_name}'"
-    )
 
 
 class SectionMeta(type):
@@ -70,10 +45,12 @@ class SectionMeta(type):
 
             default = ns.get(entry_name, Unset)
 
-            if default is not Unset:
-                _check_default_value(default, entry_name, type_info)
-
-            ns[entry_name] = SectionEntry(default, internal_name(entry_name))
+            ns[entry_name] = SectionEntry(
+                default=default,
+                entry_name=entry_name,
+                value_attribute=internal_name(entry_name),
+                type_info=type_info,
+            )
 
         special_keys = frozenset(entries).union(_special_section_keys)
         validators = []

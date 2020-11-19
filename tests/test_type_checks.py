@@ -442,5 +442,3 @@ class TypeChecksTestCase(TestCase):
         self.assertIn("'my_entry'", msg)
         self.assertIn("Union[int, NoneType]", msg)
         self.assertIn("element", msg.lower())
-
-    # TODO: Assigned values must satisfy types.

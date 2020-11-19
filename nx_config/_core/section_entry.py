@@ -1,20 +1,51 @@
 from typing import Any
 
+from nx_config._core.unset import Unset
+from nx_config.secret_string import SecretString
 from nx_config._core.naming_utils import mutable_section_attr
+from nx_config._core.type_checks import ConfigTypeInfo
+
+
+def _check_default_value(value: Any, entry_name: str, type_info: ConfigTypeInfo):
+    try:
+        type_info.check_type(value)
+    except TypeError as xcp:
+        raise TypeError(f"Invalid default value for attribute '{entry_name}': {xcp}")
+
+    if (
+        (type_info.base is not SecretString) or
+        (value is None) or
+        ((type_info.collection is not None) and (len(value) == 0))
+    ):
+        return
+
+    raise ValueError(
+        f"Entries of base type 'SecretString' cannot have default values. Secrets should"
+        f" never be hard-coded! Make sure you provide all necessary secrets through"
+        f" (unversioned) configuration files and environment variables. Exceptions to this"
+        f" rule: (1) Optional types can always have default value 'None'. (2) Collection"
+        f" types can always have the corresponding empty collection as default value."
+        f" Non-conforming attribute: '{entry_name}'"
+    )
 
 
 class SectionEntry:
-    __slots__ = ("default", "_name")
+    __slots__ = ("default", "entry_name", "_value_attribute", "_type_info")
 
-    def __init__(self, default: Any, name: str):
+    def __init__(self, default: Any, entry_name: str, value_attribute: str, type_info: ConfigTypeInfo):
         self.default = default
-        self._name = name
+        self.entry_name = entry_name
+        self._value_attribute = value_attribute
+        self._type_info = type_info
+
+        if default is not Unset:
+            _check_default_value(default, entry_name, type_info)
 
     def __get__(self, instance, owner):
         if instance is None:  # Called from the class
             return self
 
-        return getattr(instance, self._name)
+        return getattr(instance, self._value_attribute)
 
     def __set__(self, instance, value):
         if not getattr(instance, mutable_section_attr):
@@ -23,4 +54,14 @@ class SectionEntry:
                 " loaded at startup from defaults, configuration files and environment variables."
             )
 
-        setattr(instance, self._name, value)
+        self._set(instance, value)
+
+    def _set(self, instance, value):
+        try:
+            self._type_info.check_type(value)
+        except TypeError as xcp:
+            raise TypeError(
+                f"Error setting attribute '{self.entry_name}': {xcp}"
+            )
+
+        setattr(instance, self._value_attribute, value)
