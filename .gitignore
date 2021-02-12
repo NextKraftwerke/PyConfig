@@ -1,4 +1,8 @@
 .idea/
 venv/
+venv36/
+venv37/
+venv38/
+venv39/
 .coverage
 htmlcov/
