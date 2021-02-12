@@ -128,3 +128,9 @@ class ConfigTypeInfo(NamedTuple):
             f"Value must match the given type-hint. Expected '{self}',"
             f" got '{type(value).__name__}' instead."
         )
+
+# TODO: Add support for different python versions:
+#   - Test with different versions
+#   - 3.6: Tuple[b, ...].__origin__==Tuple, Tuple.__extra__==tuple
+#   - 3.8: Tuple[b, ...].__origin__==tuple, no __extra__ attribute
+#   - 3.9: typing.Tuple deprecated, tuple[b, ...] supported, module is builtins
