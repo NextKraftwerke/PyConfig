@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional, Type, Collection
 
 # noinspection PyProtectedMember
 from nx_config._core.naming_utils import (
@@ -9,6 +9,9 @@ from nx_config._core.naming_utils import (
 )
 # noinspection PyProtectedMember
 from nx_config._core.section_meta import SectionMeta as _Meta
+from nx_config.secret_string import SecretString
+
+_secret_mask = "*****"
 
 
 def _base_value2str(value: Any) -> str:
@@ -29,6 +32,34 @@ def _value2str(value: Any) -> str:
     return _base_value2str(value)
 
 
+def _collection2masked_str(collection: Optional[Type[Collection]]) -> str:
+    quoted_mask = f"'{_secret_mask}'"
+
+    if collection is None:
+        return quoted_mask
+
+    if collection is frozenset:
+        collection = set
+
+    to_replace = "0," if collection is tuple else "0"
+    return str(collection((0,))).replace(to_replace, f"{quoted_mask}, ...")
+
+
+def _value2repr(value: Any) -> str:
+    return repr(value)
+
+
+def _collection2masked_repr(collection: Optional[Type[Collection]]) -> str:
+    mask_repr = repr(_secret_mask)
+
+    if collection is None:
+        return mask_repr
+
+    to_replace = "0," if collection is tuple else "0"
+    # noinspection PyArgumentList
+    return repr(collection((0,))).replace(to_replace, f"{mask_repr}, ...")
+
+
 class ConfigSection(metaclass=_Meta):
     _nx_config_internal__root = True
 
@@ -39,14 +70,36 @@ class ConfigSection(metaclass=_Meta):
             entry = getattr(type(self), entry_name)
             setattr(self, _internal_name(entry_name), entry.default)
 
+    def _str_for_entry(self, name: str) -> str:
+        type_info = getattr(type(self), name).type_info
+        value = getattr(self, name)
+
+        if value is None:
+            return "None"
+        elif type_info.base is SecretString:
+            return _collection2masked_str(type_info.collection)
+        else:
+            return _value2str(value)
+
+    def _repr_for_entry(self, name: str) -> str:
+        type_info = getattr(type(self), name).type_info
+        value = getattr(self, name)
+
+        if value is None:
+            return "None"
+        elif type_info.base is SecretString:
+            return _collection2masked_repr(type_info.collection)
+        else:
+            return _value2repr(value)
+
     def __str__(self):
         entry_names = getattr(type(self), "__annotations__", {}).keys()
-        entries = ((x, _value2str(getattr(self, x))) for x in entry_names)
+        entries = ((x, self._str_for_entry(x)) for x in entry_names)
         attrs_str = ", ".join((f"{k}={v}" for k, v in entries))
         return f"{type(self).__name__}({attrs_str})"
 
     def __repr__(self):
         entry_names = getattr(type(self), "__annotations__", {}).keys()
-        entries = ((x, getattr(self, x)) for x in entry_names)
-        attrs_str = "".join((f"{_indentation_spaces}{k}={repr(v)},\n" for k, v in entries))
+        entries = ((x, self._repr_for_entry(x)) for x in entry_names)
+        attrs_str = "".join((f"{_indentation_spaces}{k}={v},\n" for k, v in entries))
         return f"{type(self).__name__}(\n{attrs_str})"
