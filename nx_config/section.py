@@ -9,6 +9,8 @@ from nx_config._core.naming_utils import (
 )
 # noinspection PyProtectedMember
 from nx_config._core.section_meta import SectionMeta as _Meta
+# noinspection PyProtectedMember
+from nx_config._core.unset import Unset as _Unset
 from nx_config.secret_string import SecretString
 
 _secret_mask = "*****"
@@ -76,7 +78,11 @@ class ConfigSection(metaclass=_Meta):
 
         if value is None:
             return "None"
-        elif type_info.base is SecretString:
+        elif (
+            (type_info.base is SecretString)
+            and ((type_info.collection is None) or (len(value) != 0))
+            and (value is not _Unset)
+        ):
             return _collection2masked_str(type_info.collection)
         else:
             return _value2str(value)
@@ -87,7 +93,11 @@ class ConfigSection(metaclass=_Meta):
 
         if value is None:
             return "None"
-        elif type_info.base is SecretString:
+        elif (
+            (type_info.base is SecretString)
+            and ((type_info.collection is None) or (len(value) != 0))
+            and (value is not _Unset)
+        ):
             return _collection2masked_repr(type_info.collection)
         else:
             return _value2repr(value)

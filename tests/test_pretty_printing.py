@@ -269,7 +269,7 @@ class PrettyPrintingTestCase(TestCase):
             ),
         )
 
-        my_tuple_str = repr((...,)).replace("Ellipsis", f"{repr('*****')}, ...")
+        my_tuple_str = repr((...,)).replace("Ellipsis,", f"{repr('*****')}, ...")
         my_frozenset_str = repr(frozenset((...,))).replace("Ellipsis", f"{repr('*****')}, ...")
 
         self.assertEqual(

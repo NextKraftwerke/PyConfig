@@ -30,13 +30,13 @@ def _check_default_value(value: Any, entry_name: str, type_info: ConfigTypeInfo)
 
 
 class SectionEntry:
-    __slots__ = ("default", "entry_name", "_value_attribute", "_type_info")
+    __slots__ = ("default", "entry_name", "_value_attribute", "type_info")
 
     def __init__(self, default: Any, entry_name: str, value_attribute: str, type_info: ConfigTypeInfo):
         self.default = default
         self.entry_name = entry_name
         self._value_attribute = value_attribute
-        self._type_info = type_info
+        self.type_info = type_info
 
         if default is not Unset:
             _check_default_value(default, entry_name, type_info)
@@ -58,7 +58,7 @@ class SectionEntry:
 
     def _set(self, instance, value):
         try:
-            self._type_info.check_type(value)
+            self.type_info.check_type(value)
         except TypeError as xcp:
             raise TypeError(
                 f"Error setting attribute '{self.entry_name}': {xcp}"
