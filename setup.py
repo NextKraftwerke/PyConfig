@@ -11,11 +11,11 @@ setup(
     install_requires=[],
     python_requires=">=3.6, <4",
     author="Tomás Silveira Salles",
-    description="",  # TBD
+    description="",  # TODO
     long_description=_long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/NextKraftwerke/PyConfig",
-    classifiers=[],  # TBD
-    license="",  # TBD
-    keywords=[],  # TBD
-)
+    classifiers=[],  # TODO
+    license="",  # TODO
+    keywords=[],  # TODO
+)  # TODO: Make sure tests are not installed when simply using the package.
