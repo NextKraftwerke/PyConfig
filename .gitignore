@@ -6,3 +6,5 @@ venv38/
 venv39/
 .coverage
 htmlcov/
+.tox/
+nx_config.egg-info/
