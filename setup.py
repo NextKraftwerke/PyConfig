@@ -9,6 +9,10 @@ setup(
     name="nx_config",
     version="0.2.0",
     install_requires=[],
+    extras_require={
+        "tests": [],
+        "tox": ["tox >=3.21.4, <4"],
+    },
     python_requires=">=3.6, <3.10",
     author="Tomás Silveira Salles",
     description="",  # TODO
