@@ -130,8 +130,6 @@ class ConfigTypeInfo(NamedTuple):
         )
 
 # TODO: Add support for different python versions:
-#   - Test with different versions (with a tox?)
-#   - Add tests to a pipeline on github?
 #   - 3.6: Tuple[b, ...].__origin__==Tuple, Tuple.__extra__==tuple
 #   - 3.8: Tuple[b, ...].__origin__==tuple, no __extra__ attribute
 #   - 3.9: typing.Tuple deprecated, tuple[b, ...] supported, module is builtins
