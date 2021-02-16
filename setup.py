@@ -12,6 +12,7 @@ setup(
     extras_require={
         "tests": [],
         "tox": ["tox >=3.21.4, <4"],
+        "coverage": ["coverage >=5.4, <6"],
     },
     python_requires=">=3.6, <3.10",
     author="Tomás Silveira Salles",
