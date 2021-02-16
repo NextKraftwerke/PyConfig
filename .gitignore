@@ -1,10 +1,6 @@
 .idea/
-venv/
-venv36/
-venv37/
-venv38/
-venv39/
+venv*
 .coverage
-htmlcov/
+htmlcov*
 .tox/
 nx_config.egg-info/
