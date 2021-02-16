@@ -16,6 +16,7 @@ setup(
     },
     python_requires=">=3.6, <3.10",
     author="Tomás Silveira Salles",
+    author_email="30598365+tomasssalles@users.noreply.github.com",
     description="",  # TODO
     long_description=_long_description,
     long_description_content_type="text/markdown",
