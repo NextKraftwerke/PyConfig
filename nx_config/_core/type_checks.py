@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Tuple, Union, Optional, Type, Collection, NamedTuple, Any
 from uuid import UUID
 
+from nx_config._core.typing_utils import get_origin, get_args
 from nx_config.url import URL
 from nx_config.secret_string import SecretString
 
@@ -20,14 +21,11 @@ _supported_base_types = frozenset((
 
 
 def _get_optional_and_base(t: type) -> Tuple[bool, type]:
-    try:
-        origin = getattr(t, "__origin__")
-        args = getattr(t, "__args__")
-    except AttributeError:
-        pass
-    else:
+    if t.__module__ == "typing":
+        origin = get_origin(t)
+        args = get_args(t)
+
         if (
-            (t.__module__ == "typing") and
             (origin is Union) and
             (len(args) == 2) and
             isinstance(None, args[1])
@@ -38,22 +36,19 @@ def _get_optional_and_base(t: type) -> Tuple[bool, type]:
 
 
 def _get_collection_and_base(t: type) -> Tuple[Optional[Type[Collection]], type]:
-    try:
-        origin = getattr(t, "__origin__")
-        extra = getattr(origin, "__extra__")
-        args = getattr(t, "__args__")
-    except AttributeError:
-        pass
-    else:
+    if t.__module__ == "typing":
+        origin = get_origin(t)
+        args = get_args(t)
+
         if (
-            (t.__module__ == "typing") and
-            issubclass(extra, Collection) and
+            isinstance(origin, type) and
+            issubclass(origin, Collection) and
             (
-                ((len(args) == 1) and (extra is not tuple)) or
-                ((len(args) == 2) and (args[1] is Ellipsis) and (extra is tuple))
+                ((len(args) == 1) and (origin is not tuple)) or
+                ((len(args) == 2) and (args[1] is Ellipsis) and (origin is tuple))
             )
         ):
-            return extra, args[0]
+            return origin, args[0]
 
     return None, t
 
