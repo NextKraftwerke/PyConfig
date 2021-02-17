@@ -1,4 +1,4 @@
-![Status badge](https://github.com/NextKraftwerke/PyConfig/workflows/Python%20package/badge.svg)
+![Status badge](https://github.com/NextKraftwerke/PyConfig/workflows/tests%2Bcoverage/badge.svg)
 
 # PyConfig
 
