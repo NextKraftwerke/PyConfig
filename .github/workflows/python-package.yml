@@ -30,7 +30,7 @@ jobs:
     - name: Upload coverage data
       uses: actions/upload-artifact@v2
       with:
-        name: .coverage.${{ matrix.python-version }}
+        name: .coverage
         path: .coverage.*
   combined_coverage:
     needs: tests
@@ -48,6 +48,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install .[coverage]
         ls -la
+        cd .coverage
         coverage combine
         coverage json
         coverage report --show-missing
