@@ -131,8 +131,6 @@ class ConfigTypeInfo(NamedTuple):
         )
 
 # TODO: Add support for different python versions:
-#   - 3.6: Tuple[b, ...].__origin__==Tuple, Tuple.__extra__==tuple
-#   - 3.8: Tuple[b, ...].__origin__==tuple, no __extra__ attribute
 #   - 3.9: typing.Tuple deprecated, tuple[b, ...] supported, module is builtins
 #   - Test typing.Tuple/FrozenSet[...] if python < 3.10. Test tuple/frozenset[...]
 #   (same tests!) if python >= 3.9.
