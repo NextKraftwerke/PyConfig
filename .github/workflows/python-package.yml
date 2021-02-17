@@ -8,12 +8,10 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9]
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -29,10 +27,15 @@ jobs:
       run: |
         coverage erase
         coverage run --branch --source=nx_config --omit=**/__init__.py -m unittest discover -v -s tests/
-        coverage json -o coverage_${{ matrix.python-version }}.json
+        coverage json -o coverage.json
         coverage report
+    - name: Upload coverage data
+      uses: actions/upload-artifact@v2
+      with:
+        name: .coverage
+        path: cov/.coverage.${{ matrix.python-version }}
     - name: Upload coverage JSON
       uses: actions/upload-artifact@v2
       with:
-        name: coverage_${{ matrix.python-version }}.json
-        path: coverage_${{ matrix.python-version }}.json
+        name: coverage.json
+        path: cov/json/coverage_${{ matrix.python-version }}.json
