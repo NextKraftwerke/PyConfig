@@ -1,3 +1,5 @@
+![Status badge](https://github.com/NextKraftwerke/PyConfig/workflows/Python%20package/badge.svg)
+
 # PyConfig
 
 ## README Plan
