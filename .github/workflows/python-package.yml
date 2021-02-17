@@ -50,7 +50,7 @@ jobs:
         pip install .[coverage]
         coverage combine .cov
         coverage json
-        coverage report --show-missing
+        coverage report --show-missing --fail-under=100
     - name: Upload coverage JSON
       uses: actions/upload-artifact@v2
       with:
