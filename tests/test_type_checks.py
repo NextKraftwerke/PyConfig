@@ -208,24 +208,28 @@ class TypeChecksTestCase(TestCase):
         self.assertIn("'my_entry'", msg2)
         self.assertIn("Union[int, str, NoneType]", msg2)
 
-    def test_union_without_none_as_second_is_not_supported(self):
-        with self.assertRaises(TypeError) as ctx1:
+    def test_union_without_none_is_not_supported(self):
+        with self.assertRaises(TypeError) as ctx:
             # noinspection PyUnusedLocal
-            class MySection1(ConfigSection):
+            class MySection(ConfigSection):
                 my_entry: Union[int, str]
 
-        msg1 = str(ctx1.exception)
-        self.assertIn("'my_entry'", msg1)
-        self.assertIn("Union[int, str]", msg1)
+        msg = str(ctx.exception)
+        self.assertIn("'my_entry'", msg)
+        self.assertIn("Union[int, str]", msg)
 
-        with self.assertRaises(TypeError) as ctx2:
-            # noinspection PyUnusedLocal
-            class MySection2(ConfigSection):
-                my_entry: Union[None, str]
+    def test_union_with_none_is_optional(self):
+        class MySection(ConfigSection):
+            none_as_first: Union[None, int] = None
+            none_as_first42: Union[None, int] = 42
+            none_as_second: Union[int, None] = None
+            none_as_second42: Union[int, None] = 42
 
-        msg2 = str(ctx2.exception)
-        self.assertIn("'my_entry'", msg2)
-        self.assertIn("Union[NoneType, str]", msg2)
+        sec = MySection()
+        self.assertIsNone(sec.none_as_first)
+        self.assertEqual(sec.none_as_first42, 42)
+        self.assertIsNone(sec.none_as_second)
+        self.assertEqual(sec.none_as_second42, 42)
 
     def test_optional_int_entry_can_be_none(self):
         class MySection(ConfigSection):
@@ -243,7 +247,7 @@ class TypeChecksTestCase(TestCase):
         msg = str(ctx.exception)
         self.assertIn("'my_entry'", msg)
         self.assertIn("str", msg)
-        self.assertIn("Union[int, NoneType]", msg)
+        self.assertIn(str(Optional[int]), msg)
         self.assertIn("default value", msg.lower())
 
     def test_optional_secret_string_can_be_none(self):
@@ -440,5 +444,5 @@ class TypeChecksTestCase(TestCase):
 
         msg = str(ctx.exception)
         self.assertIn("'my_entry'", msg)
-        self.assertIn("Union[int, NoneType]", msg)
+        self.assertIn(str(Optional[int]), msg)
         self.assertIn("element", msg.lower())
