@@ -1,8 +1,8 @@
 from sys import version_info
 
-_minor = version_info.minor
+_python_minor = version_info.minor
 
-if _minor < 7:
+if _python_minor < 7:
     from typing import Optional, Sequence
 
 
@@ -15,7 +15,7 @@ if _minor < 7:
         return getattr(t, "__args__", ())
 
 
-elif _minor < 8:
+elif _python_minor < 8:
     from typing import Optional, Sequence
 
 
