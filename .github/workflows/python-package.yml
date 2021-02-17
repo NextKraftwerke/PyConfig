@@ -30,6 +30,7 @@ jobs:
     - name: Upload coverage data
       uses: actions/upload-artifact@v2
       with:
+        name: .coverage.${{ matrix.python-version }}
         path: .coverage.*
   combined_coverage:
     needs: tests
