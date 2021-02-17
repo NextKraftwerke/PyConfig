@@ -75,7 +75,10 @@ class SectionTestCase(TestCase):
         class MySection(ConfigSection):
             my_entry: int
 
-        self.assertLess(getsizeof(MySection().my_entry), 20)
+        class Foo:
+            pass
+
+        self.assertLess(getsizeof(MySection().my_entry), getsizeof(Foo()))
 
     def test_cannot_get_undeclared_entry(self):
         class MySection(ConfigSection):
