@@ -32,7 +32,11 @@ def _get_optional_and_base(t: type) -> Tuple[bool, type]:
             (len(args) == 2) and
             any(x is _NoneType for x in args)
         ):
-            return True, next(x for x in args if x is not _NoneType)
+            # 'coverage' complains about not finishing the iteration on the
+            # generator expression below. We only want to find the first occurence,
+            # and the conditions above guarantee that there is one, hence 'no cover'.
+            base = next(x for x in args if x is not _NoneType)  # pragma: no cover
+            return True, base
 
     return False, t
 
