@@ -4,3 +4,4 @@ venv*
 htmlcov*
 .tox/
 nx_config.egg-info/
+coverage.json
