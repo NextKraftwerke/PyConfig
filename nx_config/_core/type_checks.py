@@ -19,6 +19,8 @@ _supported_base_types = frozenset((
     URL,
 ))
 
+_NoneType = type(None)
+
 
 def _get_optional_and_base(t: type) -> Tuple[bool, type]:
     if t.__module__ == "typing":
@@ -28,9 +30,9 @@ def _get_optional_and_base(t: type) -> Tuple[bool, type]:
         if (
             (origin is Union) and
             (len(args) == 2) and
-            isinstance(None, args[1])
+            any(x is _NoneType for x in args)
         ):
-            return True, args[0]
+            return True, next(x for x in args if x is not _NoneType)
 
     return False, t
 
