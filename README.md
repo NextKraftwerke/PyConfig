@@ -1,4 +1,5 @@
-![Status badge](https://github.com/NextKraftwerke/PyConfig/workflows/tests%2Bcoverage/badge.svg)
+[![License: GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![Status](https://github.com/NextKraftwerke/PyConfig/workflows/tests%2Bcoverage/badge.svg)
 
 # PyConfig
 
