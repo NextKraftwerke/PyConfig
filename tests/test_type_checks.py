@@ -82,7 +82,7 @@ class TypeChecksTestCase(TestCase):
             my_entry: Optional[int] = None
 
         sec = MySection()
-        self.assertIsNone(sec.my_entry)
+        self.assertIsNone(sec.my_entwry)
 
     def test_int_is_not_optional(self):
         with self.assertRaises(TypeError) as ctx:
