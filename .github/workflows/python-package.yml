@@ -27,7 +27,6 @@ jobs:
       run: |
         coverage erase
         coverage run --parallel-mode --branch --source=nx_config --omit=**/__init__.py -m unittest discover -v -s tests/
-        coverage report --show-missing
     - name: Upload coverage data
       uses: actions/upload-artifact@v2
       with:
