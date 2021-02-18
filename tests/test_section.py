@@ -8,9 +8,10 @@ from nx_config import ConfigSection, validate
 class SectionTestCase(TestCase):
     def test_section_subclass_init_forbidden(self):
         with self.assertRaises(ValueError) as ctx:
+            # noinspection PyUnusedLocal
             class MySection(ConfigSection):
                 def __init__(self):
-                    super(MySection, self).__init__()
+                    super().__init__()
 
         msg = str(ctx.exception)
         self.assertIn("'__init__'", msg)

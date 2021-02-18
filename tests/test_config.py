@@ -11,9 +11,10 @@ class EmptySection(ConfigSection):
 class ConfigTestCase(TestCase):
     def test_config_subclass_init_forbidden(self):
         with self.assertRaises(ValueError) as ctx:
+            # noinspection PyUnusedLocal
             class MyConfig(Config):
                 def __init__(self):
-                    super(MyConfig, self).__init__()
+                    super().__init__()
 
         msg = str(ctx.exception)
         self.assertIn("'__init__'", msg)
