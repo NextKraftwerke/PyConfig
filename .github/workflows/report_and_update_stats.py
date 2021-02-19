@@ -29,6 +29,8 @@ def write_stats(workflow: str, run_id: int, total_coverage: float):
     with p.open("w") as f:
         dump(obj, fp=f)
 
+    print(f"Wrote new stats to '{p}'.")
+
 
 def rounded_coverage(total: float, min_cov: float) -> float:
     if (min_cov != 100.0) or (total == 100.0):

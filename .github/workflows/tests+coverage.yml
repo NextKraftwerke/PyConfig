@@ -71,6 +71,6 @@ jobs:
       run: |
           git config user.name 'GitHub CI'
           git config user.email ''
-          git add .${{github.workflow}}.stats.latest.json
+          git add .github/workflows/.${{github.workflow}}.stats.latest.json
           git commit -m "(CI:) Update stats for workflow ${{github.workflow}}."
           git push
