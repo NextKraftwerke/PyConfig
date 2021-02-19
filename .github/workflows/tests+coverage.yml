@@ -65,6 +65,7 @@ jobs:
         path: coverage.json
     - name: Report and update stats
       run: |
+        if [ ! -d .github/.stats ]; then mkdir .github/.stats; fi
         python .github/workflows/report_and_update_stats.py \
           --workflow=${{github.workflow}} --run-id=${{github.run_id}} --min-coverage=${{env.min_coverage}}
         ls -la .github
