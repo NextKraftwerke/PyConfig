@@ -59,8 +59,9 @@ jobs:
         path: coverage.json
     - name: Report and update stats
       run: |
-        echo ${{ name }}
+        echo ${GITHUB_WORKFLOW}
+        echo ${GITHUB_RUN_ID}
         python .github/workflows/report_and_update_stats.py \
-          --workflow=${{ name }} --run-id=${{ run.id }} --min-coverage=100.0
+          --workflow=${GITHUB_WORKFLOW} --run-id=${GITHUB_RUN_ID} --min-coverage=100.0
         ls -la .github/workflows
-        cat .github/workflows/.${{ name }}.stats.latest.json
+        cat .github/workflows/.${GITHUB_WORKFLOW}.stats.latest.json
