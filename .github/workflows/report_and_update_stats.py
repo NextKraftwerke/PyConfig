@@ -17,7 +17,7 @@ def report_n_get_total_coverage() -> float:
 
 
 def write_stats(workflow: str, run_id: int, total_coverage: float):
-    p = Path(".") / ".github" / "workflows" / f".{workflow}.stats.latest.json"
+    p = Path(".") / ".github" / ".stats" / f".{workflow}.latest.json"
     now = datetime.now(tz=timezone.utc).replace(microsecond=0)
 
     obj = {

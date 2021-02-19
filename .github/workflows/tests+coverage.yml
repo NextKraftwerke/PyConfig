@@ -67,10 +67,12 @@ jobs:
       run: |
         python .github/workflows/report_and_update_stats.py \
           --workflow=${{github.workflow}} --run-id=${{github.run_id}} --min-coverage=${{env.min_coverage}}
+        ls -la .github
+        ls -la .github/.stats
     - name: Push changes to stats file
       run: |
           git config user.name 'GitHub CI'
           git config user.email ''
-          git add .github/workflows/.${{github.workflow}}.stats.latest.json
+          git add .github/.stats/.${{github.workflow}}.latest.json
           git commit -m "(CI:) Update stats for workflow ${{github.workflow}}."
           git push
