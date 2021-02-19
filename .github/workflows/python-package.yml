@@ -40,8 +40,10 @@ jobs:
     - uses: actions/checkout@v2
     - name: Download coverage for individual python versions
       uses: actions/download-artifact@v2
+      id: dl_cov_parts
       with:
         name: .cov
+        path: .cov
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
@@ -50,7 +52,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install .[coverage]
-        coverage combine .cov
+        coverage combine ${{steps.dl_cov_parts.outputs.download-path}}
         coverage json
     - name: Upload coverage JSON
       uses: actions/upload-artifact@v2
