@@ -13,7 +13,7 @@ _precision = 1
 def report_n_get_total_coverage() -> float:
     cov = Coverage()
     cov.load()
-    return cov.report(precision=_precision)
+    return cov.report(show_missing=True, precision=_precision)
 
 
 def write_stats(workflow: str, run_id: int, total_coverage: float):
