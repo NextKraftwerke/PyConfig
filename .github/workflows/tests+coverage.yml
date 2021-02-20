@@ -9,6 +9,8 @@ on:
 env:
   min_coverage: 100.0
   cov_parts_artifact: .cov
+  cov_json_dir: .github/stats
+  cov_json_filename: coverage.latest.json
 
 jobs:
   tests:
@@ -34,7 +36,7 @@ jobs:
     - name: Upload coverage data
       uses: actions/upload-artifact@v2
       with:
-        name: .cov
+        name: ${{env.cov_parts_artifact}}
         path: .coverage.*
         retention-days: 1
   combined_coverage:
@@ -52,28 +54,18 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.9
-    - name: Combine coverage
+    - name: Combine coverage and report
       run: |
         python -m pip install --upgrade pip
         pip install .[coverage]
         coverage combine ${{steps.dl_cov_parts.outputs.download-path}}
-        coverage json
-    - name: Upload coverage JSON
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage.json
-    - name: Report and update stats
-      run: |
-        if [ ! -d .github/.stats ]; then mkdir .github/.stats; fi
-        python .github/workflows/report_and_update_stats.py \
-          --workflow=${{github.workflow}} --run-id=${{github.run_id}} --min-coverage=${{env.min_coverage}}
-        ls -la .github
-        ls -la .github/.stats
+        if [ ! -d ${{env.cov_json_dir}} ]; then mkdir ${{env.cov_json_dir}}; fi
+        coverage json -o ${{env.cov_json_dir}}/${{env.cov_json_filename}}
+        coverage report --show-missing --precision=1 --fail-under=${{env.min_coverage}}
     - name: Push changes to stats file
       run: |
           git config user.name 'GitHub CI'
           git config user.email ''
-          git add .github/.stats/.${{github.workflow}}.latest.json
-          git commit -m "(CI:) Update stats for workflow ${{github.workflow}}."
+          git add ${{env.cov_json_dir}}/${{env.cov_json_filename}}
+          git commit -m "(CI:) Update coverage JSON from workflow ${{github.workflow}} (run ${{github.run_id}})."
           git push
