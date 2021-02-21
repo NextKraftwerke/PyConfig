@@ -54,15 +54,21 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.9
-    - name: Combine coverage and report
+    - name: Combine coverage
       run: |
         python -m pip install --upgrade pip
         pip install .[coverage]
         coverage combine ${{steps.dl_cov_parts.outputs.download-path}}
+    - name: Report coverage
+      run: |
+        coverage report --show-missing --precision=1 --fail-under=${{env.min_coverage}}
+    - name: Write coverage JSON
+      if: always()
+      run: |
         if [ ! -d ${{env.cov_json_dir}} ]; then mkdir ${{env.cov_json_dir}}; fi
         coverage json -o ${{env.cov_json_dir}}/${{env.cov_json_filename}}
-        coverage report --show-missing --precision=1 --fail-under=${{env.min_coverage}}
     - name: Push changes to stats file
+      if: always()
       run: |
           git config user.name 'GitHub CI'
           git config user.email ''
