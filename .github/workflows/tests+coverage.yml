@@ -10,7 +10,7 @@ env:
   min_coverage: 100.0
   cov_parts_artifact: .cov
   cov_json_dir: .github/stats
-  cov_json_filename: coverage.latest.json
+  cov_json_path: ${{env.cov_json_dir}}/coverage.latest.json
 
 jobs:
   tests:
@@ -65,13 +65,13 @@ jobs:
     - name: Write coverage JSON
       if: always()
       run: |
-        if [ ! -d ${{env.cov_json_dir}} ]; then mkdir ${{env.cov_json_dir}}; fi
-        coverage json -o ${{env.cov_json_dir}}/${{env.cov_json_filename}}
+        coverage json -o ${{env.cov_json_path}}
+        python ${{env.cov_json_dir}}/cov_add_rounded_total.py ${{env.cov_json_path}}
     - name: Push changes to stats file
       if: always()
       run: |
           git config user.name 'GitHub CI'
           git config user.email ''
-          git add ${{env.cov_json_dir}}/${{env.cov_json_filename}}
+          git add ${{env.cov_json_path}}
           git commit -m "(CI:) Update coverage JSON from workflow ${{github.workflow}} (run ${{github.run_id}})."
           git push
