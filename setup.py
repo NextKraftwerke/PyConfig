@@ -8,6 +8,7 @@ with (Path(__file__).parent / "README.md").open("r") as h:
 setup(
     name="nx_config",
     version="0.2.0",
+    packages=["nx_config", "nx_config._core"],
     install_requires=[],
     extras_require={
         "tests": [],
@@ -34,4 +35,4 @@ setup(
         "Topic :: Software Development",
     ],
     keywords=["configuration", "settings", "yaml", "toml", "ini", "env"],
-)  # TODO: Make sure tests are not installed when simply using the package.
+)
