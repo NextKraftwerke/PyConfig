@@ -26,7 +26,12 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/NextKraftwerke/PyConfig",
     classifiers=[
+        "Development Status :: 1 - Planning",
+        "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-    ],  # TODO
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
+        "Topic :: Software Development",
+    ],
     keywords=[],  # TODO
 )  # TODO: Make sure tests are not installed when simply using the package.
