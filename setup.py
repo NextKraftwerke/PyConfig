@@ -33,5 +33,5 @@ setup(
         "Programming Language :: Python :: 3",
         "Topic :: Software Development",
     ],
-    keywords=[],  # TODO
+    keywords=["configuration", "settings", "yaml", "toml", "ini", "env"],
 )  # TODO: Make sure tests are not installed when simply using the package.
