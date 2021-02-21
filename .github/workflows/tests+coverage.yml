@@ -9,8 +9,7 @@ on:
 env:
   min_coverage: 100.0
   cov_parts_artifact: .cov
-  cov_json_dir: .github/stats
-  cov_json_path: ${{env.cov_json_dir}}/coverage.latest.json
+  cov_json_path: .github/stats/coverage.latest.json
 
 jobs:
   tests:
@@ -66,7 +65,7 @@ jobs:
       if: always()
       run: |
         coverage json -o ${{env.cov_json_path}}
-        python ${{env.cov_json_dir}}/cov_add_rounded_total.py ${{env.cov_json_path}}
+        python .github/stats/cov_add_rounded_total.py ${{env.cov_json_path}}
     - name: Push changes to stats file
       if: always()
       run: |
