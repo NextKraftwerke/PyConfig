@@ -17,7 +17,11 @@ setup(
     python_requires=">=3.6, <3.10",
     author="Tomás Silveira Salles",
     author_email="30598365+tomasssalles@users.noreply.github.com",
-    description="",  # TODO
+    description=(
+        "A convenient way to configure python applications that makes it easy"
+        " and natural to follow best practices and solves a variety of common"
+        " issues encountered when using e.g. the 'configparser' library."
+    ),
     long_description=_long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/NextKraftwerke/PyConfig",
