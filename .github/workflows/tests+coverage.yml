@@ -5,6 +5,11 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+    
+env:
+  min_coverage: 100.0
+  cov_parts_artifact: .cov
+  cov_json_path: .github/stats/coverage.latest.json
 
 jobs:
   tests:
@@ -14,10 +19,10 @@ jobs:
         python-version: [3.6, 3.7, 3.8, 3.9]
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python ${{matrix.python-version}}
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: ${{matrix.python-version}}
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -30,7 +35,7 @@ jobs:
     - name: Upload coverage data
       uses: actions/upload-artifact@v2
       with:
-        name: .cov
+        name: ${{env.cov_parts_artifact}}
         path: .coverage.*
         retention-days: 1
   combined_coverage:
@@ -40,6 +45,10 @@ jobs:
     - uses: actions/checkout@v2
     - name: Download coverage for individual python versions
       uses: actions/download-artifact@v2
+      id: dl_cov_parts
+      with:
+        name: ${{env.cov_parts_artifact}}
+        path: .cov_parts
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
@@ -48,11 +57,20 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install .[coverage]
-        coverage combine .cov
-        coverage json
-        coverage report --show-missing --fail-under=100
-    - name: Upload coverage JSON
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage
-        path: coverage.json
+        coverage combine ${{steps.dl_cov_parts.outputs.download-path}}
+    - name: Report coverage
+      run: |
+        coverage report --show-missing --precision=1 --fail-under=${{env.min_coverage}}
+    - name: Write coverage JSON
+      if: always()
+      run: |
+        coverage json -o ${{env.cov_json_path}}
+        python .github/stats/cov_add_rounded_total.py ${{env.cov_json_path}}
+    - name: Push changes to stats file
+      if: always()
+      run: |
+          git config user.name 'GitHub CI'
+          git config user.email ''
+          git add ${{env.cov_json_path}}
+          git commit -m "(CI:) Update coverage JSON from workflow ${{github.workflow}} (run ${{github.run_id}})."
+          git push

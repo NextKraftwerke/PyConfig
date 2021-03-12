@@ -8,6 +8,7 @@ with (Path(__file__).parent / "README.md").open("r") as h:
 setup(
     name="nx_config",
     version="0.2.0",
+    packages=["nx_config", "nx_config._core"],
     install_requires=[],
     extras_require={
         "tests": [],
@@ -17,12 +18,21 @@ setup(
     python_requires=">=3.6, <3.10",
     author="Tomás Silveira Salles",
     author_email="30598365+tomasssalles@users.noreply.github.com",
-    description="",  # TODO
+    description=(
+        "A convenient way to configure python applications that makes it easy"
+        " and natural to follow best practices and solves a variety of common"
+        " issues encountered when using e.g. the 'configparser' library."
+    ),
     long_description=_long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/NextKraftwerke/PyConfig",
     classifiers=[
+        "Development Status :: 1 - Planning",
+        "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-    ],  # TODO
-    keywords=[],  # TODO
-)  # TODO: Make sure tests are not installed when simply using the package.
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
+        "Topic :: Software Development",
+    ],
+    keywords=["configuration", "settings", "yaml", "toml", "ini", "env"],
+)
