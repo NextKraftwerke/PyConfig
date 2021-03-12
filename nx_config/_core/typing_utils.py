@@ -28,4 +28,5 @@ elif _python_minor < 8:
 
 
 else:
+    # noinspection PyUnresolvedReferences
     from typing import get_origin, get_args
