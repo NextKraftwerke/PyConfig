@@ -110,23 +110,38 @@ class TypeChecksTestCase(TestCase):
                 self.assertEqual(sec.my_other_entry, some_bools)
 
     def test_tuple_must_be_single_type_then_ellipsis(self):
-        with self.assertRaises(TypeError) as ctx1:
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx1:
+                    # noinspection PyUnusedLocal
+                    class MySection1(ConfigSection):
+                        my_entry: tps.tuple[int, int]
+
+                msg1 = str(ctx1.exception)
+                self.assertIn("'my_entry'", msg1)
+                self.assertIn(str(tps.tuple[int, int]), msg1)
+
+                with self.assertRaises(TypeError) as ctx2:
+                    # noinspection PyUnusedLocal
+                    class MySection2(ConfigSection):
+                        my_entry: tps.tuple[int]
+
+                msg2 = str(ctx2.exception)
+                self.assertIn("'my_entry'", msg2)
+                self.assertIn(str(tps.tuple[int]), msg2)
+
+    def test_nice_type_str_if_invalid_type(self):
+        class Foo:
+            pass
+
+        with self.assertRaises(TypeError) as ctx:
             # noinspection PyUnusedLocal
-            class MySection1(ConfigSection):
-                my_entry: Tuple[int, int]
+            class MySection(ConfigSection):
+                my_entry: Foo
 
-        msg1 = str(ctx1.exception)
-        self.assertIn("'my_entry'", msg1)
-        self.assertIn("Tuple[int, int]", msg1)
-
-        with self.assertRaises(TypeError) as ctx2:
-            # noinspection PyUnusedLocal
-            class MySection2(ConfigSection):
-                my_entry: Tuple[int]
-
-        msg2 = str(ctx2.exception)
-        self.assertIn("'my_entry'", msg2)
-        self.assertIn("Tuple[int]", msg2)
+        msg = str(ctx.exception)
+        self.assertIn("'my_entry'", msg)
+        self.assertNotIn(str(Foo), msg)
 
     def test_tuple_is_not_optional(self):
         with self.assertRaises(TypeError) as ctx:

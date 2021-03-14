@@ -60,7 +60,7 @@ def _get_collection_and_base(t: type) -> Tuple[Optional[Type[Collection]], type]
 
 
 def _nice_type_str(t: type):
-    return str(t) if t.__module__ == "typing" else t.__name__
+    return t.__name__ if (t.__module__ != "typing" and len(get_args(t)) == 0) else str(t)
 
 
 def _expected_value_type(base: type) -> type:
