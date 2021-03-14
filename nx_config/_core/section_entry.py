@@ -1,16 +1,16 @@
 from typing import Any
 
-from nx_config._core.unset import Unset
-from nx_config.secret_string import SecretString
 from nx_config._core.naming_utils import mutable_section_attr
 from nx_config._core.type_checks import ConfigTypeInfo
+from nx_config._core.unset import Unset
+from nx_config.secret_string import SecretString
 
 
 def _check_default_value(value: Any, entry_name: str, type_info: ConfigTypeInfo):
     try:
         type_info.check_type(value)
     except TypeError as xcp:
-        raise TypeError(f"Invalid default value for attribute '{entry_name}': {xcp}")
+        raise TypeError(f"Invalid default value for attribute '{entry_name}': {xcp}") from xcp
 
     if (
         (type_info.base is not SecretString) or
@@ -62,6 +62,6 @@ class SectionEntry:
         except TypeError as xcp:
             raise TypeError(
                 f"Error setting attribute '{self.entry_name}': {xcp}"
-            )
+            ) from xcp
 
         setattr(instance, self._value_attribute, value)

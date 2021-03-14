@@ -28,4 +28,4 @@ def mutable_config(config: Config):
     except AttributeError as xcp:
         raise AttributeError(
             f"Error validating sections after leaving 'mutable_config' context: {xcp}"
-        )
+        ) from xcp

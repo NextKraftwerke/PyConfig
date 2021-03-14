@@ -41,7 +41,7 @@ class SectionMeta(type):
             try:
                 type_info = ConfigTypeInfo.from_type_hint(entry_type)
             except TypeError as xcp:
-                raise TypeError(f"Unsupported type-hint for attribute '{entry_name}': {xcp}")
+                raise TypeError(f"Unsupported type-hint for attribute '{entry_name}': {xcp}") from xcp
 
             default = ns.get(entry_name, Unset)
 
