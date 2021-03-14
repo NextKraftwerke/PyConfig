@@ -5,6 +5,7 @@ from unittest import TestCase
 from uuid import UUID
 
 from nx_config import ConfigSection, SecretString, URL
+from tests.typing_test_helpers import collection_type_holders
 
 
 class TypeChecksTestCase(TestCase):
@@ -99,12 +100,14 @@ class TypeChecksTestCase(TestCase):
     def test_tuple_is_ok(self):
         some_bools = (True, True, False, True, False, False)
 
-        class MySection(ConfigSection):
-            my_entry: Tuple[int, ...]
-            my_other_entry: Tuple[bool, ...] = some_bools
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    my_entry: tps.tuple[int, ...]
+                    my_other_entry: tps.tuple[bool, ...] = some_bools
 
-        sec = MySection()
-        self.assertEqual(sec.my_other_entry, some_bools)
+                sec = MySection()
+                self.assertEqual(sec.my_other_entry, some_bools)
 
     def test_tuple_must_be_single_type_then_ellipsis(self):
         with self.assertRaises(TypeError) as ctx1:

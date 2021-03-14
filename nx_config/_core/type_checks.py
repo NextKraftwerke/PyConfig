@@ -4,8 +4,8 @@ from typing import Tuple, Union, Optional, Type, Collection, NamedTuple, Any
 from uuid import UUID
 
 from nx_config._core.typing_utils import get_origin, get_args
-from nx_config.url import URL
 from nx_config.secret_string import SecretString
+from nx_config.url import URL
 
 _supported_base_types = frozenset((
     int,
@@ -42,7 +42,7 @@ def _get_optional_and_base(t: type) -> Tuple[bool, type]:
 
 
 def _get_collection_and_base(t: type) -> Tuple[Optional[Type[Collection]], type]:
-    if t.__module__ == "typing":
+    if t.__module__ in ("typing", "builtins"):
         origin = get_origin(t)
         args = get_args(t)
 
