@@ -5,6 +5,7 @@ from uuid import UUID
 
 from nx_config import Config, ConfigSection, validate, URL, SecretString
 from nx_config.test_utils import mutable_config
+from tests.typing_test_helpers import collection_type_holders
 
 
 class EmptySection(ConfigSection):
@@ -316,32 +317,34 @@ class MutableConfigTestCase(TestCase):
                 cfg.my_section.my_entry = 3.14
 
     def test_can_assign_to_tuple_and_frozenset(self):
-        class MySection(ConfigSection):
-            my_tuple: Tuple[datetime, ...]
-            my_other_tuple: Tuple[float, ...] = (5.5,)
-            my_frozenset: FrozenSet[UUID]
-            my_other_frozenset: FrozenSet[URL] = frozenset(("abc.d.e",))
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    my_tuple: tps.tuple[datetime, ...]
+                    my_other_tuple: tps.tuple[float, ...] = (5.5,)
+                    my_frozenset: tps.frozenset[UUID]
+                    my_other_frozenset: tps.frozenset[URL] = frozenset(("abc.d.e",))
 
-        class MyConfig(Config):
-            my_section: MySection
+                class MyConfig(Config):
+                    my_section: MySection
 
-        cfg = MyConfig()
+                cfg = MyConfig()
 
-        new_tuple = (datetime(2020, 1, 1, 0, 44),)
-        new_other_tuple = ()
-        new_frozenset = frozenset((UUID(int=7), UUID(int=8)))
-        new_other_frozenset = frozenset()
+                new_tuple = (datetime(2020, 1, 1, 0, 44),)
+                new_other_tuple = ()
+                new_frozenset = frozenset((UUID(int=7), UUID(int=8)))
+                new_other_frozenset = frozenset()
 
-        with mutable_config(cfg):
-            cfg.my_section.my_tuple = new_tuple
-            cfg.my_section.my_other_tuple = new_other_tuple
-            cfg.my_section.my_frozenset = new_frozenset
-            cfg.my_section.my_other_frozenset = new_other_frozenset
+                with mutable_config(cfg):
+                    cfg.my_section.my_tuple = new_tuple
+                    cfg.my_section.my_other_tuple = new_other_tuple
+                    cfg.my_section.my_frozenset = new_frozenset
+                    cfg.my_section.my_other_frozenset = new_other_frozenset
 
-        self.assertEqual(cfg.my_section.my_tuple, new_tuple)
-        self.assertEqual(cfg.my_section.my_other_tuple, new_other_tuple)
-        self.assertEqual(cfg.my_section.my_frozenset, new_frozenset)
-        self.assertEqual(cfg.my_section.my_other_frozenset, new_other_frozenset)
+                self.assertEqual(cfg.my_section.my_tuple, new_tuple)
+                self.assertEqual(cfg.my_section.my_other_tuple, new_other_tuple)
+                self.assertEqual(cfg.my_section.my_frozenset, new_frozenset)
+                self.assertEqual(cfg.my_section.my_other_frozenset, new_other_frozenset)
 
     def test_assigned_tuple_elements_must_have_base_type(self):
         class MySection(ConfigSection):
