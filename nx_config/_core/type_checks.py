@@ -92,8 +92,9 @@ class ConfigTypeInfo(NamedTuple):
             raise TypeError(
                 f"Collection type '{_nice_type_str(collection)}' is not supported for config entries."
                 f" You can represent sequences of values of the same type using 'tuple'"
-                f" (with type-hint 'typing.Tuple[base_type, ...]'). You can also represent unordered sets"
-                f" of unique values using 'frozenset' (with type-hint 'typing.FrozenSet[base_type]'). There's"
+                f" (with type-hint 'typing.Tuple[base_type, ...]', or in python 3.9+ 'tuple[base_type, ...]')."
+                f" You can also represent unordered sets of unique values using 'frozenset' (with type-hint"
+                f" 'typing.FrozenSet[base_type]', or in python 3.9+ 'frozenset[base_type]'). There's"
                 f" currently no support for mappings."
             )
 
