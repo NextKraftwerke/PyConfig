@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Optional, Any, Union, FrozenSet
+from typing import Optional, Any, Union
 from unittest import TestCase
 from uuid import UUID
 
@@ -441,11 +441,13 @@ class TypeChecksTestCase(TestCase):
                 self.assertIn("default value", msg2.lower())
 
     def test_frozenset_can_be_empty(self):
-        class MySection(ConfigSection):
-            my_entry: FrozenSet[int] = frozenset()
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    my_entry: tps.frozenset[int] = frozenset()
 
-        sec = MySection()
-        self.assertEqual(sec.my_entry, frozenset())
+                sec = MySection()
+                self.assertEqual(sec.my_entry, frozenset())
 
     def test_no_sets_allowed(self):
         for tps in collection_type_holders:
@@ -461,16 +463,18 @@ class TypeChecksTestCase(TestCase):
                 self.assertIn("frozenset", msg.lower())
 
     def test_set_is_not_frozenset(self):
-        with self.assertRaises(TypeError) as ctx:
-            # noinspection PyUnusedLocal
-            class MySection(ConfigSection):
-                my_entry: FrozenSet[int] = {1, 2, 3}
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx:
+                    # noinspection PyUnusedLocal
+                    class MySection(ConfigSection):
+                        my_entry: tps.frozenset[int] = {1, 2, 3}
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn("FrozenSet[int]", msg)
-        self.assertIn("set", msg)
-        self.assertIn("default value", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(str(tps.frozenset[int]), msg)
+                self.assertIn("set", msg)
+                self.assertIn("default value", msg.lower())
 
     def test_no_mappings_allowed(self):
         for tps in collection_type_holders:
