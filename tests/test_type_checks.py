@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Optional, Tuple, Any, Union, FrozenSet, Set, Dict
+from typing import Optional, Any, Union, FrozenSet, Set, Dict
 from unittest import TestCase
 from uuid import UUID
 
@@ -481,12 +481,14 @@ class TypeChecksTestCase(TestCase):
         self.assertIn("dict", msg.lower())
 
     def test_no_collections_of_optionals(self):
-        with self.assertRaises(TypeError) as ctx:
-            # noinspection PyUnusedLocal
-            class MySection(ConfigSection):
-                my_entry: Tuple[Optional[int], ...]
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx:
+                    # noinspection PyUnusedLocal
+                    class MySection(ConfigSection):
+                        my_entry: tps.tuple[Optional[int], ...]
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn(str(Optional[int]), msg)
-        self.assertIn("element", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(str(Optional[int]), msg)
+                self.assertIn("element", msg.lower())
