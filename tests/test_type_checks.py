@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Optional, Any, Union, FrozenSet, Set
+from typing import Optional, Any, Union, FrozenSet
 from unittest import TestCase
 from uuid import UUID
 
@@ -448,15 +448,17 @@ class TypeChecksTestCase(TestCase):
         self.assertEqual(sec.my_entry, frozenset())
 
     def test_no_sets_allowed(self):
-        with self.assertRaises(TypeError) as ctx:
-            # noinspection PyUnusedLocal
-            class MySection(ConfigSection):
-                my_entry: Set[int] = {1, 2, 3}
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx:
+                    # noinspection PyUnusedLocal
+                    class MySection(ConfigSection):
+                        my_entry: tps.set[int] = {1, 2, 3}
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn("set", msg.lower())
-        self.assertIn("frozenset", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn("set", msg.lower())
+                self.assertIn("frozenset", msg.lower())
 
     def test_set_is_not_frozenset(self):
         with self.assertRaises(TypeError) as ctx:
