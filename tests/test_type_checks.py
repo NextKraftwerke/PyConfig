@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional, Any, Union
-from unittest import TestCase
+from unittest import TestCase, skipIf
 from uuid import UUID
 
 from nx_config import ConfigSection, SecretString, URL
@@ -500,3 +500,20 @@ class TypeChecksTestCase(TestCase):
                 self.assertIn("'my_entry'", msg)
                 self.assertIn(str(Optional[int]), msg)
                 self.assertIn("element", msg.lower())
+
+    @skipIf(len(collection_type_holders) < 2, "Nothing to mix if there's only one style")
+    def test_mixing_typing_and_builtin(self):
+        tuple0 = collection_type_holders[0].tuple
+        tuple1 = collection_type_holders[1].tuple
+        some_bools = (True, True, False, True, False, False)
+        some_ints = (42, 43, 44, 46)
+
+        class MySection(ConfigSection):
+            my_first_entry: tuple0[float, ...]
+            my_second_entry: tuple0[bool, ...] = some_bools
+            my_third_entry: tuple1[str, ...]
+            my_fourth_entry: tuple1[int, ...] = some_ints
+
+        sec = MySection()
+        self.assertEqual(sec.my_second_entry, some_bools)
+        self.assertEqual(sec.my_fourth_entry, some_ints)
