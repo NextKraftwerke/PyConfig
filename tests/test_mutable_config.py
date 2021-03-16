@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Tuple, FrozenSet
+from typing import Optional
 from unittest import TestCase
 from uuid import UUID
 
@@ -347,119 +347,131 @@ class MutableConfigTestCase(TestCase):
                 self.assertEqual(cfg.my_section.my_other_frozenset, new_other_frozenset)
 
     def test_assigned_tuple_elements_must_have_base_type(self):
-        class MySection(ConfigSection):
-            my_entry: Tuple[int, ...]
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    my_entry: tps.tuple[int, ...]
 
-        class MyConfig(Config):
-            my_section: MySection
+                class MyConfig(Config):
+                    my_section: MySection
 
-        cfg = MyConfig()
+                cfg = MyConfig()
 
-        with self.assertRaises(TypeError) as ctx:
-            with mutable_config(cfg):
-                cfg.my_section.my_entry = (42, "43", 44, 45)
+                with self.assertRaises(TypeError) as ctx:
+                    with mutable_config(cfg):
+                        cfg.my_section.my_entry = (42, "43", 44, 45)
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn("Tuple[int, ...]", msg)
-        self.assertIn("element", msg.lower())
-        self.assertNotIn("default value", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(str(tps.tuple[int, ...]), msg)
+                self.assertIn("element", msg.lower())
+                self.assertNotIn("default value", msg.lower())
 
     def test_cannot_assign_list_to_tuple(self):
-        class MySection(ConfigSection):
-            my_entry: Tuple[int, ...]
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    my_entry: tps.tuple[int, ...]
 
-        class MyConfig(Config):
-            my_section: MySection
+                class MyConfig(Config):
+                    my_section: MySection
 
-        cfg = MyConfig()
+                cfg = MyConfig()
 
-        with self.assertRaises(TypeError) as ctx:
-            with mutable_config(cfg):
-                cfg.my_section.my_entry = []
+                with self.assertRaises(TypeError) as ctx:
+                    with mutable_config(cfg):
+                        cfg.my_section.my_entry = []
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn("Tuple[int, ...]", msg)
-        self.assertIn("list", msg)
-        self.assertNotIn("default value", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(str(tps.tuple[int, ...]), msg)
+                self.assertIn("list", msg)
+                self.assertNotIn("default value", msg.lower())
 
     def test_cannot_assign_int_to_tuple(self):
-        class MySection(ConfigSection):
-            my_entry: Tuple[int, ...]
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    my_entry: tps.tuple[int, ...]
 
-        class MyConfig(Config):
-            my_section: MySection
+                class MyConfig(Config):
+                    my_section: MySection
 
-        cfg = MyConfig()
+                cfg = MyConfig()
 
-        with self.assertRaises(TypeError) as ctx:
-            with mutable_config(cfg):
-                cfg.my_section.my_entry = 42
+                with self.assertRaises(TypeError) as ctx:
+                    with mutable_config(cfg):
+                        cfg.my_section.my_entry = 42
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn("Tuple[int, ...]", msg)
-        self.assertIn("int", msg)
-        self.assertNotIn("default value", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(str(tps.tuple[int, ...]), msg)
+                self.assertIn("int", msg)
+                self.assertNotIn("default value", msg.lower())
 
     def test_cannot_assign_none_to_tuple(self):
-        class MySection(ConfigSection):
-            my_entry: Tuple[int, ...]
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    my_entry: tps.tuple[int, ...]
 
-        class MyConfig(Config):
-            my_section: MySection
+                class MyConfig(Config):
+                    my_section: MySection
 
-        cfg = MyConfig()
+                cfg = MyConfig()
 
-        with self.assertRaises(TypeError) as ctx:
-            with mutable_config(cfg):
-                cfg.my_section.my_entry = None
+                with self.assertRaises(TypeError) as ctx:
+                    with mutable_config(cfg):
+                        cfg.my_section.my_entry = None
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn("Tuple[int, ...]", msg)
-        self.assertIn("NoneType", msg)
-        self.assertNotIn("default value", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(str(tps.tuple[int, ...]), msg)
+                self.assertIn("NoneType", msg)
+                self.assertNotIn("default value", msg.lower())
 
     def test_cannot_assign_tuple_to_frozenset(self):
-        class MySection(ConfigSection):
-            my_entry: FrozenSet[int]
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    my_entry: tps.frozenset[int]
 
-        class MyConfig(Config):
-            my_section: MySection
+                class MyConfig(Config):
+                    my_section: MySection
 
-        cfg = MyConfig()
+                cfg = MyConfig()
 
-        with self.assertRaises(TypeError) as ctx:
-            with mutable_config(cfg):
-                cfg.my_section.my_entry = ()
+                with self.assertRaises(TypeError) as ctx:
+                    with mutable_config(cfg):
+                        cfg.my_section.my_entry = ()
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn("FrozenSet[int]", msg)
-        self.assertIn("tuple", msg)
-        self.assertNotIn("default value", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(str(tps.frozenset[int]), msg)
+                self.assertIn("tuple", msg)
+                self.assertNotIn("default value", msg.lower())
 
     def test_can_assign_str_to_secret_string(self):
-        class MySection(ConfigSection):
-            my_entry: SecretString
-            my_other_entry: Tuple[SecretString, ...] = ()
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    my_entry: SecretString
+                    my_other_entry: tps.tuple[SecretString, ...] = ()
 
-        class MyConfig(Config):
-            my_section: MySection
+                class MyConfig(Config):
+                    my_section: MySection
 
-        cfg = MyConfig()
+                cfg = MyConfig()
 
-        secret = "abcdooo"
-        secrets = ("1234000", "wwwww987")
+                secret = "abcdooo"
+                secrets = ("1234000", "wwwww987")
 
-        with mutable_config(cfg):
-            cfg.my_section.my_entry = secret
-            cfg.my_section.my_other_entry = secrets
+                with mutable_config(cfg):
+                    cfg.my_section.my_entry = secret
+                    cfg.my_section.my_other_entry = secrets
 
-        self.assertEqual(cfg.my_section.my_entry, secret)
-        self.assertEqual(cfg.my_section.my_other_entry, secrets)
+                self.assertEqual(cfg.my_section.my_entry, secret)
+                self.assertEqual(cfg.my_section.my_other_entry, secrets)
 
     def test_cannot_assign_int_to_secret_string(self):
         class MySection(ConfigSection):
@@ -500,21 +512,23 @@ class MutableConfigTestCase(TestCase):
         self.assertNotIn("default value", msg.lower())
 
     def test_cannot_assign_int_to_url_tuple(self):
-        class MySection(ConfigSection):
-            my_entry: Tuple[URL, ...]
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    my_entry: tps.tuple[URL, ...]
 
-        class MyConfig(Config):
-            my_section: MySection
+                class MyConfig(Config):
+                    my_section: MySection
 
-        cfg = MyConfig()
+                cfg = MyConfig()
 
-        with self.assertRaises(TypeError) as ctx:
-            with mutable_config(cfg):
-                cfg.my_section.my_entry = 42
+                with self.assertRaises(TypeError) as ctx:
+                    with mutable_config(cfg):
+                        cfg.my_section.my_entry = 42
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn("Tuple[", msg)
-        self.assertIn("URL (a.k.a. str), ...]", msg)
-        self.assertIn("int", msg)
-        self.assertNotIn("default value", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn("tuple[", msg.lower())
+                self.assertIn("URL (a.k.a. str), ...]", msg)
+                self.assertIn("int", msg)
+                self.assertNotIn("default value", msg.lower())
