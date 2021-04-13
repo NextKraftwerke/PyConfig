@@ -21,6 +21,14 @@ _supported_base_types = frozenset((
 
 _NoneType = type(None)
 
+_collections_help_str = (
+    "You can represent sequences of values of the same type 'base' using tuples with type-hint"
+    " 'typing.Tuple[base, ...]' or (in python 3.9+) 'tuple[base, ...]'. You can also represent"
+    " unordered sets of unique values using frozensets with type-hint 'typing.FrozenSet[base]',"
+    " or (in python 3.9+) 'frozenset[base]'. Collections without an element type (e.g. just"
+    " 'typing.Tuple' or just 'tuple') are not allowed. There's currently no support for mappings."
+)
+
 
 def _get_optional_and_base(t: type) -> Tuple[bool, type]:
     if t.__module__ == "typing":
@@ -77,28 +85,24 @@ class ConfigTypeInfo(NamedTuple):
     def from_type_hint(cls, t: type) -> "ConfigTypeInfo":
         optional, base_or_collection = _get_optional_and_base(t)
         collection, base = _get_collection_and_base(base_or_collection)
+        nice_str = _nice_type_str(t)
 
-        if base not in _supported_base_types:
-            if collection is None:
-                raise TypeError(
-                    f"Type '{_nice_type_str(base)}' is not supported for config entries."
-                )
-            else:
-                raise TypeError(
-                    f"Type '{_nice_type_str(base)}' is not supported as the element-type for"
-                    f" config entries that are collections."
-                )
-        if collection not in (None, tuple, frozenset):
+        if (base not in _supported_base_types) or (collection not in (None, tuple, frozenset)):
+            supported = ", ".join(
+                sorted((x.__name__ for x in _supported_base_types), key=lambda x: x.lower())
+            )
             raise TypeError(
-                f"Collection type '{_nice_type_str(collection)}' is not supported for config entries."
-                f" You can represent sequences of values of the same type using 'tuple'"
-                f" (with type-hint 'typing.Tuple[base_type, ...]', or in python 3.9+ 'tuple[base_type, ...]')."
-                f" You can also represent unordered sets of unique values using 'frozenset' (with type-hint"
-                f" 'typing.FrozenSet[base_type]', or in python 3.9+ 'frozenset[base_type]'). There's"
-                f" currently no support for mappings."
+                f"Type(-hint) '{nice_str}' is not supported for config entries. Allowed 'base' types:"
+                f" {supported}. Allowed collections (where 'base' is one of the allowed base types):"
+                f" typing.Tuple[base, ...], tuple[base, ...] (python 3.9+), typing.FrozenSet[base],"
+                f" frozenset[base] (python 3.9+). Allowed optionals: typing.Optional[base] (where"
+                f" 'base' is one of the allowed base types), typing.Optional[collection] (where"
+                f" 'collection' is one of the allowed collection types). Note that bare collections,"
+                f" such as tuple or typing.Tuple (i.e. without type-hints for their elements), are"
+                f" not allowed."
             )
 
-        full_str = _nice_type_str(t).replace(
+        full_str = nice_str.replace(
             "SecretString", "SecretString (a.k.a. str)"
         ).replace(
             "URL", "URL (a.k.a. str)"

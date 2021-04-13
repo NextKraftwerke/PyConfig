@@ -517,3 +517,27 @@ class TypeChecksTestCase(TestCase):
         sec = MySection()
         self.assertEqual(sec.my_second_entry, some_bools)
         self.assertEqual(sec.my_fourth_entry, some_ints)
+
+    def test_no_bare_tuples(self):
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx:
+                    # noinspection PyUnusedLocal
+                    class MySection(ConfigSection):
+                        my_entry: tps.tuple
+
+                msg = str(ctx.exception)
+                self.assertIn("tuple", msg.lower())
+                self.assertIn("bare", msg)
+
+    def test_no_bare_frozensets(self):
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx:
+                    # noinspection PyUnusedLocal
+                    class MySection(ConfigSection):
+                        my_entry: tps.frozenset
+
+                msg = str(ctx.exception)
+                self.assertIn("frozenset", msg.lower())
+                self.assertIn("bare", msg)
