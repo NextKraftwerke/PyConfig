@@ -126,11 +126,3 @@ class ConfigTypeInfo(NamedTuple):
             f"Value must match the given type-hint. Expected '{self}',"
             f" got '{type(value).__name__}' instead."
         )
-
-# TODO: Add support for different python versions:
-#   - 3.9: typing.Tuple deprecated, tuple[b, ...] supported, module is builtins
-#   - Test typing.Tuple/FrozenSet[...] if python < 3.10. Test tuple/frozenset[...]
-#   (same tests!) if python >= 3.9.
-#   - Internally use imports from typing if python < 3.9 and from collections/builtins
-#   if python >= 3.9 (except if necessary to support typing.Tuple/FrozenSet, but even
-#   then only for python < 3.10 and then use collections/builtins for python >= 3.10).
