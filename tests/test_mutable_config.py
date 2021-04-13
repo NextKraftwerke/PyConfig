@@ -4,7 +4,7 @@ from unittest import TestCase
 from uuid import UUID
 
 from nx_config import Config, ConfigSection, validate, URL, SecretString
-from nx_config.test_utils import mutable_config
+from nx_config.test_utils import mutable_config, update_section
 from tests.typing_test_helpers import collection_type_holders
 
 
@@ -13,16 +13,10 @@ class EmptySection(ConfigSection):
 
 
 class MutableConfigTestCase(TestCase):
-    def test_can_use_test_util_on_empty_config(self):
-        _ = self
-
-        class MyConfig(Config):
-            pass
-
-        cfg = MyConfig()
-
-        with mutable_config(cfg):
-            pass
+    def test_cannot_be_imported_directly_from_nx_config(self):
+        with self.assertRaises(ImportError):
+            # noinspection PyUnresolvedReferences
+            from nx_config import update_section
 
     def test_can_set_entries_with_test_util(self):
         class MySection(ConfigSection):
@@ -36,9 +30,7 @@ class MutableConfigTestCase(TestCase):
         self.assertIs(cfg.my_section.my_entry, MySection().my_entry)
         self.assertEqual(cfg.my_section.my_entry_d, 42)
 
-        with mutable_config(cfg):
-            cfg.my_section.my_entry = 7
-            cfg.my_section.my_entry_d = 99
+        update_section(cfg.my_section, my_entry=7, my_entry_d=99)
 
         self.assertEqual(cfg.my_section.my_entry, 7)
         self.assertEqual(cfg.my_section.my_entry_d, 99)
@@ -52,11 +44,19 @@ class MutableConfigTestCase(TestCase):
 
         cfg = MyConfig()
 
-        with mutable_config(cfg):
-            cfg.my_section.my_entry = 7
+        update_section(cfg.my_section, my_entry=7)
 
         with self.assertRaises(AttributeError):
             cfg.my_section.my_entry = 123
+
+    def test_wrong_key_raises_attr_error(self):
+        class MySection(ConfigSection):
+            my_entry: int = 42
+
+        update_section(MySection(), my_entry=100)
+
+        with self.assertRaises(AttributeError):
+            update_section(MySection(), not_an_entry=100)
 
     def test_sections_are_immutable_after_exception_in_test_util(self):
         class MySection(ConfigSection):
@@ -68,57 +68,12 @@ class MutableConfigTestCase(TestCase):
         cfg = MyConfig()
 
         try:
-            with mutable_config(cfg):
-                raise ValueError()
-        except ValueError:
+            update_section(cfg.my_section, not_an_entry=100)
+        except AttributeError:
             pass
 
         with self.assertRaises(AttributeError):
             cfg.my_section.my_entry = 123
-
-    def test_cannot_set_sections_with_test_util(self):
-        class MyConfig(Config):
-            my_section: EmptySection
-
-        cfg = MyConfig()
-
-        with self.assertRaises(AttributeError):
-            with mutable_config(cfg):
-                cfg.my_section = EmptySection()
-
-    def test_cannot_set_new_attr_with_test_util(self):
-        class MyConfig(Config):
-            pass
-
-        cfg = MyConfig()
-
-        with self.assertRaises(AttributeError):
-            with mutable_config(cfg):
-                cfg.my_int = 42
-
-    def test_cannot_set_new_entries_with_test_util(self):
-        class MyConfig(Config):
-            my_section: EmptySection
-
-        cfg = MyConfig()
-
-        with self.assertRaises(AttributeError):
-            with mutable_config(cfg):
-                cfg.my_section.my_int = 42
-
-    def test_test_util_is_instance_specific(self):
-        class MySection(ConfigSection):
-            my_entry: int = 42
-
-        class MyConfig(Config):
-            my_section: MySection
-
-        cfg1 = MyConfig()
-        cfg2 = MyConfig()
-
-        with self.assertRaises(AttributeError):
-            with mutable_config(cfg1):
-                cfg2.my_section.my_entry = 9
 
     def test_can_have_different_config_instances(self):
         class MySection(ConfigSection):
@@ -130,8 +85,7 @@ class MutableConfigTestCase(TestCase):
         cfg1 = MyConfig()
         cfg2 = MyConfig()
 
-        with mutable_config(cfg1):
-            cfg1.my_section.my_entry = 9
+        update_section(cfg1.my_section, my_entry=9)
 
         self.assertNotEqual(cfg1.my_section.my_entry, cfg2.my_section.my_entry)
 
