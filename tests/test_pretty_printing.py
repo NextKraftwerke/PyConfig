@@ -5,7 +5,7 @@ from unittest import TestCase
 from uuid import UUID
 
 from nx_config import ConfigSection, URL, SecretString, validate, Config
-from nx_config.test_utils import mutable_config
+from nx_config.test_utils import update_section
 from tests.typing_test_helpers import collection_type_holders, CollectionTypeHolder
 
 
@@ -208,9 +208,7 @@ class PrettyPrintingTestCase(TestCase):
             my_section: MySection
 
         cfg = MyConfig()
-
-        with mutable_config(cfg):
-            cfg.my_section.my_entry = 7
+        update_section(cfg.my_section, my_entry=7)
 
         self.assertEqual(str(cfg), f"MyConfig(my_section=MySection(my_entry=7))")
         self.assertEqual(
@@ -234,9 +232,7 @@ class PrettyPrintingTestCase(TestCase):
             my_section: MySection
 
         cfg = MyConfig()
-
-        with mutable_config(cfg):
-            cfg.my_section.my_secret = "hello, world!"
+        update_section(cfg.my_section, my_secret="hello, world!")
 
         self.assertEqual(
             str(cfg.my_section),
@@ -277,10 +273,11 @@ class PrettyPrintingTestCase(TestCase):
                     my_section: MySection
 
                 cfg = MyConfig()
-
-                with mutable_config(cfg):
-                    cfg.my_section.my_tuple = ("hello",)
-                    cfg.my_section.my_frozenset = frozenset(("goodbye", "see ya!"))
+                update_section(
+                    cfg.my_section,
+                    my_tuple=("hello",),
+                    my_frozenset=frozenset(("goodbye", "see ya!")),
+                )
 
                 self.assertEqual(
                     str(cfg.my_section),
