@@ -21,14 +21,6 @@ _supported_base_types = frozenset((
 
 _NoneType = type(None)
 
-_collections_help_str = (
-    "You can represent sequences of values of the same type 'base' using tuples with type-hint"
-    " 'typing.Tuple[base, ...]' or (in python 3.9+) 'tuple[base, ...]'. You can also represent"
-    " unordered sets of unique values using frozensets with type-hint 'typing.FrozenSet[base]',"
-    " or (in python 3.9+) 'frozenset[base]'. Collections without an element type (e.g. just"
-    " 'typing.Tuple' or just 'tuple') are not allowed. There's currently no support for mappings."
-)
-
 
 def _get_optional_and_base(t: type) -> Tuple[bool, type]:
     if t.__module__ == "typing":
