@@ -1,6 +1,5 @@
 from typing import Any
 
-from nx_config._core.naming_utils import mutable_section_attr
 from nx_config._core.type_checks import ConfigTypeInfo
 from nx_config._core.unset import Unset
 from nx_config.secret_string import SecretString
@@ -48,13 +47,10 @@ class SectionEntry:
         return getattr(instance, self._value_attribute)
 
     def __set__(self, instance, value):
-        if not getattr(instance, mutable_section_attr):
-            raise AttributeError(
-                "Setting config entries is not allowed. The contents of the config should be"
-                " loaded at startup from defaults, configuration files and environment variables."
-            )
-
-        self._set(instance, value)
+        raise AttributeError(
+            "Setting config entries is not allowed. The contents of the config should be"
+            " loaded at startup from defaults, configuration files and environment variables."
+        )
 
     def _set(self, instance, value):
         try:

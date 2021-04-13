@@ -1,19 +1,15 @@
 # noinspection PyProtectedMember
 from nx_config._core.naming_utils import (
-    mutable_section_attr as _mutable_attr,
     section_validators_attr as _section_validators_attr,
 )
 from nx_config.section import ConfigSection
 
 
 def update_section(section: ConfigSection, **kwargs):
-    setattr(section, _mutable_attr, True)
-
-    try:
-        for k, v in kwargs.items():
-            setattr(section, k, v)
-    finally:
-        setattr(section, _mutable_attr, False)
+    for entry_name, new_value in kwargs.items():
+        entry = getattr(type(section), entry_name)
+        # noinspection PyProtectedMember
+        entry._set(section, new_value)
 
     try:
         for validator in getattr(type(section), _section_validators_attr):

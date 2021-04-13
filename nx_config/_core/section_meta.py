@@ -1,6 +1,6 @@
 from inspect import isroutine, isclass
 
-from nx_config._core.naming_utils import mutable_section_attr, root_attr, internal_name, section_validators_attr
+from nx_config._core.naming_utils import root_attr, internal_name, section_validators_attr
 from nx_config._core.section_entry import SectionEntry
 from nx_config._core.type_checks import ConfigTypeInfo
 from nx_config._core.unset import Unset
@@ -68,5 +68,5 @@ class SectionMeta(type):
                 )
 
         ns[section_validators_attr] = tuple(validators)
-        ns["__slots__"] = (mutable_section_attr, *(internal_name(e) for e in entries))
+        ns["__slots__"] = tuple(internal_name(e) for e in entries)
         return super().__new__(mcs, typename, bases, ns)
