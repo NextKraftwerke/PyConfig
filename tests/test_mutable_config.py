@@ -4,7 +4,7 @@ from unittest import TestCase
 from uuid import UUID
 
 from nx_config import Config, ConfigSection, validate, URL, SecretString
-from nx_config.test_utils import mutable_config, update_section
+from nx_config.test_utils import update_section
 from tests.typing_test_helpers import collection_type_holders
 
 
@@ -103,8 +103,7 @@ class MutableConfigTestCase(TestCase):
         cfg = MyConfig()
 
         with self.assertRaises(ValueError):
-            with mutable_config(cfg):
-                pass
+            update_section(cfg.my_section)
 
     def test_uses_all_validators(self):
         class MySection(ConfigSection):
@@ -125,19 +124,14 @@ class MutableConfigTestCase(TestCase):
 
         cfg = MyConfig()
 
-        with mutable_config(cfg):
-            pass
-
-        with mutable_config(cfg):
-            cfg.my_section.my_entry = 100
+        update_section(cfg.my_section)
+        update_section(cfg.my_section, my_entry=100)
 
         with self.assertRaises(ValueError):
-            with mutable_config(cfg):
-                cfg.my_section.my_entry = -4
+            update_section(cfg.my_section, my_entry=-4)
 
         with self.assertRaises(ValueError):
-            with mutable_config(cfg):
-                cfg.my_section.my_entry = 101
+            update_section(cfg.my_section, my_entry=101)
 
     def test_no_mutation_in_validators(self):
         class MySection(ConfigSection):
@@ -153,8 +147,7 @@ class MutableConfigTestCase(TestCase):
         cfg = MyConfig()
 
         with self.assertRaises(AttributeError) as ctx:
-            with mutable_config(cfg):
-                cfg.my_section.my_entry = 100
+            update_section(cfg.my_section, my_entry=100)
 
         self.assertEqual(cfg.my_section.my_entry, 100)
 
@@ -172,8 +165,7 @@ class MutableConfigTestCase(TestCase):
         cfg = MyConfig()
 
         with self.assertRaises(TypeError) as ctx:
-            with mutable_config(cfg):
-                cfg.my_section.my_entry = 3.14
+            update_section(cfg.my_section, my_entry=3.14)
 
         self.assertEqual(cfg.my_section.my_entry, 42)
 
@@ -193,8 +185,7 @@ class MutableConfigTestCase(TestCase):
         cfg = MyConfig()
 
         with self.assertRaises(TypeError) as ctx:
-            with mutable_config(cfg):
-                cfg.my_section.my_entry = "100"
+            update_section(cfg.my_section, my_entry="100")
 
         self.assertEqual(cfg.my_section.my_entry, 42)
 
@@ -214,8 +205,7 @@ class MutableConfigTestCase(TestCase):
         cfg = MyConfig()
 
         with self.assertRaises(TypeError) as ctx:
-            with mutable_config(cfg):
-                cfg.my_section.my_entry = None
+            update_section(cfg.my_section, my_entry=None)
 
         self.assertEqual(cfg.my_section.my_entry, 42)
 
@@ -234,9 +224,7 @@ class MutableConfigTestCase(TestCase):
 
         cfg = MyConfig()
 
-        with mutable_config(cfg):
-            cfg.my_section.my_entry = None
-
+        update_section(cfg.my_section, my_entry=None)
         self.assertIsNone(cfg.my_section.my_entry)
 
     def test_can_assign_value_to_optional_int(self):
@@ -248,9 +236,7 @@ class MutableConfigTestCase(TestCase):
 
         cfg = MyConfig()
 
-        with mutable_config(cfg):
-            cfg.my_section.my_entry = 42
-
+        update_section(cfg.my_section, my_entry=42)
         self.assertEqual(cfg.my_section.my_entry, 42)
 
     def test_type_check_comes_before_validators(self):
@@ -267,8 +253,7 @@ class MutableConfigTestCase(TestCase):
         cfg = MyConfig()
 
         with self.assertRaises(TypeError):
-            with mutable_config(cfg):
-                cfg.my_section.my_entry = 3.14
+            update_section(cfg.my_section, my_entry=3.14)
 
     def test_can_assign_to_tuple_and_frozenset(self):
         for tps in collection_type_holders:
@@ -289,11 +274,13 @@ class MutableConfigTestCase(TestCase):
                 new_frozenset = frozenset((UUID(int=7), UUID(int=8)))
                 new_other_frozenset = frozenset()
 
-                with mutable_config(cfg):
-                    cfg.my_section.my_tuple = new_tuple
-                    cfg.my_section.my_other_tuple = new_other_tuple
-                    cfg.my_section.my_frozenset = new_frozenset
-                    cfg.my_section.my_other_frozenset = new_other_frozenset
+                update_section(
+                    cfg.my_section,
+                    my_tuple=new_tuple,
+                    my_other_tuple=new_other_tuple,
+                    my_frozenset=new_frozenset,
+                    my_other_frozenset=new_other_frozenset,
+                )
 
                 self.assertEqual(cfg.my_section.my_tuple, new_tuple)
                 self.assertEqual(cfg.my_section.my_other_tuple, new_other_tuple)
@@ -312,8 +299,7 @@ class MutableConfigTestCase(TestCase):
                 cfg = MyConfig()
 
                 with self.assertRaises(TypeError) as ctx:
-                    with mutable_config(cfg):
-                        cfg.my_section.my_entry = (42, "43", 44, 45)
+                    update_section(cfg.my_section, my_entry=(42, "43", 44, 45))
 
                 msg = str(ctx.exception)
                 self.assertIn("'my_entry'", msg)
@@ -333,8 +319,7 @@ class MutableConfigTestCase(TestCase):
                 cfg = MyConfig()
 
                 with self.assertRaises(TypeError) as ctx:
-                    with mutable_config(cfg):
-                        cfg.my_section.my_entry = []
+                    update_section(cfg.my_section, my_entry=[])
 
                 msg = str(ctx.exception)
                 self.assertIn("'my_entry'", msg)
@@ -354,8 +339,7 @@ class MutableConfigTestCase(TestCase):
                 cfg = MyConfig()
 
                 with self.assertRaises(TypeError) as ctx:
-                    with mutable_config(cfg):
-                        cfg.my_section.my_entry = 42
+                    update_section(cfg.my_section, my_entry=42)
 
                 msg = str(ctx.exception)
                 self.assertIn("'my_entry'", msg)
@@ -375,8 +359,7 @@ class MutableConfigTestCase(TestCase):
                 cfg = MyConfig()
 
                 with self.assertRaises(TypeError) as ctx:
-                    with mutable_config(cfg):
-                        cfg.my_section.my_entry = None
+                    update_section(cfg.my_section, my_entry=None)
 
                 msg = str(ctx.exception)
                 self.assertIn("'my_entry'", msg)
@@ -396,8 +379,7 @@ class MutableConfigTestCase(TestCase):
                 cfg = MyConfig()
 
                 with self.assertRaises(TypeError) as ctx:
-                    with mutable_config(cfg):
-                        cfg.my_section.my_entry = ()
+                    update_section(cfg.my_section, my_entry=())
 
                 msg = str(ctx.exception)
                 self.assertIn("'my_entry'", msg)
@@ -420,9 +402,11 @@ class MutableConfigTestCase(TestCase):
                 secret = "abcdooo"
                 secrets = ("1234000", "wwwww987")
 
-                with mutable_config(cfg):
-                    cfg.my_section.my_entry = secret
-                    cfg.my_section.my_other_entry = secrets
+                update_section(
+                    cfg.my_section,
+                    my_entry=secret,
+                    my_other_entry=secrets,
+                )
 
                 self.assertEqual(cfg.my_section.my_entry, secret)
                 self.assertEqual(cfg.my_section.my_other_entry, secrets)
@@ -437,8 +421,7 @@ class MutableConfigTestCase(TestCase):
         cfg = MyConfig()
 
         with self.assertRaises(TypeError) as ctx:
-            with mutable_config(cfg):
-                cfg.my_section.my_entry = 42
+            update_section(cfg.my_section, my_entry=42)
 
         msg = str(ctx.exception)
         self.assertIn("'my_entry'", msg)
@@ -456,8 +439,7 @@ class MutableConfigTestCase(TestCase):
         cfg = MyConfig()
 
         with self.assertRaises(TypeError) as ctx:
-            with mutable_config(cfg):
-                cfg.my_section.my_entry = 42
+            update_section(cfg.my_section, my_entry=42)
 
         msg = str(ctx.exception)
         self.assertIn("'my_entry'", msg)
@@ -477,8 +459,7 @@ class MutableConfigTestCase(TestCase):
                 cfg = MyConfig()
 
                 with self.assertRaises(TypeError) as ctx:
-                    with mutable_config(cfg):
-                        cfg.my_section.my_entry = 42
+                    update_section(cfg.my_section, my_entry=42)
 
                 msg = str(ctx.exception)
                 self.assertIn("'my_entry'", msg)
