@@ -3,7 +3,7 @@ from unittest import TestCase
 from nx_config import fill_config, Config, ConfigSection, validate, ValidationError, IncompleteSectionError
 
 
-class FillConfigTestCase(TestCase):
+class FillConfigNoInputTestCase(TestCase):
     def test_fill_no_input_empty_config(self):
         _ = self
 

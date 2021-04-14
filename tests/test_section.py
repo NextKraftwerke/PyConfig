@@ -230,10 +230,21 @@ class SectionTestCase(TestCase):
 
     def test_double_star_unpack_non_empty_section(self):
         class MySection(ConfigSection):
+            a_type_alias = int
+
             first: int = 42
+
+            @validate
+            def a_validator(self):
+                pass
+
             second: float = 3.14
             third: bool = False
             fourth: Optional[str] = None
+
+            def a_method(self):
+                pass
+
             fifth: Optional[str] = "Hello"
 
         sec = MySection()
