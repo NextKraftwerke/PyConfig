@@ -1,8 +1,13 @@
 from datetime import timedelta
 from sys import getsizeof
+from typing import Optional
 from unittest import TestCase
 
 from nx_config import ConfigSection, validate
+
+
+class EmptySection(ConfigSection):
+    pass
 
 
 class SectionTestCase(TestCase):
@@ -18,11 +23,7 @@ class SectionTestCase(TestCase):
 
     def test_empty_section_subclass_has_default_init(self):
         _ = self
-
-        class MySection(ConfigSection):
-            pass
-
-        _ = MySection()
+        _ = EmptySection()
 
     def test_section_can_have_entries(self):
         _ = self
@@ -82,12 +83,9 @@ class SectionTestCase(TestCase):
         self.assertLess(getsizeof(MySection().my_entry), getsizeof(Foo()))
 
     def test_cannot_get_undeclared_entry(self):
-        class MySection(ConfigSection):
-            pass
-
         with self.assertRaises(AttributeError):
             # noinspection PyUnresolvedReferences
-            _ = MySection().undeclared_entry
+            _ = EmptySection().undeclared_entry
 
     def test_cannot_set_entry(self):
         class MySection(ConfigSection):
@@ -104,10 +102,7 @@ class SectionTestCase(TestCase):
         self.assertIn("set", msg.lower())
 
     def test_cannot_set_undeclared_entry(self):
-        class MySection(ConfigSection):
-            pass
-
-        sec = MySection()
+        sec = EmptySection()
 
         with self.assertRaises(AttributeError):
             sec.undeclared_entry = 42
@@ -228,3 +223,41 @@ class SectionTestCase(TestCase):
                 raise ValueError()
 
         _ = MySection()
+
+    def test_double_star_unpack_empty_section(self):
+        sec = EmptySection()
+        self.assertDictEqual({**sec}, {})
+
+    def test_double_star_unpack_non_empty_section(self):
+        class MySection(ConfigSection):
+            first: int = 42
+            second: float = 3.14
+            third: bool = False
+            fourth: Optional[str] = None
+            fifth: Optional[str] = "Hello"
+
+        sec = MySection()
+
+        self.assertDictEqual(
+            {**sec},
+            {
+                "first": sec.first,
+                "second": sec.second,
+                "third": sec.third,
+                "fourth": sec.fourth,
+                "fifth": sec.fifth,
+            },
+        )
+
+    def test_empty_section_length(self):
+        self.assertEqual(len(EmptySection()), 0)
+
+    def test_non_empty_section_length(self):
+        class MySection(ConfigSection):
+            first: int = 42
+            second: float = 3.14
+            third: bool = False
+            fourth: Optional[str] = None
+            fifth: Optional[str] = "Hello"
+
+        self.assertEqual(len(MySection()), 5)

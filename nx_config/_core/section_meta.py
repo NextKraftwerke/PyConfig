@@ -1,3 +1,4 @@
+from abc import ABCMeta
 from inspect import isroutine, isclass
 
 from nx_config._core.naming_utils import root_attr, internal_name, section_validators_attr
@@ -6,10 +7,10 @@ from nx_config._core.type_checks import ConfigTypeInfo
 from nx_config._core.unset import Unset
 from nx_config._core.validator import Validator
 
-_special_section_keys = ("__module__", "__qualname__", "__annotations__", "__doc__", "__init__")
+_special_section_keys = ("__module__", "__qualname__", "__annotations__", "__doc__", "__init__", "__orig_bases__")
 
 
-class SectionMeta(type):
+class SectionMeta(ABCMeta):
     def __new__(mcs, typename, bases, ns):
         is_root = ns.pop(root_attr, False)
 
