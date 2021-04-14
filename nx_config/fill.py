@@ -3,7 +3,7 @@ from nx_config._core.section_meta import run_validators as _run_validators
 # noinspection PyProtectedMember
 from nx_config._core.unset import Unset as _Unset
 from nx_config.config import Config
-from nx_config.exceptions import ValidationError
+from nx_config.exceptions import ValidationError, IncompleteSectionError
 from nx_config.section import ConfigSection
 
 
@@ -20,7 +20,7 @@ def fill_config(cfg: Config):
         try:
             _check_all_entries_were_set(section)
         except ValueError as xcp:
-            raise ValueError(f"Incomplete section '{section_name}': {xcp}") from xcp
+            raise IncompleteSectionError(f"Incomplete section '{section_name}': {xcp}") from xcp
 
         try:
             _run_validators(section)

@@ -4,3 +4,7 @@ class NxConfigError(Exception):
 
 class ValidationError(NxConfigError, ValueError):
     pass
+
+
+class IncompleteSectionError(NxConfigError, ValueError):
+    pass

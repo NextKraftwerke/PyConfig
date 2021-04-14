@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from nx_config import fill_config, Config, ConfigSection, validate, ValidationError
+from nx_config import fill_config, Config, ConfigSection, validate, ValidationError, IncompleteSectionError
 
 
 class FillConfigTestCase(TestCase):
@@ -65,7 +65,7 @@ class FillConfigTestCase(TestCase):
 
         cfg = MyConfig()
 
-        with self.assertRaises(ValueError) as ctx:
+        with self.assertRaises(IncompleteSectionError) as ctx:
             fill_config(cfg)
 
         msg = str(ctx.exception)
