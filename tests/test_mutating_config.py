@@ -3,7 +3,7 @@ from typing import Optional
 from unittest import TestCase
 from uuid import UUID
 
-from nx_config import Config, ConfigSection, validate, URL, SecretString
+from nx_config import Config, ConfigSection, validate, URL, SecretString, ValidationError
 from nx_config.test_utils import update_section
 from tests.typing_test_helpers import collection_type_holders
 
@@ -146,13 +146,12 @@ class MutableConfigTestCase(TestCase):
 
         cfg = MyConfig()
 
-        with self.assertRaises(AttributeError) as ctx:
+        with self.assertRaises(ValidationError) as ctx:
             update_section(cfg.my_section, my_entry=100)
 
         self.assertEqual(cfg.my_section.my_entry, 100)
 
         msg = str(ctx.exception)
-        self.assertIn("validat", msg.lower())
         self.assertIn("set", msg.lower())
 
     def test_cannot_assign_float_to_int(self):

@@ -1,6 +1,8 @@
 # noinspection PyUnresolvedReferences
 from .config import Config
 # noinspection PyUnresolvedReferences
+from .exceptions import NxConfigError, ValidationError
+# noinspection PyUnresolvedReferences
 from .fill import fill_config
 # noinspection PyUnresolvedReferences
 from .secret_string import SecretString

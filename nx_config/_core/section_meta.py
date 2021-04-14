@@ -70,3 +70,9 @@ class SectionMeta(type):
         ns[section_validators_attr] = tuple(validators)
         ns["__slots__"] = tuple(internal_name(e) for e in entries)
         return super().__new__(mcs, typename, bases, ns)
+
+
+# noinspection PyUnresolvedReferences
+def run_validators(section: "ConfigSection"):
+    for validator in getattr(type(section), section_validators_attr):
+        validator(section)
