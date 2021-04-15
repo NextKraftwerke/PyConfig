@@ -210,7 +210,7 @@ class ConfigTestCase(TestCase):
 
         cfg = MyConfig()
         self.assertIs(cfg.my_section.my_entry, MySection().my_entry)
-        self.assertEqual(cfg.my_section.my_entry_d, 42)
+        self.assertEqual(42, cfg.my_section.my_entry_d)
 
         with self.assertRaises(AttributeError) as ctx1:
             cfg.my_section.my_entry = 42
@@ -225,7 +225,7 @@ class ConfigTestCase(TestCase):
         self.assertIn("set", msg2.lower())
 
         self.assertIs(cfg.my_section.my_entry, MySection().my_entry)
-        self.assertEqual(cfg.my_section.my_entry_d, 42)
+        self.assertEqual(42, cfg.my_section.my_entry_d)
 
     def test_methods_are_okay(self):
         class MySection(ConfigSection):
@@ -238,7 +238,7 @@ class ConfigTestCase(TestCase):
                 return timedelta(minutes=self.my_section.delta_in_minutes)
 
         cfg = MyConfig()
-        self.assertEqual(cfg.delta(), timedelta(minutes=cfg.my_section.delta_in_minutes))
+        self.assertEqual(timedelta(minutes=cfg.my_section.delta_in_minutes), cfg.delta())
 
     def test_nested_types_are_okay(self):
         class MySection(ConfigSection):
@@ -262,4 +262,4 @@ class ConfigTestCase(TestCase):
                 return MyConfig.Temperature.from_celsius(self.my_section.temp_in_celsius)
 
         cfg = MyConfig()
-        self.assertEqual(cfg.temp().celsius(), cfg.my_section.temp_in_celsius)
+        self.assertEqual(cfg.my_section.temp_in_celsius, cfg.temp().celsius())

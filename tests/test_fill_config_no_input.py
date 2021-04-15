@@ -46,9 +46,9 @@ class FillConfigNoInputTestCase(TestCase):
         fill_config(cfg)
 
         with self.subTest("no_changes"):
-            self.assertEqual(cfg.first.my_int, 42)
-            self.assertEqual(cfg.first.my_str, "Hello")
-            self.assertEqual(cfg.second.my_bool, True)
+            self.assertEqual(42, cfg.first.my_int)
+            self.assertEqual("Hello", cfg.first.my_str)
+            self.assertEqual(True, cfg.second.my_bool)
 
         with self.subTest("remains_immutable"):
             with self.assertRaises(AttributeError):

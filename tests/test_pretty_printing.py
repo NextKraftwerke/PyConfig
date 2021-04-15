@@ -156,49 +156,49 @@ class PrettyPrintingTestCase(TestCase):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
                 sec = _get_testing_section_cls(tps)()
-                self.assertEqual(str(sec), self.expected_database_str)
+                self.assertEqual(self.expected_database_str, str(sec))
 
     def test_pretty_empty_section_str(self):
         sec = EmptySection()
-        self.assertEqual(str(sec), "EmptySection()")
+        self.assertEqual("EmptySection()", str(sec))
 
     def test_pretty_section_repr(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
                 sec = _get_testing_section_cls(tps)()
-                self.assertEqual(repr(sec), self.expected_database_repr)
+                self.assertEqual(self.expected_database_repr, repr(sec))
 
     def test_pretty_empty_section_repr(self):
         sec = EmptySection()
-        self.assertEqual(repr(sec), "EmptySection(\n)")
+        self.assertEqual("EmptySection(\n)", repr(sec))
 
     def test_pretty_config_str(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
                 cfg = _get_big_testing_config_cls(tps)()
-                self.assertEqual(str(cfg), f"BigConfig(database={cfg.database}, empty={cfg.empty})")
+                self.assertEqual(f"BigConfig(database={cfg.database}, empty={cfg.empty})", str(cfg))
 
     def test_pretty_empty_config_str(self):
         cfg = EmptyConfig()
-        self.assertEqual(str(cfg), "EmptyConfig()")
+        self.assertEqual("EmptyConfig()", str(cfg))
 
     def test_pretty_config_repr(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
                 cfg = _get_big_testing_config_cls(tps)()
                 self.assertEqual(
-                    repr(cfg),
                     (
                         f"BigConfig(\n"
                         f"    database={indent_after_newline(repr(cfg.database))},\n"
                         f"    empty={indent_after_newline(repr(cfg.empty))},\n"
                         f")"
-                    )
+                    ),
+                    repr(cfg),
                 )
 
     def test_pretty_empty_config_repr(self):
         cfg = EmptyConfig()
-        self.assertEqual(repr(cfg), "EmptyConfig(\n)")
+        self.assertEqual("EmptyConfig(\n)", repr(cfg))
 
     def test_config_str_and_repr_after_mutation(self):
         class MySection(ConfigSection):
@@ -210,9 +210,8 @@ class PrettyPrintingTestCase(TestCase):
         cfg = MyConfig()
         update_section(cfg.my_section, my_entry=7)
 
-        self.assertEqual(str(cfg), f"MyConfig(my_section=MySection(my_entry=7))")
+        self.assertEqual(f"MyConfig(my_section=MySection(my_entry=7))", str(cfg))
         self.assertEqual(
-            repr(cfg),
             (
                 f"MyConfig(\n"
                 f"    my_section=MySection(\n"
@@ -220,6 +219,7 @@ class PrettyPrintingTestCase(TestCase):
                 f"    ),\n"
                 f")"
             ),
+            repr(cfg),
         )
 
     def test_section_and_config_str_and_repr_with_secret(self):
@@ -235,11 +235,10 @@ class PrettyPrintingTestCase(TestCase):
         update_section(cfg.my_section, my_secret="hello, world!")
 
         self.assertEqual(
-            str(cfg.my_section),
             f"MySection(my_int=42, my_secret='*****', my_none_secret=None)",
+            str(cfg.my_section),
         )
         self.assertEqual(
-            repr(cfg.my_section),
             (
                 f"MySection(\n"
                 f"    my_int=42,\n"
@@ -247,16 +246,17 @@ class PrettyPrintingTestCase(TestCase):
                 f"    my_none_secret=None,\n"
                 f")"
             ),
+            repr(cfg.my_section),
         )
 
-        self.assertEqual(str(cfg), f"MyConfig(my_section={cfg.my_section})")
+        self.assertEqual(f"MyConfig(my_section={cfg.my_section})", str(cfg))
         self.assertEqual(
-            repr(cfg),
             (
                 f"MyConfig(\n"
                 f"    my_section={indent_after_newline(repr(cfg.my_section))},\n"
                 f")"
             ),
+            repr(cfg),
         )
 
     def test_secret_string_masking_in_collections(self):
@@ -280,18 +280,17 @@ class PrettyPrintingTestCase(TestCase):
                 )
 
                 self.assertEqual(
-                    str(cfg.my_section),
                     (
                         "MySection(my_tuple=('*****', ...), my_frozenset={'*****', ...},"
                         " my_empty_tuple=(), my_empty_frozenset={}, my_none=None)"
                     ),
+                    str(cfg.my_section),
                 )
 
                 my_tuple_str = repr((...,)).replace("Ellipsis,", f"{repr('*****')}, ...")
                 my_frozenset_str = repr(frozenset((...,))).replace("Ellipsis", f"{repr('*****')}, ...")
 
                 self.assertEqual(
-                    repr(cfg.my_section),
                     (
                         f"MySection(\n"
                         f"    my_tuple={my_tuple_str},\n"
@@ -301,4 +300,5 @@ class PrettyPrintingTestCase(TestCase):
                         f"    my_none=None,\n"
                         f")"
                     ),
+                    repr(cfg.my_section),
                 )

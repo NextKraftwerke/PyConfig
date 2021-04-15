@@ -57,8 +57,8 @@ class SectionTestCase(TestCase):
             my_entry: int
 
         sec = MySection()
-        self.assertEqual(str(sec.my_entry), "Unset")
-        self.assertEqual(repr(sec.my_entry), "Unset")
+        self.assertEqual("Unset", str(sec.my_entry))
+        self.assertEqual("Unset", repr(sec.my_entry))
         self.assertIn("Unset", type(sec.my_entry).__name__)
 
     def test_unset_type_cannot_be_instantiated(self):
@@ -139,7 +139,7 @@ class SectionTestCase(TestCase):
         class MySection(ConfigSection):
             my_entry: int = 42
 
-        self.assertEqual(MySection().my_entry, 42)
+        self.assertEqual(42, MySection().my_entry)
 
     def test_section_can_have_docstring(self):
         _ = self
@@ -167,7 +167,7 @@ class SectionTestCase(TestCase):
                 return timedelta(minutes=self.delta_in_minutes)
 
         sec = MySection()
-        self.assertEqual(sec.delta(), timedelta(minutes=sec.delta_in_minutes))
+        self.assertEqual(timedelta(minutes=sec.delta_in_minutes), sec.delta())
 
     def test_nested_types_are_okay(self):
         class MySection(ConfigSection):
@@ -188,7 +188,7 @@ class SectionTestCase(TestCase):
                 return MySection.Temperature.from_celsius(self.temp_in_celsius)
 
         sec = MySection()
-        self.assertEqual(sec.temp().celsius(), sec.temp_in_celsius)
+        self.assertEqual(sec.temp_in_celsius, sec.temp().celsius())
 
     def test_can_have_validation_annotations(self):
         _ = self
@@ -219,7 +219,7 @@ class SectionTestCase(TestCase):
 
     def test_double_star_unpack_empty_section(self):
         sec = EmptySection()
-        self.assertDictEqual({**sec}, {})
+        self.assertDictEqual({}, {**sec})
 
     def test_double_star_unpack_non_empty_section(self):
         class MySection(ConfigSection):
@@ -248,7 +248,6 @@ class SectionTestCase(TestCase):
         sec = MySection()
 
         self.assertDictEqual(
-            {**sec},
             {
                 "first": sec.first,
                 "second": sec.second,
@@ -256,10 +255,11 @@ class SectionTestCase(TestCase):
                 "fourth": sec.fourth,
                 "fifth": sec.fifth,
             },
+            {**sec},
         )
 
     def test_empty_section_length(self):
-        self.assertEqual(len(EmptySection()), 0)
+        self.assertEqual(0, len(EmptySection()))
 
     def test_non_empty_section_length(self):
         class MySection(ConfigSection):
@@ -269,4 +269,4 @@ class SectionTestCase(TestCase):
             fourth: Optional[str] = None
             fifth: Optional[str] = "Hello"
 
-        self.assertEqual(len(MySection()), 5)
+        self.assertEqual(5, len(MySection()))

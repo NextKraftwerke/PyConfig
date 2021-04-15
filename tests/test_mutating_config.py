@@ -28,12 +28,12 @@ class MutableConfigTestCase(TestCase):
 
         cfg = MyConfig()
         self.assertIs(cfg.my_section.my_entry, MySection().my_entry)
-        self.assertEqual(cfg.my_section.my_entry_d, 42)
+        self.assertEqual(42, cfg.my_section.my_entry_d)
 
         update_section(cfg.my_section, my_entry=7, my_entry_d=99)
 
-        self.assertEqual(cfg.my_section.my_entry, 7)
-        self.assertEqual(cfg.my_section.my_entry_d, 99)
+        self.assertEqual(7, cfg.my_section.my_entry)
+        self.assertEqual(99, cfg.my_section.my_entry_d)
 
     def test_sections_are_immutable_after_test_util(self):
         class MySection(ConfigSection):
@@ -87,7 +87,7 @@ class MutableConfigTestCase(TestCase):
 
         update_section(cfg1.my_section, my_entry=9)
 
-        self.assertNotEqual(cfg1.my_section.my_entry, cfg2.my_section.my_entry)
+        self.assertNotEqual(cfg2.my_section.my_entry, cfg1.my_section.my_entry)
 
     def test_does_validate_after_mutation(self):
         class MySection(ConfigSection):
@@ -149,7 +149,7 @@ class MutableConfigTestCase(TestCase):
         with self.assertRaises(ValidationError) as ctx:
             update_section(cfg.my_section, my_entry=100)
 
-        self.assertEqual(cfg.my_section.my_entry, 100)
+        self.assertEqual(100, cfg.my_section.my_entry)
 
         msg = str(ctx.exception)
         self.assertIn("set", msg.lower())
@@ -166,7 +166,7 @@ class MutableConfigTestCase(TestCase):
         with self.assertRaises(TypeError) as ctx:
             update_section(cfg.my_section, my_entry=3.14)
 
-        self.assertEqual(cfg.my_section.my_entry, 42)
+        self.assertEqual(42, cfg.my_section.my_entry)
 
         msg = str(ctx.exception)
         self.assertIn("'my_entry'", msg)
@@ -186,7 +186,7 @@ class MutableConfigTestCase(TestCase):
         with self.assertRaises(TypeError) as ctx:
             update_section(cfg.my_section, my_entry="100")
 
-        self.assertEqual(cfg.my_section.my_entry, 42)
+        self.assertEqual(42, cfg.my_section.my_entry)
 
         msg = str(ctx.exception)
         self.assertIn("'my_entry'", msg)
@@ -206,7 +206,7 @@ class MutableConfigTestCase(TestCase):
         with self.assertRaises(TypeError) as ctx:
             update_section(cfg.my_section, my_entry=None)
 
-        self.assertEqual(cfg.my_section.my_entry, 42)
+        self.assertEqual(42, cfg.my_section.my_entry)
 
         msg = str(ctx.exception)
         self.assertIn("'my_entry'", msg)
@@ -236,7 +236,7 @@ class MutableConfigTestCase(TestCase):
         cfg = MyConfig()
 
         update_section(cfg.my_section, my_entry=42)
-        self.assertEqual(cfg.my_section.my_entry, 42)
+        self.assertEqual(42, cfg.my_section.my_entry)
 
     def test_type_check_comes_before_validators(self):
         class MySection(ConfigSection):
@@ -281,10 +281,10 @@ class MutableConfigTestCase(TestCase):
                     my_other_frozenset=new_other_frozenset,
                 )
 
-                self.assertEqual(cfg.my_section.my_tuple, new_tuple)
-                self.assertEqual(cfg.my_section.my_other_tuple, new_other_tuple)
-                self.assertEqual(cfg.my_section.my_frozenset, new_frozenset)
-                self.assertEqual(cfg.my_section.my_other_frozenset, new_other_frozenset)
+                self.assertEqual(new_tuple, cfg.my_section.my_tuple)
+                self.assertEqual(new_other_tuple, cfg.my_section.my_other_tuple)
+                self.assertEqual(new_frozenset, cfg.my_section.my_frozenset)
+                self.assertEqual(new_other_frozenset, cfg.my_section.my_other_frozenset)
 
     def test_assigned_tuple_elements_must_have_base_type(self):
         for tps in collection_type_holders:
@@ -407,8 +407,8 @@ class MutableConfigTestCase(TestCase):
                     my_other_entry=secrets,
                 )
 
-                self.assertEqual(cfg.my_section.my_entry, secret)
-                self.assertEqual(cfg.my_section.my_other_entry, secrets)
+                self.assertEqual(secret, cfg.my_section.my_entry)
+                self.assertEqual(secrets, cfg.my_section.my_other_entry)
 
     def test_cannot_assign_int_to_secret_string(self):
         class MySection(ConfigSection):

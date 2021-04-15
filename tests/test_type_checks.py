@@ -107,7 +107,7 @@ class TypeChecksTestCase(TestCase):
                     my_other_entry: tps.tuple[bool, ...] = some_bools
 
                 sec = MySection()
-                self.assertEqual(sec.my_other_entry, some_bools)
+                self.assertEqual(some_bools, sec.my_other_entry)
 
     def test_tuple_must_be_single_type_then_ellipsis(self):
         for tps in collection_type_holders:
@@ -203,7 +203,7 @@ class TypeChecksTestCase(TestCase):
                     my_entry: tps.tuple[int, ...] = ()
 
                 sec = MySection()
-                self.assertEqual(sec.my_entry, ())
+                self.assertEqual((), sec.my_entry)
 
     def test_any_is_not_supported(self):
         with self.assertRaises(TypeError) as ctx:
@@ -253,9 +253,9 @@ class TypeChecksTestCase(TestCase):
 
         sec = MySection()
         self.assertIsNone(sec.none_as_first)
-        self.assertEqual(sec.none_as_first42, 42)
+        self.assertEqual(42, sec.none_as_first42)
         self.assertIsNone(sec.none_as_second)
-        self.assertEqual(sec.none_as_second42, 42)
+        self.assertEqual(42, sec.none_as_second42)
 
     def test_optional_int_entry_can_be_none(self):
         class MySection(ConfigSection):
@@ -331,11 +331,11 @@ class TypeChecksTestCase(TestCase):
                     my_fifth_entry: Optional[tps.frozenset[SecretString]] = frozenset()
 
                 sec = MySection()
-                self.assertEqual(str(sec.my_entry), "Unset")
-                self.assertEqual(sec.my_second_entry, ())
-                self.assertEqual(sec.my_third_entry, frozenset())
-                self.assertEqual(sec.my_fourth_entry, ())
-                self.assertEqual(sec.my_fifth_entry, frozenset())
+                self.assertEqual("Unset", str(sec.my_entry))
+                self.assertEqual((), sec.my_second_entry)
+                self.assertEqual(frozenset(), sec.my_third_entry)
+                self.assertEqual((), sec.my_fourth_entry)
+                self.assertEqual(frozenset(), sec.my_fifth_entry)
 
     def test_tuple_can_be_optional(self):
         for tps in collection_type_holders:
@@ -346,7 +346,7 @@ class TypeChecksTestCase(TestCase):
 
                 sec = MySection()
                 self.assertIsNone(sec.my_entry)
-                self.assertEqual(sec.my_other_entry, (42,))
+                self.assertEqual((42,), sec.my_other_entry)
 
     def test_frozenset_is_ok(self):
         some_strings = frozenset(("hello", "hi", "howdy?!"))
@@ -358,7 +358,7 @@ class TypeChecksTestCase(TestCase):
                     my_other_entry: tps.frozenset[str] = some_strings
 
                 sec = MySection()
-                self.assertEqual(sec.my_other_entry, some_strings)
+                self.assertEqual(some_strings, sec.my_other_entry)
 
     def test_no_lists_allowed(self):
         for tps in collection_type_holders:
@@ -447,7 +447,7 @@ class TypeChecksTestCase(TestCase):
                     my_entry: tps.frozenset[int] = frozenset()
 
                 sec = MySection()
-                self.assertEqual(sec.my_entry, frozenset())
+                self.assertEqual(frozenset(), sec.my_entry)
 
     def test_no_sets_allowed(self):
         for tps in collection_type_holders:
@@ -515,8 +515,8 @@ class TypeChecksTestCase(TestCase):
             my_fourth_entry: tuple1[int, ...] = some_ints
 
         sec = MySection()
-        self.assertEqual(sec.my_second_entry, some_bools)
-        self.assertEqual(sec.my_fourth_entry, some_ints)
+        self.assertEqual(some_bools, sec.my_second_entry)
+        self.assertEqual(some_ints, sec.my_fourth_entry)
 
     def test_no_bare_tuples(self):
         for tps in collection_type_holders:
