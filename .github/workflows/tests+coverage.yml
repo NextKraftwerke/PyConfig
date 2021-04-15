@@ -62,12 +62,12 @@ jobs:
       run: |
         coverage report --show-missing --precision=1 --fail-under=${{env.min_coverage}}
     - name: Write coverage JSON
-      if: always()
+      if: github.event_name == 'push'
       run: |
         coverage json -o ${{env.cov_json_path}}
         python .github/stats/cov_add_rounded_total.py ${{env.cov_json_path}}
     - name: Push changes to stats file
-      if: always()
+      if: github.event_name == 'push'
       run: |
           git config user.name 'GitHub CI'
           git config user.email ''
