@@ -1,7 +1,7 @@
 # noinspection PyUnresolvedReferences
 from .config import Config
 # noinspection PyUnresolvedReferences
-from .exceptions import NxConfigError, ValidationError, IncompleteSectionError
+from .exceptions import NxConfigError, ValidationError, IncompleteSectionError, ParsingError
 # noinspection PyUnresolvedReferences
 from .fill import fill_config
 # noinspection PyUnresolvedReferences

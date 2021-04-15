@@ -11,15 +11,23 @@ from nx_config._core.section_meta import run_validators
 from nx_config._core.type_checks import ConfigTypeInfo
 from nx_config._core.unset import Unset
 from nx_config.config import Config
-from nx_config.exceptions import ValidationError, IncompleteSectionError
+from nx_config.exceptions import ValidationError, IncompleteSectionError, ParsingError
 from nx_config.section import ConfigSection
+
+_truey_strings = frozenset(("True", "true", "TRUE", "Yes", "yes", "YES", "On", "on", "ON", "1"))
+_falsey_strings = frozenset(("False", "false", "FALSE", "No", "no", "NO", "Off", "off", "OFF", "0"))
 
 
 def _convert_string(value_str: str, type_info: ConfigTypeInfo):
     if type_info.base in (int, float, UUID, Path):
         return type_info.base(value_str)
     elif type_info.base is bool:
-        return value_str == "True"
+        if value_str in _truey_strings:
+            return True
+        elif value_str in _falsey_strings:
+            return False
+        else:
+            raise ValueError(f"Cannot convert string '{value_str}' into bool.")
     elif type_info.base is datetime:
         return dateutil_parse(value_str)
     else:
@@ -42,7 +50,15 @@ def fill_config_w_oracles(cfg: Config, env_map: Mapping[str, str]):
 
             if new_value is not None:
                 type_info = getattr(type(section), entry_name).type_info
-                converted_new_value = _convert_string(new_value, type_info)
+
+                try:
+                    converted_new_value = _convert_string(new_value, type_info)
+                except ValueError as xcp:
+                    raise ParsingError(
+                        f"Error parsing the value for section '{section_name}', attribute '{entry_name}'"
+                        f" from environment variable '{env_key}': {xcp}"
+                    ) from xcp
+
                 setattr(section, internal_name(entry_name), converted_new_value)
 
         try:
@@ -53,4 +69,6 @@ def fill_config_w_oracles(cfg: Config, env_map: Mapping[str, str]):
         try:
             run_validators(section)
         except Exception as xcp:
-            raise ValidationError(f"Error validating section at the end of 'fill_config' call: {xcp}") from xcp
+            raise ValidationError(
+                f"Error validating section '{section_name}' at the end of 'fill_config' call: {xcp}"
+            ) from xcp

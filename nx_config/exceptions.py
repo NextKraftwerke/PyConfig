@@ -1,10 +1,14 @@
 class NxConfigError(Exception):
-    pass
+    __slots__ = ()
 
 
 class ValidationError(NxConfigError, ValueError):
-    pass
+    __slots__ = ()
 
 
 class IncompleteSectionError(NxConfigError, ValueError):
-    pass
+    __slots__ = ()
+
+
+class ParsingError(NxConfigError, ValueError):
+    __slots__ = ()

@@ -4,7 +4,7 @@ from typing import Optional
 from unittest import TestCase
 from uuid import UUID
 
-from nx_config import Config, ConfigSection, IncompleteSectionError, SecretString, URL
+from nx_config import Config, ConfigSection, SecretString, URL, IncompleteSectionError, ParsingError
 # noinspection PyProtectedMember
 from nx_config._core.fill_with_oracles import fill_config_w_oracles
 
@@ -92,31 +92,27 @@ class FillConfigEnvOnlyTestCase(TestCase):
 
         self.assertEqual(new_value, cfg.my_section.my_entry)
 
-    def test_overwrite_int(self):
-        class MySection(ConfigSection):
-            my_entry: int = 42
-
-        class MyConfig(Config):
-            my_section: MySection
-
-        new_value = "101"
-        cfg = MyConfig()
-        fill_config_w_oracles(cfg, env_map={"MY_SECTION__MY_ENTRY": new_value})
-
-        self.assertEqual(int(new_value), cfg.my_section.my_entry)
-
     def test_fill_int(self):
         class MySection(ConfigSection):
-            my_entry: int
+            my_entry1: int
+            my_entry2: int = 42
 
         class MyConfig(Config):
             my_section: MySection
 
-        new_value = "101"
+        new_value1 = "101"
+        new_value2 = "708"
         cfg = MyConfig()
-        fill_config_w_oracles(cfg, env_map={"MY_SECTION__MY_ENTRY": new_value})
+        fill_config_w_oracles(
+            cfg,
+            env_map={
+                "MY_SECTION__MY_ENTRY1": new_value1,
+                "MY_SECTION__MY_ENTRY2": new_value2,
+            },
+        )
 
-        self.assertEqual(int(new_value), cfg.my_section.my_entry)
+        self.assertEqual(int(new_value1), cfg.my_section.my_entry1)
+        self.assertEqual(int(new_value2), cfg.my_section.my_entry2)
 
     def test_fill_all_base_types(self):
         class MySection(ConfigSection):
@@ -130,8 +126,16 @@ class FillConfigEnvOnlyTestCase(TestCase):
             my_secret: SecretString
             my_url: URL
 
-        class MyConfig(Config):
-            my_section: MySection
+        class MySectionWDefaults(ConfigSection):
+            my_int: int = 42
+            my_float: float = 1.41999
+            my_bool: bool = True
+            my_str: str = "Yo"
+            my_datetime: datetime = datetime(1955, 11, 5, 6, 15, 0, tzinfo=timezone(offset=timedelta(hours=-7)))
+            my_uuid: UUID = UUID(int=987_654_321)
+            my_path: Path = Path("/a/b/c/d.txt")
+            my_secret: SecretString
+            my_url: URL = "https://www.0123456789.com"
 
         new_int_as_str = "101"
         new_float_as_str = "3.14"
@@ -143,35 +147,72 @@ class FillConfigEnvOnlyTestCase(TestCase):
         new_secret = "abcd"
         new_url = "https://youtu.be/xvFZjo5PgG0"
 
-        cfg = MyConfig()
-        fill_config_w_oracles(
-            cfg,
-            env_map={
-                "MY_SECTION__MY_INT": new_int_as_str,
-                "MY_SECTION__MY_FLOAT": new_float_as_str,
-                "MY_SECTION__MY_BOOL": str(new_bool),
-                "MY_SECTION__MY_STR": new_str,
-                "MY_SECTION__MY_DATETIME": new_datetime.isoformat(sep="T"),
-                "MY_SECTION__MY_UUID": new_uuid_as_str,
-                "MY_SECTION__MY_PATH": new_path_as_str,
-                "MY_SECTION__MY_SECRET": new_secret,
-                "MY_SECTION__MY_URL": new_url,
-            },
-        )
+        for section_class in (MySection, MySectionWDefaults):
+            with self.subTest(section_class=section_class):
+                class MyConfig(Config):
+                    my_section: section_class
 
-        self.assertEqual(int(new_int_as_str), cfg.my_section.my_int)
-        self.assertEqual(float(new_float_as_str), cfg.my_section.my_float)
-        self.assertEqual(new_bool, cfg.my_section.my_bool)
-        self.assertEqual(new_str, cfg.my_section.my_str)
-        self.assertEqual(new_datetime, cfg.my_section.my_datetime)
-        self.assertEqual(UUID(new_uuid_as_str), cfg.my_section.my_uuid)
-        self.assertEqual(Path(new_path_as_str), cfg.my_section.my_path)
-        self.assertEqual(new_secret, cfg.my_section.my_secret)
-        self.assertEqual(new_url, cfg.my_section.my_url)
+                cfg = MyConfig()
+                fill_config_w_oracles(
+                    cfg,
+                    env_map={
+                        "MY_SECTION__MY_INT": new_int_as_str,
+                        "MY_SECTION__MY_FLOAT": new_float_as_str,
+                        "MY_SECTION__MY_BOOL": str(new_bool),
+                        "MY_SECTION__MY_STR": new_str,
+                        "MY_SECTION__MY_DATETIME": new_datetime.isoformat(sep="T"),
+                        "MY_SECTION__MY_UUID": new_uuid_as_str,
+                        "MY_SECTION__MY_PATH": new_path_as_str,
+                        "MY_SECTION__MY_SECRET": new_secret,
+                        "MY_SECTION__MY_URL": new_url,
+                    },
+                )
+
+                self.assertEqual(int(new_int_as_str), cfg.my_section.my_int)
+                self.assertEqual(float(new_float_as_str), cfg.my_section.my_float)
+                self.assertEqual(new_bool, cfg.my_section.my_bool)
+                self.assertEqual(new_str, cfg.my_section.my_str)
+                self.assertEqual(new_datetime, cfg.my_section.my_datetime)
+                self.assertEqual(UUID(new_uuid_as_str), cfg.my_section.my_uuid)
+                self.assertEqual(Path(new_path_as_str), cfg.my_section.my_path)
+                self.assertEqual(new_secret, cfg.my_section.my_secret)
+                self.assertEqual(new_url, cfg.my_section.my_url)
+
+    def test_fill_boolean_from_string(self):
+        class MySection(ConfigSection):
+            my_entry: bool
+
+        class MyConfig(Config):
+            my_section: MySection
+
+        env_key = "MY_SECTION__MY_ENTRY"
+
+        for value_str in ("True", "true", "TRUE", "Yes", "yes", "YES", "On", "on", "ON", "1"):
+            with self.subTest("Truey strings", value_str=value_str):
+                cfg = MyConfig()
+                fill_config_w_oracles(cfg, env_map={env_key: value_str})
+                self.assertEqual(True, cfg.my_section.my_entry)
+
+        for value_str in ("False", "false", "FALSE", "No", "no", "NO", "Off", "off", "OFF", "0"):
+            with self.subTest("Falsey strings", value_str=value_str):
+                cfg = MyConfig()
+                fill_config_w_oracles(cfg, env_map={env_key: value_str})
+                self.assertEqual(False, cfg.my_section.my_entry)
+
+        for value_str in ("42", "tRUe", "zero", ""):
+            with self.subTest("Invalid strings", value_str=value_str):
+                with self.assertRaises(ParsingError) as ctx:
+                    fill_config_w_oracles(MyConfig(), env_map={env_key: value_str})
+
+                msg = str(ctx.exception)
+                self.assertIn("'my_section'", msg)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(f"'{env_key}'", msg)
+                self.assertIn("environment", msg.lower())
+                self.assertIn(f"'{value_str}'", msg)
+                self.assertIn("bool", msg.lower())
 
     # TODO:
-    #   - run tox for all python versions
-    #   - all possibilities for bool
     #   - spaces in strings
     #   - spaces in datetimes
     #   - spaces in paths
@@ -183,3 +224,9 @@ class FillConfigEnvOnlyTestCase(TestCase):
     #   - optionals
     #   - one really complex case
     #   - document restrictions
+    #   - One big complex test with the actual fill_config
+    #   - Which exceptions do we want?
+    #     - Invalid type-hint?
+    #     - Wrong type value (default or from yaml)?
+    #     - Default secret?
+    #     - Wrong class syntax?

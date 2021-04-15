@@ -100,3 +100,4 @@ class FillConfigNoInputTestCase(TestCase):
 
         msg = str(ctx.exception)
         self.assertIn(expected_in_msg, msg)
+        self.assertIn("'my_section'", msg)
