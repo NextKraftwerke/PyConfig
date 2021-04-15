@@ -212,10 +212,39 @@ class FillConfigEnvOnlyTestCase(TestCase):
                 self.assertIn(f"'{value_str}'", msg)
                 self.assertIn("bool", msg.lower())
 
+    def test_spaces_are_fine(self):
+        class MySection(ConfigSection):
+            first: str
+            second: datetime
+            third: Path
+            fourth: SecretString
+
+        class MyConfig(Config):
+            sec: MySection
+
+        cfg = MyConfig()
+
+        new_str = " this is PeRfEcTlY   fine .  "
+        new_datetime = datetime(1955, 11, 5, 6, 15, 0)
+        new_path = Path("/this is a dir/ and this is a   file  .yaml")
+        new_secret = "s a m e  h e r e"
+
+        fill_config_w_oracles(
+            cfg,
+            env_map={
+                "SEC__FIRST": new_str,
+                "SEC__SECOND": new_datetime.isoformat(sep=" "),
+                "SEC__THIRD": str(new_path),
+                "SEC__FOURTH": new_secret,
+            },
+        )
+
+        self.assertEqual(new_str, cfg.sec.first)
+        self.assertEqual(new_datetime, cfg.sec.second)
+        self.assertEqual(new_path, cfg.sec.third)
+        self.assertEqual(new_secret, cfg.sec.fourth)
+
     # TODO:
-    #   - spaces in strings
-    #   - spaces in datetimes
-    #   - spaces in paths
     #   - Windows-style paths
     #   - UUIDs without hyphens
     #   - invalid strings for each base type
@@ -230,4 +259,3 @@ class FillConfigEnvOnlyTestCase(TestCase):
     #     - Wrong type value (default or from yaml)?
     #     - Default secret?
     #     - Wrong class syntax?
-    #
