@@ -1,16 +1,15 @@
 from typing import Any
 
+from nx_config._core.type_checks import ConfigTypeInfo
 from nx_config._core.unset import Unset
 from nx_config.secret_string import SecretString
-from nx_config._core.naming_utils import mutable_section_attr
-from nx_config._core.type_checks import ConfigTypeInfo
 
 
 def _check_default_value(value: Any, entry_name: str, type_info: ConfigTypeInfo):
     try:
         type_info.check_type(value)
     except TypeError as xcp:
-        raise TypeError(f"Invalid default value for attribute '{entry_name}': {xcp}")
+        raise TypeError(f"Invalid default value for attribute '{entry_name}': {xcp}") from xcp
 
     if (
         (type_info.base is not SecretString) or
@@ -48,13 +47,10 @@ class SectionEntry:
         return getattr(instance, self._value_attribute)
 
     def __set__(self, instance, value):
-        if not getattr(instance, mutable_section_attr):
-            raise AttributeError(
-                "Setting config entries is not allowed. The contents of the config should be"
-                " loaded at startup from defaults, configuration files and environment variables."
-            )
-
-        self._set(instance, value)
+        raise AttributeError(
+            "Setting config entries is not allowed. The contents of the config should be"
+            " loaded at startup from defaults, configuration files and environment variables."
+        )
 
     def _set(self, instance, value):
         try:
@@ -62,6 +58,6 @@ class SectionEntry:
         except TypeError as xcp:
             raise TypeError(
                 f"Error setting attribute '{self.entry_name}': {xcp}"
-            )
+            ) from xcp
 
         setattr(instance, self._value_attribute, value)

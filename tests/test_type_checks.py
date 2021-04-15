@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Optional, Tuple, Any, Union, List, FrozenSet, Set, Dict
-from unittest import TestCase
+from typing import Optional, Any, Union
+from unittest import TestCase, skipIf
 from uuid import UUID
 
 from nx_config import ConfigSection, SecretString, URL
+from tests.typing_test_helpers import collection_type_holders
 
 
 class TypeChecksTestCase(TestCase):
@@ -99,85 +100,110 @@ class TypeChecksTestCase(TestCase):
     def test_tuple_is_ok(self):
         some_bools = (True, True, False, True, False, False)
 
-        class MySection(ConfigSection):
-            my_entry: Tuple[int, ...]
-            my_other_entry: Tuple[bool, ...] = some_bools
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    my_entry: tps.tuple[int, ...]
+                    my_other_entry: tps.tuple[bool, ...] = some_bools
 
-        sec = MySection()
-        self.assertEqual(sec.my_other_entry, some_bools)
+                sec = MySection()
+                self.assertEqual(some_bools, sec.my_other_entry)
 
     def test_tuple_must_be_single_type_then_ellipsis(self):
-        with self.assertRaises(TypeError) as ctx1:
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx1:
+                    # noinspection PyUnusedLocal
+                    class MySection1(ConfigSection):
+                        my_entry: tps.tuple[int, int]
+
+                msg1 = str(ctx1.exception)
+                self.assertIn("'my_entry'", msg1)
+                self.assertIn(str(tps.tuple[int, int]), msg1)
+
+                with self.assertRaises(TypeError) as ctx2:
+                    # noinspection PyUnusedLocal
+                    class MySection2(ConfigSection):
+                        my_entry: tps.tuple[int]
+
+                msg2 = str(ctx2.exception)
+                self.assertIn("'my_entry'", msg2)
+                self.assertIn(str(tps.tuple[int]), msg2)
+
+    def test_nice_type_str_if_invalid_type(self):
+        class Foo:
+            pass
+
+        with self.assertRaises(TypeError) as ctx:
             # noinspection PyUnusedLocal
-            class MySection1(ConfigSection):
-                my_entry: Tuple[int, int]
+            class MySection(ConfigSection):
+                my_entry: Foo
 
-        msg1 = str(ctx1.exception)
-        self.assertIn("'my_entry'", msg1)
-        self.assertIn("Tuple[int, int]", msg1)
-
-        with self.assertRaises(TypeError) as ctx2:
-            # noinspection PyUnusedLocal
-            class MySection2(ConfigSection):
-                my_entry: Tuple[int]
-
-        msg2 = str(ctx2.exception)
-        self.assertIn("'my_entry'", msg2)
-        self.assertIn("Tuple[int]", msg2)
+        msg = str(ctx.exception)
+        self.assertIn("'my_entry'", msg)
+        self.assertNotIn(str(Foo), msg)
 
     def test_tuple_is_not_optional(self):
-        with self.assertRaises(TypeError) as ctx:
-            # noinspection PyUnusedLocal
-            class MySection(ConfigSection):
-                my_entry: Tuple[int, ...] = None
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx:
+                    # noinspection PyUnusedLocal
+                    class MySection(ConfigSection):
+                        my_entry: tps.tuple[int, ...] = None
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn("NoneType", msg)
-        self.assertIn("Tuple[int, ...]", msg)
-        self.assertIn("default value", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn("NoneType", msg)
+                self.assertIn(str(tps.tuple[int, ...]), msg)
+                self.assertIn("default value", msg.lower())
 
     def test_tuple_elements_must_have_base_type(self):
-        with self.assertRaises(TypeError) as ctx:
-            # noinspection PyUnusedLocal
-            class MySection(ConfigSection):
-                my_entry: Tuple[int, ...] = (42, "43", 44, 45)
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx:
+                    # noinspection PyUnusedLocal
+                    class MySection(ConfigSection):
+                        my_entry: tps.tuple[int, ...] = (42, "43", 44, 45)
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn("Tuple[int, ...]", msg)
-        self.assertIn("element", msg.lower())
-        self.assertIn("default value", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(str(tps.tuple[int, ...]), msg)
+                self.assertIn("element", msg.lower())
+                self.assertIn("default value", msg.lower())
 
     def test_tuple_must_be_tuple(self):
-        with self.assertRaises(TypeError) as ctx1:
-            # noinspection PyUnusedLocal
-            class MySection1(ConfigSection):
-                my_entry: Tuple[int, ...] = frozenset((42, 43, 44, 45))
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx1:
+                    # noinspection PyUnusedLocal
+                    class MySection1(ConfigSection):
+                        my_entry: tps.tuple[int, ...] = frozenset((42, 43, 44, 45))
 
-        msg1 = str(ctx1.exception)
-        self.assertIn("'my_entry'", msg1)
-        self.assertIn("Tuple[int, ...]", msg1)
-        self.assertIn("frozenset", msg1)
-        self.assertIn("default value", msg1.lower())
+                msg1 = str(ctx1.exception)
+                self.assertIn("'my_entry'", msg1)
+                self.assertIn(str(tps.tuple[int, ...]), msg1)
+                self.assertIn("frozenset", msg1)
+                self.assertIn("default value", msg1.lower())
 
-        with self.assertRaises(TypeError) as ctx2:
-            # noinspection PyUnusedLocal
-            class MySection2(ConfigSection):
-                my_entry: Tuple[int, ...] = 42.0
+                with self.assertRaises(TypeError) as ctx2:
+                    # noinspection PyUnusedLocal
+                    class MySection2(ConfigSection):
+                        my_entry: tps.tuple[int, ...] = 42.0
 
-        msg2 = str(ctx2.exception)
-        self.assertIn("'my_entry'", msg2)
-        self.assertIn("Tuple[int, ...]", msg2)
-        self.assertIn("float", msg2)
-        self.assertIn("default value", msg2.lower())
+                msg2 = str(ctx2.exception)
+                self.assertIn("'my_entry'", msg2)
+                self.assertIn(str(tps.tuple[int, ...]), msg2)
+                self.assertIn("float", msg2)
+                self.assertIn("default value", msg2.lower())
 
     def test_tuple_can_be_empty(self):
-        class MySection(ConfigSection):
-            my_entry: Tuple[int, ...] = ()
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    my_entry: tps.tuple[int, ...] = ()
 
-        sec = MySection()
-        self.assertEqual(sec.my_entry, ())
+                sec = MySection()
+                self.assertEqual((), sec.my_entry)
 
     def test_any_is_not_supported(self):
         with self.assertRaises(TypeError) as ctx:
@@ -227,9 +253,9 @@ class TypeChecksTestCase(TestCase):
 
         sec = MySection()
         self.assertIsNone(sec.none_as_first)
-        self.assertEqual(sec.none_as_first42, 42)
+        self.assertEqual(42, sec.none_as_first42)
         self.assertIsNone(sec.none_as_second)
-        self.assertEqual(sec.none_as_second42, 42)
+        self.assertEqual(42, sec.none_as_second42)
 
     def test_optional_int_entry_can_be_none(self):
         class MySection(ConfigSection):
@@ -282,167 +308,236 @@ class TypeChecksTestCase(TestCase):
         self.assertIn("default value", msg.lower())
 
     def test_optional_collection_of_secret_strings_can_be_none(self):
-        class MySection(ConfigSection):
-            my_entry: Optional[Tuple[SecretString, ...]]
-            my_second_entry: Optional[Tuple[SecretString, ...]] = None
-            my_third_entry: Optional[FrozenSet[SecretString]] = None
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    my_entry: Optional[tps.tuple[SecretString, ...]]
+                    my_second_entry: Optional[tps.tuple[SecretString, ...]] = None
+                    my_third_entry: Optional[tps.frozenset[SecretString]] = None
 
-        sec = MySection()
-        self.assertIsNotNone(sec.my_entry)
-        self.assertIsNone(sec.my_second_entry)
-        self.assertIsNone(sec.my_third_entry)
+                sec = MySection()
+                self.assertIsNotNone(sec.my_entry)
+                self.assertIsNone(sec.my_second_entry)
+                self.assertIsNone(sec.my_third_entry)
 
     def test_collection_of_secret_strings_can_be_empty(self):
-        class MySection(ConfigSection):
-            my_entry: Tuple[SecretString, ...]
-            my_second_entry: Tuple[SecretString, ...] = ()
-            my_third_entry: FrozenSet[SecretString] = frozenset()
-            my_fourth_entry: Optional[Tuple[SecretString, ...]] = ()
-            my_fifth_entry: Optional[FrozenSet[SecretString]] = frozenset()
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    my_entry: tps.tuple[SecretString, ...]
+                    my_second_entry: tps.tuple[SecretString, ...] = ()
+                    my_third_entry: tps.frozenset[SecretString] = frozenset()
+                    my_fourth_entry: Optional[tps.tuple[SecretString, ...]] = ()
+                    my_fifth_entry: Optional[tps.frozenset[SecretString]] = frozenset()
 
-        sec = MySection()
-        self.assertEqual(str(sec.my_entry), "Unset")
-        self.assertEqual(sec.my_second_entry, ())
-        self.assertEqual(sec.my_third_entry, frozenset())
-        self.assertEqual(sec.my_fourth_entry, ())
-        self.assertEqual(sec.my_fifth_entry, frozenset())
+                sec = MySection()
+                self.assertEqual("Unset", str(sec.my_entry))
+                self.assertEqual((), sec.my_second_entry)
+                self.assertEqual(frozenset(), sec.my_third_entry)
+                self.assertEqual((), sec.my_fourth_entry)
+                self.assertEqual(frozenset(), sec.my_fifth_entry)
 
     def test_tuple_can_be_optional(self):
-        class MySection(ConfigSection):
-            my_entry: Optional[Tuple[int, ...]] = None
-            my_other_entry: Optional[Tuple[int, ...]] = (42,)
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    my_entry: Optional[tps.tuple[int, ...]] = None
+                    my_other_entry: Optional[tps.tuple[int, ...]] = (42,)
 
-        sec = MySection()
-        self.assertIsNone(sec.my_entry)
-        self.assertEqual(sec.my_other_entry, (42,))
+                sec = MySection()
+                self.assertIsNone(sec.my_entry)
+                self.assertEqual((42,), sec.my_other_entry)
 
     def test_frozenset_is_ok(self):
         some_strings = frozenset(("hello", "hi", "howdy?!"))
 
-        class MySection(ConfigSection):
-            my_entry: FrozenSet[int]
-            my_other_entry: FrozenSet[str] = some_strings
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    my_entry: tps.frozenset[int]
+                    my_other_entry: tps.frozenset[str] = some_strings
 
-        sec = MySection()
-        self.assertEqual(sec.my_other_entry, some_strings)
+                sec = MySection()
+                self.assertEqual(some_strings, sec.my_other_entry)
 
     def test_no_lists_allowed(self):
-        with self.assertRaises(TypeError) as ctx:
-            # noinspection PyUnusedLocal
-            class MySection(ConfigSection):
-                my_entry: List[int]
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx:
+                    # noinspection PyUnusedLocal
+                    class MySection(ConfigSection):
+                        my_entry: tps.list[int]
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn("list", msg.lower())
-        self.assertIn("tuple", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn("list", msg.lower())
+                self.assertIn("tuple", msg.lower())
 
     def test_list_is_not_tuple(self):
-        with self.assertRaises(TypeError) as ctx:
-            # noinspection PyUnusedLocal
-            class MySection(ConfigSection):
-                my_entry: Tuple[int, ...] = [1, 2, 3]
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx:
+                    # noinspection PyUnusedLocal
+                    class MySection(ConfigSection):
+                        my_entry: tps.tuple[int, ...] = [1, 2, 3]
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn("Tuple[int, ...]", msg)
-        self.assertIn("list", msg)
-        self.assertIn("default value", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(str(tps.tuple[int, ...]), msg)
+                self.assertIn("list", msg)
+                self.assertIn("default value", msg.lower())
 
     def test_frozenset_is_not_optional(self):
-        with self.assertRaises(TypeError) as ctx:
-            # noinspection PyUnusedLocal
-            class MySection(ConfigSection):
-                my_entry: FrozenSet[int] = None
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx:
+                    # noinspection PyUnusedLocal
+                    class MySection(ConfigSection):
+                        my_entry: tps.frozenset[int] = None
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn("NoneType", msg)
-        self.assertIn("FrozenSet[int]", msg)
-        self.assertIn("default value", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn("NoneType", msg)
+                self.assertIn(str(tps.frozenset[int]), msg)
+                self.assertIn("default value", msg.lower())
 
     def test_frozenset_elements_must_have_base_type(self):
-        with self.assertRaises(TypeError) as ctx:
-            # noinspection PyUnusedLocal
-            class MySection(ConfigSection):
-                my_entry: FrozenSet[int] = frozenset((42, "43", 44, 45))
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx:
+                    # noinspection PyUnusedLocal
+                    class MySection(ConfigSection):
+                        my_entry: tps.frozenset[int] = frozenset((42, "43", 44, 45))
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn("FrozenSet[int]", msg)
-        self.assertIn("element", msg.lower())
-        self.assertIn("default value", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(str(tps.frozenset[int]), msg)
+                self.assertIn("element", msg.lower())
+                self.assertIn("default value", msg.lower())
 
     def test_frozenset_must_be_frozenset(self):
-        with self.assertRaises(TypeError) as ctx1:
-            # noinspection PyUnusedLocal
-            class MySection1(ConfigSection):
-                my_entry: FrozenSet[int] = (42, 43, 44, 45)
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx1:
+                    # noinspection PyUnusedLocal
+                    class MySection1(ConfigSection):
+                        my_entry: tps.frozenset[int] = (42, 43, 44, 45)
 
-        msg1 = str(ctx1.exception)
-        self.assertIn("'my_entry'", msg1)
-        self.assertIn("FrozenSet[int]", msg1)
-        self.assertIn("tuple", msg1)
-        self.assertIn("default value", msg1.lower())
+                msg1 = str(ctx1.exception)
+                self.assertIn("'my_entry'", msg1)
+                self.assertIn(str(tps.frozenset[int]), msg1)
+                self.assertIn("tuple", msg1)
+                self.assertIn("default value", msg1.lower())
 
-        with self.assertRaises(TypeError) as ctx2:
-            # noinspection PyUnusedLocal
-            class MySection2(ConfigSection):
-                my_entry: FrozenSet[int] = 42.0
+                with self.assertRaises(TypeError) as ctx2:
+                    # noinspection PyUnusedLocal
+                    class MySection2(ConfigSection):
+                        my_entry: tps.frozenset[int] = 42.0
 
-        msg2 = str(ctx2.exception)
-        self.assertIn("'my_entry'", msg2)
-        self.assertIn("FrozenSet[int]", msg2)
-        self.assertIn("float", msg2)
-        self.assertIn("default value", msg2.lower())
+                msg2 = str(ctx2.exception)
+                self.assertIn("'my_entry'", msg2)
+                self.assertIn(str(tps.frozenset[int]), msg2)
+                self.assertIn("float", msg2)
+                self.assertIn("default value", msg2.lower())
 
     def test_frozenset_can_be_empty(self):
-        class MySection(ConfigSection):
-            my_entry: FrozenSet[int] = frozenset()
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    my_entry: tps.frozenset[int] = frozenset()
 
-        sec = MySection()
-        self.assertEqual(sec.my_entry, frozenset())
+                sec = MySection()
+                self.assertEqual(frozenset(), sec.my_entry)
 
     def test_no_sets_allowed(self):
-        with self.assertRaises(TypeError) as ctx:
-            # noinspection PyUnusedLocal
-            class MySection(ConfigSection):
-                my_entry: Set[int] = {1, 2, 3}
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx:
+                    # noinspection PyUnusedLocal
+                    class MySection(ConfigSection):
+                        my_entry: tps.set[int] = {1, 2, 3}
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn("set", msg.lower())
-        self.assertIn("frozenset", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn("set", msg.lower())
+                self.assertIn("frozenset", msg.lower())
 
     def test_set_is_not_frozenset(self):
-        with self.assertRaises(TypeError) as ctx:
-            # noinspection PyUnusedLocal
-            class MySection(ConfigSection):
-                my_entry: FrozenSet[int] = {1, 2, 3}
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx:
+                    # noinspection PyUnusedLocal
+                    class MySection(ConfigSection):
+                        my_entry: tps.frozenset[int] = {1, 2, 3}
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn("FrozenSet[int]", msg)
-        self.assertIn("set", msg)
-        self.assertIn("default value", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(str(tps.frozenset[int]), msg)
+                self.assertIn("set", msg)
+                self.assertIn("default value", msg.lower())
 
     def test_no_mappings_allowed(self):
-        with self.assertRaises(TypeError) as ctx:
-            # noinspection PyUnusedLocal
-            class MySection(ConfigSection):
-                my_entry: Dict[str, int] = {"a": 1, "b": 2, "c": 3}
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx:
+                    # noinspection PyUnusedLocal
+                    class MySection(ConfigSection):
+                        my_entry: tps.dict[str, int] = {"a": 1, "b": 2, "c": 3}
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn("dict", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn("dict", msg.lower())
 
     def test_no_collections_of_optionals(self):
-        with self.assertRaises(TypeError) as ctx:
-            # noinspection PyUnusedLocal
-            class MySection(ConfigSection):
-                my_entry: Tuple[Optional[int], ...]
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx:
+                    # noinspection PyUnusedLocal
+                    class MySection(ConfigSection):
+                        my_entry: tps.tuple[Optional[int], ...]
 
-        msg = str(ctx.exception)
-        self.assertIn("'my_entry'", msg)
-        self.assertIn(str(Optional[int]), msg)
-        self.assertIn("element", msg.lower())
+                msg = str(ctx.exception)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(str(Optional[int]), msg)
+                self.assertIn("element", msg.lower())
+
+    @skipIf(len(collection_type_holders) < 2, "Nothing to mix if there's only one style")
+    def test_mixing_typing_and_builtin(self):
+        tuple0 = collection_type_holders[0].tuple
+        tuple1 = collection_type_holders[1].tuple
+        some_bools = (True, True, False, True, False, False)
+        some_ints = (42, 43, 44, 46)
+
+        class MySection(ConfigSection):
+            my_first_entry: tuple0[float, ...]
+            my_second_entry: tuple0[bool, ...] = some_bools
+            my_third_entry: tuple1[str, ...]
+            my_fourth_entry: tuple1[int, ...] = some_ints
+
+        sec = MySection()
+        self.assertEqual(some_bools, sec.my_second_entry)
+        self.assertEqual(some_ints, sec.my_fourth_entry)
+
+    def test_no_bare_tuples(self):
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx:
+                    # noinspection PyUnusedLocal
+                    class MySection(ConfigSection):
+                        my_entry: tps.tuple
+
+                msg = str(ctx.exception)
+                self.assertIn("tuple", msg.lower())
+                self.assertIn("bare", msg)
+
+    def test_no_bare_frozensets(self):
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                with self.assertRaises(TypeError) as ctx:
+                    # noinspection PyUnusedLocal
+                    class MySection(ConfigSection):
+                        my_entry: tps.frozenset
+
+                msg = str(ctx.exception)
+                self.assertIn("frozenset", msg.lower())
+                self.assertIn("bare", msg)

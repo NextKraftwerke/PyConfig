@@ -1,3 +1,13 @@
+from sys import version_info
+from typing import Any, Iterator
+
+if version_info.minor < 7:
+    from collections.abc import Mapping
+    _SectionMappingBase = Mapping
+else:
+    from typing import Mapping
+    _SectionMappingBase = Mapping[str, Any]
+
 # noinspection PyProtectedMember
 from nx_config._core.entry_to_text import (
     entry2text as _entry2text,
@@ -7,8 +17,9 @@ from nx_config._core.entry_to_text import (
     value2repr as _val2repr,
 )
 # noinspection PyProtectedMember
+from nx_config._core.iteration_utils import get_annotations as _get_annotations
+# noinspection PyProtectedMember
 from nx_config._core.naming_utils import (
-    mutable_section_attr as _mutable_attr,
     internal_name as _internal_name,
     indentation_spaces as _indentation_spaces,
 )
@@ -16,30 +27,35 @@ from nx_config._core.naming_utils import (
 from nx_config._core.section_meta import SectionMeta as _Meta
 
 
-class ConfigSection(metaclass=_Meta):
+class ConfigSection(_SectionMappingBase, metaclass=_Meta):
     _nx_config_internal__root = True
 
     def __init__(self):
-        setattr(self, _mutable_attr, False)
-
-        for entry_name in getattr(type(self), "__annotations__", {}):
+        for entry_name in _get_annotations(self):
             entry = getattr(type(self), entry_name)
             setattr(self, _internal_name(entry_name), entry.default)
 
     def __str__(self):
-        entry_names = getattr(type(self), "__annotations__", {}).keys()
         entries = (
             (x, _entry2text(self, x, _col2masked_str, _val2str))
-            for x in entry_names
+            for x in _get_annotations(self)
         )
         attrs_str = ", ".join((f"{k}={v}" for k, v in entries))
         return f"{type(self).__name__}({attrs_str})"
 
     def __repr__(self):
-        entry_names = getattr(type(self), "__annotations__", {}).keys()
         entries = (
             (x, _entry2text(self, x, _col2masked_repr, _val2repr))
-            for x in entry_names
+            for x in _get_annotations(self)
         )
         attrs_str = "".join((f"{_indentation_spaces}{k}={v},\n" for k, v in entries))
         return f"{type(self).__name__}(\n{attrs_str})"
+
+    def __len__(self) -> int:
+        return len(_get_annotations(self))
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(_get_annotations(self))
+
+    def __getitem__(self, k: str) -> Any:
+        return getattr(self, k)

@@ -1,15 +1,16 @@
+from abc import ABCMeta
 from inspect import isroutine, isclass
 
-from nx_config._core.naming_utils import mutable_section_attr, root_attr, internal_name, section_validators_attr
+from nx_config._core.naming_utils import root_attr, internal_name, section_validators_attr
 from nx_config._core.section_entry import SectionEntry
 from nx_config._core.type_checks import ConfigTypeInfo
 from nx_config._core.unset import Unset
 from nx_config._core.validator import Validator
 
-_special_section_keys = ("__module__", "__qualname__", "__annotations__", "__doc__", "__init__")
+_special_section_keys = ("__module__", "__qualname__", "__annotations__", "__doc__", "__init__", "__orig_bases__")
 
 
-class SectionMeta(type):
+class SectionMeta(ABCMeta):
     def __new__(mcs, typename, bases, ns):
         is_root = ns.pop(root_attr, False)
 
@@ -41,7 +42,7 @@ class SectionMeta(type):
             try:
                 type_info = ConfigTypeInfo.from_type_hint(entry_type)
             except TypeError as xcp:
-                raise TypeError(f"Unsupported type-hint for attribute '{entry_name}': {xcp}")
+                raise TypeError(f"Unsupported type-hint for attribute '{entry_name}': {xcp}") from xcp
 
             default = ns.get(entry_name, Unset)
 
@@ -62,11 +63,17 @@ class SectionMeta(type):
                 raise ValueError(
                     f"Sections are not allowed to have attributes without type hints."
                     f" You can add attributes with (supported) type hints (and optionally"
-                    f" default values), as well as methods, nested types, type aliases and"
+                    f" default values), as well as methods, nested types and"
                     f" validators (i.e. methods with the '@validate' annotation)."
                     f" Non-conforming member: '{k}'"
                 )
 
         ns[section_validators_attr] = tuple(validators)
-        ns["__slots__"] = (mutable_section_attr, *(internal_name(e) for e in entries))
+        ns["__slots__"] = tuple(internal_name(e) for e in entries)
         return super().__new__(mcs, typename, bases, ns)
+
+
+# noinspection PyUnresolvedReferences
+def run_validators(section: "ConfigSection"):
+    for validator in getattr(type(section), section_validators_attr):
+        validator(section)

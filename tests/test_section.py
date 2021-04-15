@@ -1,27 +1,29 @@
 from datetime import timedelta
 from sys import getsizeof
+from typing import Optional
 from unittest import TestCase
 
 from nx_config import ConfigSection, validate
 
 
+class EmptySection(ConfigSection):
+    pass
+
+
 class SectionTestCase(TestCase):
     def test_section_subclass_init_forbidden(self):
         with self.assertRaises(ValueError) as ctx:
+            # noinspection PyUnusedLocal
             class MySection(ConfigSection):
                 def __init__(self):
-                    super(MySection, self).__init__()
+                    super().__init__()
 
         msg = str(ctx.exception)
         self.assertIn("'__init__'", msg)
 
     def test_empty_section_subclass_has_default_init(self):
         _ = self
-
-        class MySection(ConfigSection):
-            pass
-
-        _ = MySection()
+        _ = EmptySection()
 
     def test_section_can_have_entries(self):
         _ = self
@@ -55,8 +57,8 @@ class SectionTestCase(TestCase):
             my_entry: int
 
         sec = MySection()
-        self.assertEqual(str(sec.my_entry), "Unset")
-        self.assertEqual(repr(sec.my_entry), "Unset")
+        self.assertEqual("Unset", str(sec.my_entry))
+        self.assertEqual("Unset", repr(sec.my_entry))
         self.assertIn("Unset", type(sec.my_entry).__name__)
 
     def test_unset_type_cannot_be_instantiated(self):
@@ -81,12 +83,9 @@ class SectionTestCase(TestCase):
         self.assertLess(getsizeof(MySection().my_entry), getsizeof(Foo()))
 
     def test_cannot_get_undeclared_entry(self):
-        class MySection(ConfigSection):
-            pass
-
         with self.assertRaises(AttributeError):
             # noinspection PyUnresolvedReferences
-            _ = MySection().undeclared_entry
+            _ = EmptySection().undeclared_entry
 
     def test_cannot_set_entry(self):
         class MySection(ConfigSection):
@@ -103,10 +102,7 @@ class SectionTestCase(TestCase):
         self.assertIn("set", msg.lower())
 
     def test_cannot_set_undeclared_entry(self):
-        class MySection(ConfigSection):
-            pass
-
-        sec = MySection()
+        sec = EmptySection()
 
         with self.assertRaises(AttributeError):
             sec.undeclared_entry = 42
@@ -143,7 +139,7 @@ class SectionTestCase(TestCase):
         class MySection(ConfigSection):
             my_entry: int = 42
 
-        self.assertEqual(MySection().my_entry, 42)
+        self.assertEqual(42, MySection().my_entry)
 
     def test_section_can_have_docstring(self):
         _ = self
@@ -171,7 +167,7 @@ class SectionTestCase(TestCase):
                 return timedelta(minutes=self.delta_in_minutes)
 
         sec = MySection()
-        self.assertEqual(sec.delta(), timedelta(minutes=sec.delta_in_minutes))
+        self.assertEqual(timedelta(minutes=sec.delta_in_minutes), sec.delta())
 
     def test_nested_types_are_okay(self):
         class MySection(ConfigSection):
@@ -192,14 +188,7 @@ class SectionTestCase(TestCase):
                 return MySection.Temperature.from_celsius(self.temp_in_celsius)
 
         sec = MySection()
-        self.assertEqual(sec.temp().celsius(), sec.temp_in_celsius)
-
-    def test_type_aliases_are_okay(self):
-        _ = self
-
-        # noinspection PyUnusedLocal
-        class MySection(ConfigSection):
-            NumberType = int
+        self.assertEqual(sec.temp_in_celsius, sec.temp().celsius())
 
     def test_can_have_validation_annotations(self):
         _ = self
@@ -227,3 +216,57 @@ class SectionTestCase(TestCase):
                 raise ValueError()
 
         _ = MySection()
+
+    def test_double_star_unpack_empty_section(self):
+        sec = EmptySection()
+        self.assertDictEqual({}, {**sec})
+
+    def test_double_star_unpack_non_empty_section(self):
+        class MySection(ConfigSection):
+            class ANestedClass:
+                pass
+
+            first: int = 42
+
+            @validate
+            def a_validator(self):
+                pass
+
+            second: float = 3.14
+            third: bool = False
+
+            class AnotherNestedClass:
+                pass
+
+            fourth: Optional[str] = None
+
+            def a_method(self):
+                pass
+
+            fifth: Optional[str] = "Hello"
+
+        sec = MySection()
+
+        self.assertDictEqual(
+            {
+                "first": sec.first,
+                "second": sec.second,
+                "third": sec.third,
+                "fourth": sec.fourth,
+                "fifth": sec.fifth,
+            },
+            {**sec},
+        )
+
+    def test_empty_section_length(self):
+        self.assertEqual(0, len(EmptySection()))
+
+    def test_non_empty_section_length(self):
+        class MySection(ConfigSection):
+            first: int = 42
+            second: float = 3.14
+            third: bool = False
+            fourth: Optional[str] = None
+            fifth: Optional[str] = "Hello"
+
+        self.assertEqual(5, len(MySection()))

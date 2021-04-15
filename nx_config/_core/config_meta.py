@@ -80,8 +80,8 @@ class ConfigMeta(type):
             if (k not in special_keys) and (not isroutine(v)) and (not isclass(v)):
                 raise ValueError(
                     f"Attributes of 'Config' subclass must be sections, i.e., they must"
-                    f" have type hints for 'ConfigSection' subclasses (and no assigned value)."
-                    f" You can also add methods, nested types and type aliases."
+                    f" have type hints for subclasses of 'ConfigSection' (and no assigned value)."
+                    f" You can also add methods and nested types."
                     f" Non-conforming member: '{k}'"
                 )
 

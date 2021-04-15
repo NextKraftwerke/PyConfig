@@ -4,8 +4,8 @@ from typing import Tuple, Union, Optional, Type, Collection, NamedTuple, Any
 from uuid import UUID
 
 from nx_config._core.typing_utils import get_origin, get_args
-from nx_config.url import URL
 from nx_config.secret_string import SecretString
+from nx_config.url import URL
 
 _supported_base_types = frozenset((
     int,
@@ -42,7 +42,7 @@ def _get_optional_and_base(t: type) -> Tuple[bool, type]:
 
 
 def _get_collection_and_base(t: type) -> Tuple[Optional[Type[Collection]], type]:
-    if t.__module__ == "typing":
+    if t.__module__ in ("typing", "builtins"):
         origin = get_origin(t)
         args = get_args(t)
 
@@ -60,7 +60,7 @@ def _get_collection_and_base(t: type) -> Tuple[Optional[Type[Collection]], type]
 
 
 def _nice_type_str(t: type):
-    return str(t) if t.__module__ == "typing" else t.__name__
+    return t.__name__ if (t.__module__ != "typing" and len(get_args(t)) == 0) else str(t)
 
 
 def _expected_value_type(base: type) -> type:
@@ -77,27 +77,24 @@ class ConfigTypeInfo(NamedTuple):
     def from_type_hint(cls, t: type) -> "ConfigTypeInfo":
         optional, base_or_collection = _get_optional_and_base(t)
         collection, base = _get_collection_and_base(base_or_collection)
+        nice_str = _nice_type_str(t)
 
-        if base not in _supported_base_types:
-            if collection is None:
-                raise TypeError(
-                    f"Type '{_nice_type_str(base)}' is not supported for config entries."
-                )
-            else:
-                raise TypeError(
-                    f"Type '{_nice_type_str(base)}' is not supported as the element-type for"
-                    f" config entries that are collections."
-                )
-        if collection not in (None, tuple, frozenset):
+        if (base not in _supported_base_types) or (collection not in (None, tuple, frozenset)):
+            supported = ", ".join(
+                sorted((x.__name__ for x in _supported_base_types), key=lambda x: x.lower())
+            )
             raise TypeError(
-                f"Collection type '{_nice_type_str(collection)}' is not supported for config entries."
-                f" You can represent sequences of values of the same type using 'tuple'"
-                f" (with type-hint 'typing.Tuple[base_type, ...]'). You can also represent unordered sets"
-                f" of unique values using 'frozenset' (with type-hint 'typing.FrozenSet[base_type]'). There's"
-                f" currently no support for mappings."
+                f"Type(-hint) '{nice_str}' is not supported for config entries. Allowed 'base' types:"
+                f" {supported}. Allowed collections (where 'base' is one of the allowed base types):"
+                f" typing.Tuple[base, ...], tuple[base, ...] (python 3.9+), typing.FrozenSet[base],"
+                f" frozenset[base] (python 3.9+). Allowed optionals: typing.Optional[base] (where"
+                f" 'base' is one of the allowed base types), typing.Optional[collection] (where"
+                f" 'collection' is one of the allowed collection types). Note that bare collections,"
+                f" such as tuple or typing.Tuple (i.e. without type-hints for their elements), are"
+                f" not allowed."
             )
 
-        full_str = _nice_type_str(t).replace(
+        full_str = nice_str.replace(
             "SecretString", "SecretString (a.k.a. str)"
         ).replace(
             "URL", "URL (a.k.a. str)"
@@ -129,11 +126,3 @@ class ConfigTypeInfo(NamedTuple):
             f"Value must match the given type-hint. Expected '{self}',"
             f" got '{type(value).__name__}' instead."
         )
-
-# TODO: Add support for different python versions:
-#   - 3.9: typing.Tuple deprecated, tuple[b, ...] supported, module is builtins
-#   - Test typing.Tuple/FrozenSet[...] if python < 3.10. Test tuple/frozenset[...]
-#   (same tests!) if python >= 3.9.
-#   - Internally use imports from typing if python < 3.9 and from collections/builtins
-#   if python >= 3.9 (except if necessary to support typing.Tuple/FrozenSet, but even
-#   then only for python < 3.10 and then use collections/builtins for python >= 3.10).
