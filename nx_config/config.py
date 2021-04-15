@@ -9,15 +9,6 @@ from nx_config._core.naming_utils import (
 )
 
 
-def this_function_is_not_tested(value):
-    if value > 5:
-        print("this")
-    else:
-        raise ValueError()
-        
-    return 42
-
-
 def _indent_new_lines(s: str) -> str:
     return s.replace("\n", f"\n{_indentation_spaces}")
 
