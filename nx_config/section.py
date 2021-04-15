@@ -1,4 +1,12 @@
-from typing import Any, Iterator, Mapping
+from sys import version_info
+from typing import Any, Iterator
+
+if version_info.minor < 7:
+    from collections.abc import Mapping
+    _SectionMappingBase = Mapping
+else:
+    from typing import Mapping
+    _SectionMappingBase = Mapping[str, Any]
 
 # noinspection PyProtectedMember
 from nx_config._core.entry_to_text import (
@@ -19,7 +27,7 @@ from nx_config._core.naming_utils import (
 from nx_config._core.section_meta import SectionMeta as _Meta
 
 
-class ConfigSection(Mapping[str, Any], metaclass=_Meta):
+class ConfigSection(_SectionMappingBase, metaclass=_Meta):
     _nx_config_internal__root = True
 
     def __init__(self):
