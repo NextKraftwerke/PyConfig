@@ -190,13 +190,6 @@ class SectionTestCase(TestCase):
         sec = MySection()
         self.assertEqual(sec.temp().celsius(), sec.temp_in_celsius)
 
-    def test_type_aliases_are_okay(self):
-        _ = self
-
-        # noinspection PyUnusedLocal
-        class MySection(ConfigSection):
-            NumberType = int
-
     def test_can_have_validation_annotations(self):
         _ = self
 
@@ -230,7 +223,8 @@ class SectionTestCase(TestCase):
 
     def test_double_star_unpack_non_empty_section(self):
         class MySection(ConfigSection):
-            a_type_alias = int
+            class ANestedClass:
+                pass
 
             first: int = 42
 
@@ -240,6 +234,10 @@ class SectionTestCase(TestCase):
 
             second: float = 3.14
             third: bool = False
+
+            class AnotherNestedClass:
+                pass
+
             fourth: Optional[str] = None
 
             def a_method(self):

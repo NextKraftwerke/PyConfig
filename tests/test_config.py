@@ -263,10 +263,3 @@ class ConfigTestCase(TestCase):
 
         cfg = MyConfig()
         self.assertEqual(cfg.temp().celsius(), cfg.my_section.temp_in_celsius)
-
-    def test_type_aliases_are_okay(self):
-        _ = self
-
-        # noinspection PyUnusedLocal
-        class MyConfig(Config):
-            NumberType = int

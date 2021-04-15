@@ -63,7 +63,7 @@ class SectionMeta(ABCMeta):
                 raise ValueError(
                     f"Sections are not allowed to have attributes without type hints."
                     f" You can add attributes with (supported) type hints (and optionally"
-                    f" default values), as well as methods, nested types, type aliases and"
+                    f" default values), as well as methods, nested types and"
                     f" validators (i.e. methods with the '@validate' annotation)."
                     f" Non-conforming member: '{k}'"
                 )
