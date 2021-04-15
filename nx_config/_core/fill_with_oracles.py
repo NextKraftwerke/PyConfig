@@ -1,6 +1,7 @@
 from typing import Mapping
 
 from nx_config._core.iteration_utils import get_annotations
+from nx_config._core.naming_utils import internal_name
 from nx_config._core.section_meta import run_validators
 from nx_config._core.unset import Unset
 from nx_config.config import Config
@@ -17,6 +18,14 @@ def _check_all_entries_were_set(section: ConfigSection):
 def fill_config_w_oracles(cfg: Config, env_map: Mapping[str, str]):
     for section_name in get_annotations(cfg):
         section = getattr(cfg, section_name)
+
+        for entry_name in get_annotations(section):
+            env_key = "__".join((section_name.upper(), entry_name.upper()))
+            new_value = env_map.get(env_key)
+
+            if new_value is not None:
+                # entry = getattr(type(section), entry_name)
+                setattr(section, internal_name(entry_name), new_value)
 
         try:
             _check_all_entries_were_set(section)
