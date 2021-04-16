@@ -244,10 +244,126 @@ class FillConfigEnvOnlyTestCase(TestCase):
         self.assertEqual(new_path, cfg.sec.third)
         self.assertEqual(new_secret, cfg.sec.fourth)
 
+    def test_datetimes_can_be_timezone_aware_or_naive(self):
+        class MySection(ConfigSection):
+            dt1: datetime
+            dt2: datetime
+
+        class MyConfig(Config):
+            sec: MySection
+
+        aware = datetime(2021, 5, 4, tzinfo=timezone(offset=timedelta(hours=8)))
+        naive = datetime(2001, 1, 1)
+        cfg = MyConfig()
+
+        fill_config_w_oracles(cfg, env_map={"SEC__DT1": aware.isoformat(), "SEC__DT2": naive.isoformat()})
+        self.assertEqual(aware, cfg.sec.dt1)
+        self.assertEqual(naive, cfg.sec.dt2)
+
+    def test_uuids_without_hyphens(self):
+        class MySection(ConfigSection):
+            my_uuid: UUID
+
+        class MyConfig(Config):
+            sec: MySection
+
+        new_value = UUID("cb46fff2-5a46-4859-9eae-901d4fc33943")
+
+        cfg = MyConfig()
+        fill_config_w_oracles(cfg, env_map={"SEC__MY_UUID": str(new_value).replace("-", "")})
+
+        self.assertEqual(new_value, cfg.sec.my_uuid)
+
+    def test_invalid_int_str(self):
+        class MySection(ConfigSection):
+            my_entry: int
+
+        class MyConfig(Config):
+            my_section: MySection
+
+        env_key = "MY_SECTION__MY_ENTRY"
+
+        for value_str in ("", "3.14", "forty two"):
+            with self.subTest("Invalid strings", value_str=value_str):
+                with self.assertRaises(ParsingError) as ctx:
+                    fill_config_w_oracles(MyConfig(), env_map={env_key: value_str})
+
+                msg = str(ctx.exception)
+                self.assertIn("'my_section'", msg)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(f"'{env_key}'", msg)
+                self.assertIn("environment", msg.lower())
+                self.assertIn(f"'{value_str}'", msg)
+                self.assertIn("int", msg.lower())
+
+    def test_invalid_float_str(self):
+        class MySection(ConfigSection):
+            my_entry: float
+
+        class MyConfig(Config):
+            my_section: MySection
+
+        env_key = "MY_SECTION__MY_ENTRY"
+
+        for value_str in ("", "pi", "True", "1.0.1"):
+            with self.subTest("Invalid strings", value_str=value_str):
+                with self.assertRaises(ParsingError) as ctx:
+                    fill_config_w_oracles(MyConfig(), env_map={env_key: value_str})
+
+                msg = str(ctx.exception)
+                self.assertIn("'my_section'", msg)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(f"'{env_key}'", msg)
+                self.assertIn("environment", msg.lower())
+                self.assertIn(f"'{value_str}'", msg)
+                self.assertIn("float", msg.lower())
+
+    def test_invalid_datetime_str(self):
+        class MySection(ConfigSection):
+            my_entry: datetime
+
+        class MyConfig(Config):
+            my_section: MySection
+
+        env_key = "MY_SECTION__MY_ENTRY"
+
+        for value_str in ("", "today at noon", "2021-13-01 25:61:62"):
+            with self.subTest("Invalid strings", value_str=value_str):
+                with self.assertRaises(ParsingError) as ctx:
+                    fill_config_w_oracles(MyConfig(), env_map={env_key: value_str})
+
+                msg = str(ctx.exception)
+                self.assertIn("'my_section'", msg)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(f"'{env_key}'", msg)
+                self.assertIn("environment", msg.lower())
+                self.assertIn(f"'{value_str}'", msg)
+                self.assertIn("datetime", msg.lower())
+
+    def test_invalid_uuid_str(self):
+        class MySection(ConfigSection):
+            my_entry: UUID
+
+        class MyConfig(Config):
+            my_section: MySection
+
+        env_key = "MY_SECTION__MY_ENTRY"
+        valid_str = str(UUID("cb46fff2-5a46-4859-9eae-901d4fc33943"))
+
+        for value_str in ("", "42", valid_str.replace("f", "g"), valid_str[:-1]):
+            with self.subTest("Invalid strings", value_str=value_str):
+                with self.assertRaises(ParsingError) as ctx:
+                    fill_config_w_oracles(MyConfig(), env_map={env_key: value_str})
+
+                msg = str(ctx.exception)
+                self.assertIn("'my_section'", msg)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(f"'{env_key}'", msg)
+                self.assertIn("environment", msg.lower())
+                self.assertIn(f"'{value_str}'", msg)
+                self.assertIn("uuid", msg.lower())
+
     # TODO:
-    #   - Windows-style paths
-    #   - UUIDs without hyphens
-    #   - invalid strings for each base type
     #   - tuples
     #   - frozensets
     #   - optionals

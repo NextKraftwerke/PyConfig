@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Mapping
 from uuid import UUID
 
-from dateutil.parser import parse as dateutil_parse
+from dateutil.parser import parse as dateutil_parse, ParserError as DateutilParserError
 
 from nx_config._core.iteration_utils import get_annotations
 from nx_config._core.naming_utils import internal_name
@@ -19,8 +19,13 @@ _falsey_strings = frozenset(("False", "false", "FALSE", "No", "no", "NO", "Off",
 
 
 def _convert_string(value_str: str, type_info: ConfigTypeInfo):
-    if type_info.base in (int, float, UUID, Path):
+    if type_info.base in (int, float, Path):
         return type_info.base(value_str)
+    elif type_info.base is UUID:
+        try:
+            return type_info.base(value_str)
+        except ValueError as xcp:
+            raise ValueError(f"Cannot convert string '{value_str}' into UUID: {xcp}") from xcp
     elif type_info.base is bool:
         if value_str in _truey_strings:
             return True
@@ -29,7 +34,10 @@ def _convert_string(value_str: str, type_info: ConfigTypeInfo):
         else:
             raise ValueError(f"Cannot convert string '{value_str}' into bool.")
     elif type_info.base is datetime:
-        return dateutil_parse(value_str)
+        try:
+            return dateutil_parse(value_str)
+        except DateutilParserError as xcp:
+            raise ValueError(f"Cannot convert string '{value_str}' into datetime: {xcp}") from xcp
     else:
         return value_str
 
