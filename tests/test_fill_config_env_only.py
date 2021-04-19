@@ -7,6 +7,7 @@ from uuid import UUID
 from nx_config import Config, ConfigSection, SecretString, URL, IncompleteSectionError, ParsingError
 # noinspection PyProtectedMember
 from nx_config._core.fill_with_oracles import fill_config_w_oracles
+from tests.typing_test_helpers import collection_type_holders
 
 
 class FillConfigEnvOnlyTestCase(TestCase):
@@ -363,12 +364,129 @@ class FillConfigEnvOnlyTestCase(TestCase):
                 self.assertIn(f"'{value_str}'", msg)
                 self.assertIn("uuid", msg.lower())
 
+    def test_can_parse_collections(self):
+        for tps in collection_type_holders[:1]:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    int_tuple: tps.tuple[int, ...]
+                    int_set: tps.frozenset[int]
+                    float_tuple: tps.tuple[float, ...]
+                    float_set: tps.frozenset[float]
+                    bool_tuple: tps.tuple[bool, ...]
+                    bool_set: tps.frozenset[bool]
+                    str_tuple: tps.tuple[str, ...]
+                    str_set: tps.frozenset[str]
+                    datetime_tuple: tps.tuple[datetime, ...]
+                    datetime_set: tps.frozenset[datetime]
+                    uuid_tuple: tps.tuple[UUID, ...]
+                    uuid_set: tps.frozenset[UUID]
+                    path_tuple: tps.tuple[Path, ...]
+                    path_set: tps.frozenset[Path]
+                    secret_tuple: tps.tuple[SecretString, ...]
+                    secret_set: tps.frozenset[SecretString]
+                    url_tuple: tps.tuple[URL, ...]
+                    url_set: tps.frozenset[URL]
+
+                class MyConfig(Config):
+                    sec: MySection
+
+                cfg = MyConfig()
+
+                expected = {
+                    "int_tuple": ("  1, 2, 3  ,    42 ,-5", (1, 2, 3, 42, -5)),
+                    "int_set": ("  1, 2, 3  ,2,    42 ,-5", frozenset((1, 2, 3, 42, -5))),
+                    "float_tuple": ("1,   2.2, 3.14   ,0,0.001,  -9  ", (1.0, 2.2, 3.14, 0.0, 0.001, -9.0)),
+                    "float_set": ("1,   2.2, 3.14   ,0,1,0.001,  -9  ", frozenset((1.0, 2.2, 3.14, 0.0, 0.001, -9.0))),
+                    "bool_tuple": (" True, 0   , No,Yes,on, ON  ", (True, False, False, True, True, True)),
+                    "bool_set": (" True, 0   , No,Yes,on, ON  ", frozenset((True, False))),
+                    "str_tuple": ("Hello, wörld!  ,foO,,baR    ", ("Hello", "wörld!", "foO", "", "baR")),
+                    "str_set": (
+                        "Hello, wörld!  ,hello,   ,,baR    ",
+                        frozenset(("Hello", "wörld!", "hello", "", "baR")),
+                    ),
+                    "datetime_tuple": (
+                        "2021-05-04T06:15:00+01:00,2001-11-1 5:12:9,    1982-1-1 00:00:00+00:00    ",
+                        (
+                            datetime(2021, 5, 4, 6, 15, tzinfo=timezone(offset=timedelta(hours=1))),
+                            datetime(2001, 11, 1, 5, 12, 9),
+                            datetime(1982, 1, 1, tzinfo=timezone.utc),
+                        ),
+                    ),
+                    "datetime_set": (
+                        "2001-11-01T05:12:09.0000,2021-05-04T06:15:00+01:00,2001-11-1 5:12:9,1982-1-1 00:00:00+00:00",
+                        frozenset((
+                            datetime(2021, 5, 4, 6, 15, tzinfo=timezone(offset=timedelta(hours=1))),
+                            datetime(2001, 11, 1, 5, 12, 9),
+                            datetime(1982, 1, 1, tzinfo=timezone.utc),
+                        )),
+                    ),
+                    "uuid_tuple": (
+                        (
+                            "c544d643-5db3-452b-8594-4042b01b21fb,"
+                            "  \tc31a9e10-fb5e-4b99-8689-5e9017121bad\t,"
+                            "   72fa850e62a04ae38e704e9e14b6bd49 "
+                        ),
+                        (
+                            UUID("c544d643-5db3-452b-8594-4042b01b21fb"),
+                            UUID("c31a9e10-fb5e-4b99-8689-5e9017121bad"),
+                            UUID("72fa850e-62a0-4ae3-8e70-4e9e14b6bd49"),
+                        ),
+                    ),
+                    "uuid_set": (
+                        (
+                            "72fa850e-62a0-4ae3-8e70-4e9e14b6bd49,"
+                            "c544d643-5db3-452b-8594-4042b01b21fb,"
+                            "  \tc31a9e10-fb5e-4b99-8689-5e9017121bad\t,"
+                            "   72fa850e62a04ae38e704e9e14b6bd49 "
+                        ),
+                        frozenset((
+                            UUID("c544d643-5db3-452b-8594-4042b01b21fb"),
+                            UUID("c31a9e10-fb5e-4b99-8689-5e9017121bad"),
+                            UUID("72fa850e-62a0-4ae3-8e70-4e9e14b6bd49"),
+                        )),
+                    ),
+                    "path_tuple": (
+                        "\t\t /a/b/c.d  \n  , .., g, ../e/../../f,g,..    \n",
+                        (Path("/a/b/c.d"), Path(".."), Path("g"), Path("../e/../../f"), Path("g"), Path("..")),
+                    ),
+                    "path_set": (
+                        "\t\t /a/b/c.d  \n  , .., g, ../e/../../f,g,..    \n",
+                        frozenset((Path("/a/b/c.d"), Path(".."), Path("g"), Path("../e/../../f"))),
+                    ),
+                    "secret_tuple": ("Hello, wörld!  ,foO,,baR    ", ("Hello", "wörld!", "foO", "", "baR")),
+                    "secret_set": (
+                        "Hello, wörld!  ,hello,   ,,baR    ",
+                        frozenset(("Hello", "wörld!", "hello", "", "baR")),
+                    ),
+                    "url_tuple": (
+                        "www.a.b, http://127.0.0.1:2222   , huh?whah=ok",
+                        ("www.a.b", "http://127.0.0.1:2222", "huh?whah=ok"),
+                    ),
+                    "url_set": (
+                        "www.a.b, http://127.0.0.1:2222   ,f,f,f, huh?whah=ok      ,f",
+                        frozenset(("www.a.b", "http://127.0.0.1:2222", "f", "huh?whah=ok")),
+                    ),
+                }
+
+                fill_config_w_oracles(
+                    cfg,
+                    env_map={f"SEC__{k.upper()}": v[0] for k, v in expected.items()},
+                )
+
+                for k, v in expected.items():
+                    self.assertEqual(v[1], getattr(cfg.sec, k), msg=k)
+
     # TODO:
-    #   - tuples
-    #   - frozensets
+    #   - invalid parts in collections
+    #   - do not include secret values in error messages (also check for default values)
+    #   - empty collections vs None
+    #   - surrounding spaces get stripped
     #   - optionals
     #   - one really complex case
-    #   - document restrictions
+    #   - document restrictions (incl.
+    #       no strings/secrets with commas in collections,
+    #       no strings/secrets with surrounding spaces in collections,
+    #       no collection with single empty string/secret)
     #   - One big complex test with the actual fill_config
     #   - Which exceptions do we want?
     #     - Invalid type-hint?
