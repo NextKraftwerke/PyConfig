@@ -200,7 +200,7 @@ class FillConfigEnvOnlyTestCase(TestCase):
                 fill_config_w_oracles(cfg, env_map={env_key: value_str})
                 self.assertEqual(False, cfg.my_section.my_entry)
 
-        for value_str in ("42", "tRUe", "zero", ""):
+        for value_str in ("42", "tRUe", "zero", "Schrödinger's cat is dead", ""):
             with self.subTest("Invalid strings", value_str=value_str):
                 with self.assertRaises(ParsingError) as ctx:
                     fill_config_w_oracles(MyConfig(), env_map={env_key: value_str})
@@ -365,7 +365,7 @@ class FillConfigEnvOnlyTestCase(TestCase):
                 self.assertIn("uuid", msg.lower())
 
     def test_can_parse_collections(self):
-        for tps in collection_type_holders[:1]:
+        for tps in collection_type_holders:
             with self.subTest(types=tps):
                 class MySection(ConfigSection):
                     int_tuple: tps.tuple[int, ...]
@@ -476,13 +476,109 @@ class FillConfigEnvOnlyTestCase(TestCase):
                 for k, v in expected.items():
                     self.assertEqual(v[1], getattr(cfg.sec, k), msg=k)
 
+    def test_can_parse_single_element_collections(self):
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    int_tuple: tps.tuple[int, ...]
+                    int_set: tps.frozenset[int]
+                    float_tuple: tps.tuple[float, ...]
+                    float_set: tps.frozenset[float]
+                    bool_tuple: tps.tuple[bool, ...]
+                    bool_set: tps.frozenset[bool]
+                    str_tuple: tps.tuple[str, ...]
+                    str_set: tps.frozenset[str]
+                    datetime_tuple: tps.tuple[datetime, ...]
+                    datetime_set: tps.frozenset[datetime]
+                    uuid_tuple: tps.tuple[UUID, ...]
+                    uuid_set: tps.frozenset[UUID]
+                    path_tuple: tps.tuple[Path, ...]
+                    path_set: tps.frozenset[Path]
+                    secret_tuple: tps.tuple[SecretString, ...]
+                    secret_set: tps.frozenset[SecretString]
+                    url_tuple: tps.tuple[URL, ...]
+                    url_set: tps.frozenset[URL]
+
+                class MyConfig(Config):
+                    sec: MySection
+
+                cfg = MyConfig()
+
+                expected = {
+                    "int_tuple": ("    42 ", (42,)),
+                    "int_set": ("    42 ", frozenset((42,))),
+                    "float_tuple": ("3.14", (3.14,)),
+                    "float_set": ("3.14", frozenset((3.14,))),
+                    "bool_tuple": ("Yes", (True,)),
+                    "bool_set": ("0 ", frozenset((False,))),
+                    "str_tuple": ("foO", ("foO",)),
+                    "str_set": ("baR    ", frozenset(("baR",))),
+                    "datetime_tuple": ("1982-1-1 00:00:00+00:00", (datetime(1982, 1, 1, tzinfo=timezone.utc),)),
+                    "datetime_set": ("1982-1-1 00:00:00", frozenset((datetime(1982, 1, 1),))),
+                    "uuid_tuple": (
+                        "c544d643-5db3-452b-8594-4042b01b21fb",
+                        (UUID("c544d643-5db3-452b-8594-4042b01b21fb"),),
+                    ),
+                    "uuid_set": (
+                        "c544d643-5db3-452b-8594-4042b01b21fb",
+                        frozenset((UUID("c544d643-5db3-452b-8594-4042b01b21fb"),)),
+                    ),
+                    "path_tuple": ("/a/b/c.d  \n   \n", (Path("/a/b/c.d"),)),
+                    "path_set": ("\t\t /a/b/c.d ", frozenset((Path("/a/b/c.d"),))),
+                    "secret_tuple": ("foO", ("foO",)),
+                    "secret_set": ("Hello   ", frozenset(("Hello",))),
+                    "url_tuple": ("http://127.0.0.1:2222", ("http://127.0.0.1:2222",)),
+                    "url_set": (" http://127.0.0.1:2222", frozenset(("http://127.0.0.1:2222",))),
+                }
+
+                fill_config_w_oracles(
+                    cfg,
+                    env_map={f"SEC__{k.upper()}": v[0] for k, v in expected.items()},
+                )
+
+                for k, v in expected.items():
+                    self.assertEqual(v[1], getattr(cfg.sec, k), msg=k)
+
+    def test_invalid_element_str_in_collection(self):
+        for tp, value_str, invalid, base_str in (
+            (tp, value_str, invalid, base_str)
+            for base, value_str, invalid, base_str in (
+                (int, "  1, 2, 3  ,2,    forty two ,-5", "forty two", "int"),
+                (int, ",  1, 2, 3  ,2,    42 ,-5", "", "int"),
+                (int, "  1, 2, 3  ,2,    42 ,-5,", "", "int"),
+                (int, "1.111", "1.111", "int"),
+                (float, "1,   2.2, pi   ,0,1,0.001,  -9  ", "pi", "float"),
+                (bool, " True, 0   , No,Yes,on, Schrödinger's cat is dead", "Schrödinger's cat is dead", "bool"),
+                (datetime, "2001-11-41T05:12:09,2021-05-04T06:15:00+01:00", "2001-11-41T05:12:09", "datetime"),
+                (UUID, "72fa850e-62a0-4ae3-8e70-4e9e14b6bd49, abc, 72fa850e62a04ae38e704e9e14b6bd49 ", "abc", "UUID"),
+            )
+            for tps in collection_type_holders
+            for tp in (tps.tuple[base, ...], tps.frozenset[base])
+        ):
+            with self.subTest(type=tp, value_str=value_str):
+                class MySection(ConfigSection):
+                    my_entry: tp
+
+                class MyConfig(Config):
+                    my_section: MySection
+
+                env_key = "MY_SECTION__MY_ENTRY"
+
+                with self.assertRaises(ParsingError) as ctx:
+                    fill_config_w_oracles(MyConfig(), env_map={env_key: value_str})
+
+                msg = str(ctx.exception)
+                self.assertIn("'my_section'", msg)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(f"'{env_key}'", msg)
+                self.assertIn("environment", msg.lower())
+                self.assertIn(f"'{value_str}'", msg)
+                self.assertIn(f"'{invalid}'", msg)
+                self.assertIn(f"{base_str.lower()}", msg.lower())
+
     # TODO:
-    #   - invalid parts in collections
-    #   - do not include secret values in error messages (also check for default values)
-    #   - empty collections vs None
-    #   - surrounding spaces get stripped
     #   - optionals
-    #   - one really complex case
+    #   - empty collections vs None
     #   - document restrictions (incl.
     #       no strings/secrets with commas in collections,
     #       no strings/secrets with surrounding spaces in collections,
@@ -493,3 +589,4 @@ class FillConfigEnvOnlyTestCase(TestCase):
     #     - Wrong type value (default or from yaml)?
     #     - Default secret?
     #     - Wrong class syntax?
+    #   - do not include secret values in error messages (also check for default values)

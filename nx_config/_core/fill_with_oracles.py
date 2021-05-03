@@ -1,6 +1,6 @@
 from datetime import datetime
 from pathlib import Path
-from typing import Mapping, Any
+from typing import Mapping, Any, Iterable
 from uuid import UUID
 
 from dateutil.parser import parse as dateutil_parse
@@ -34,6 +34,14 @@ def _convert_string_to_base(value_str: str, base: type) -> Any:
         return value_str
 
 
+def _convert_each_string_to_base(parts: Iterable[str], base: type) -> Iterable[Any]:
+    for value_str in parts:
+        try:
+            yield _convert_string_to_base(value_str, base)
+        except ValueError as xcp:
+            raise ValueError(f"Invalid part: '{value_str}'; {xcp}") from xcp
+
+
 def _convert_string(value_str: str, type_info: ConfigTypeInfo) -> Any:
     coll = type_info.collection
     base = type_info.base
@@ -42,11 +50,14 @@ def _convert_string(value_str: str, type_info: ConfigTypeInfo) -> Any:
         try:
             return _convert_string_to_base(value_str, base)
         except ValueError as xcp:
-            raise ValueError(f"Cannot convert string '{value_str}' into {type_info}: {xcp}") from xcp
+            raise ValueError(f"Cannot convert string '{value_str}' into {type_info}; {xcp}") from xcp
     else:
-        parts = value_str.split(",")
-        # noinspection PyArgumentList
-        return coll(_convert_string_to_base(x.strip(), base) for x in parts)
+        parts = (x.strip() for x in value_str.split(","))
+        try:
+            # noinspection PyArgumentList
+            return coll(_convert_each_string_to_base(parts, base))
+        except ValueError as xcp:
+            raise ValueError(f"Cannot convert string '{value_str}' into {type_info}; {xcp}") from xcp
 
 
 def _check_all_entries_were_set(section: ConfigSection):
