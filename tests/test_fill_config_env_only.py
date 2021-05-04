@@ -138,6 +138,41 @@ class FillConfigEnvOnlyTestCase(TestCase):
             my_secret: SecretString
             my_url: URL = "https://www.0123456789.com"
 
+        class MySectionWOptionals(ConfigSection):
+            my_int: Optional[int]
+            my_float: Optional[float]
+            my_bool: Optional[bool]
+            my_str: Optional[str]
+            my_datetime: Optional[datetime]
+            my_uuid: Optional[UUID]
+            my_path: Optional[Path]
+            my_secret: Optional[SecretString]
+            my_url: Optional[URL]
+
+        class MySectionWOptionalsAndNones(ConfigSection):
+            my_int: Optional[int] = None
+            my_float: Optional[float] = None
+            my_bool: Optional[bool] = None
+            my_str: Optional[str] = None
+            my_datetime: Optional[datetime] = None
+            my_uuid: Optional[UUID] = None
+            my_path: Optional[Path] = None
+            my_secret: Optional[SecretString] = None
+            my_url: Optional[URL] = None
+
+        class MySectionWOptionalsAndDefaults(ConfigSection):
+            my_int: Optional[int] = 42
+            my_float: Optional[float] = 1.41999
+            my_bool: Optional[bool] = True
+            my_str: Optional[str] = "Yo"
+            my_datetime: Optional[datetime] = datetime(
+                1955, 11, 5, 6, 15, 0, tzinfo=timezone(offset=timedelta(hours=-7))
+            )
+            my_uuid: Optional[UUID] = UUID(int=987_654_321)
+            my_path: Optional[Path] = Path("/a/b/c/d.txt")
+            my_secret: Optional[SecretString]
+            my_url: Optional[URL] = "https://www.0123456789.com"
+
         new_int_as_str = "101"
         new_float_as_str = "3.14"
         new_bool = False
@@ -148,7 +183,13 @@ class FillConfigEnvOnlyTestCase(TestCase):
         new_secret = "abcd"
         new_url = "https://youtu.be/xvFZjo5PgG0"
 
-        for section_class in (MySection, MySectionWDefaults):
+        for section_class in (
+            MySection,
+            MySectionWDefaults,
+            MySectionWOptionals,
+            MySectionWOptionalsAndNones,
+            MySectionWOptionalsAndDefaults,
+        ):
             with self.subTest(section_class=section_class):
                 class MyConfig(Config):
                     my_section: section_class
@@ -576,17 +617,220 @@ class FillConfigEnvOnlyTestCase(TestCase):
                 self.assertIn(f"'{invalid}'", msg)
                 self.assertIn(f"{base_str.lower()}", msg.lower())
 
-    # TODO:
-    #   - optionals
-    #   - empty collections vs None
-    #   - document restrictions (incl.
-    #       no strings/secrets with commas in collections,
-    #       no strings/secrets with surrounding spaces in collections,
-    #       no collection with single empty string/secret)
-    #   - One big complex test with the actual fill_config
-    #   - Which exceptions do we want?
-    #     - Invalid type-hint?
-    #     - Wrong type value (default or from yaml)?
-    #     - Default secret?
-    #     - Wrong class syntax?
-    #   - do not include secret values in error messages (also check for default values)
+    def test_empty_str_for_collections(self):
+        for tp, expected in (
+            (tp, expected)
+            for tps in collection_type_holders
+            for tp, expected in (
+                (tps.tuple[str, ...], ("",)),
+                (tps.frozenset[str], frozenset(("",))),
+                (tps.tuple[Path, ...], (Path(""),)),
+                (tps.frozenset[Path], frozenset((Path(""),))),
+                (tps.tuple[SecretString, ...], ("",)),
+                (tps.frozenset[SecretString], frozenset(("",))),
+                (tps.tuple[URL, ...], ("",)),
+                (tps.frozenset[URL], frozenset(("",))),
+            )
+        ):
+            with self.subTest("Should have single empty element", type=tp):
+                class MySection(ConfigSection):
+                    my_entry: tp
+
+                class MyConfig(Config):
+                    my_section: MySection
+
+                cfg = MyConfig()
+                fill_config_w_oracles(cfg, env_map={"MY_SECTION__MY_ENTRY": ""})
+                self.assertEqual(expected, cfg.my_section.my_entry)
+
+        for tp, base_str in (
+            (tp, base_str)
+            for base, base_str in (
+                (int, "int"),
+                (float, "float"),
+                (bool, "bool"),
+                (datetime, "datetime"),
+                (UUID, "UUID"),
+            )
+            for tps in collection_type_holders
+            for tp in (tps.tuple[base, ...], tps.frozenset[base])
+        ):
+            with self.subTest("Should fail", type=tp):
+                class MySection(ConfigSection):
+                    my_entry: tp
+
+                class MyConfig(Config):
+                    my_section: MySection
+
+                env_key = "MY_SECTION__MY_ENTRY"
+
+                with self.assertRaises(ParsingError) as ctx:
+                    fill_config_w_oracles(MyConfig(), env_map={env_key: ""})
+
+                msg = str(ctx.exception)
+                self.assertIn("'my_section'", msg)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(f"'{env_key}'", msg)
+                self.assertIn("environment", msg.lower())
+                self.assertIn(f"''", msg)
+                self.assertIn(f"{base_str.lower()}", msg.lower())
+
+    def test_optional_types_can_be_set(self):
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    int_op: Optional[int]
+                    float_op: Optional[float] = None
+                    bool_op: Optional[bool] = True
+                    str_tuple_op: Optional[tps.tuple[str, ...]]
+                    str_tuple_op2: Optional[tps.tuple[str, ...]] = None
+                    datetime_tuple_op: Optional[tps.tuple[datetime, ...]] = None
+                    uuid_tuple_op: Optional[tps.tuple[UUID, ...]] = ()
+                    uuid_tuple_op2: Optional[tps.tuple[UUID, ...]] = ()
+                    bool_nop: bool = False
+                    path_tuple_op: Optional[tps.tuple[Path, ...]] = (Path("/a"), Path("/b.c"))
+                    secret_set_op: Optional[tps.frozenset[SecretString]]
+                    url_set_op: Optional[tps.frozenset[URL]] = None
+                    bool_tuple: tps.tuple[bool, ...]
+                    int_set_op: Optional[tps.frozenset[int]] = frozenset()
+                    float_set_op: Optional[tps.frozenset[float]] = frozenset((3.100, 31.00, 310.0))
+                    float_set_op2: Optional[tps.frozenset[float]] = frozenset((3.100, 31.00, 310.0))
+
+                class MyConfig(Config):
+                    sec: MySection
+
+                cfg = MyConfig()
+
+                expected = {
+                    "int_op": ("42", 42),
+                    "float_op": ("1.21", 1.21),
+                    "bool_op": ("false", False),
+                    "str_tuple_op": ("Hello, wörld!  ,foO,,baR    ", ("Hello", "wörld!", "foO", "", "baR")),
+                    "datetime_tuple_op": (
+                        "2021-05-04T06:15:00+01:00,2001-11-1 5:12:9,    1982-1-1 00:00:00+00:00    ",
+                        (
+                            datetime(2021, 5, 4, 6, 15, tzinfo=timezone(offset=timedelta(hours=1))),
+                            datetime(2001, 11, 1, 5, 12, 9),
+                            datetime(1982, 1, 1, tzinfo=timezone.utc),
+                        ),
+                    ),
+                    "uuid_tuple_op": (
+                        (
+                            "c544d643-5db3-452b-8594-4042b01b21fb,"
+                            "  \tc31a9e10-fb5e-4b99-8689-5e9017121bad\t,"
+                            "   72fa850e62a04ae38e704e9e14b6bd49 "
+                        ),
+                        (
+                            UUID("c544d643-5db3-452b-8594-4042b01b21fb"),
+                            UUID("c31a9e10-fb5e-4b99-8689-5e9017121bad"),
+                            UUID("72fa850e-62a0-4ae3-8e70-4e9e14b6bd49"),
+                        ),
+                    ),
+                    "bool_nop": ("Yes", True),
+                    "path_tuple_op": (
+                        "\t\t /a/b/c.d  \n  , .., g, ../e/../../f,g,..    \n",
+                        (Path("/a/b/c.d"), Path(".."), Path("g"), Path("../e/../../f"), Path("g"), Path("..")),
+                    ),
+                    "secret_set_op": (
+                        "Hello, wörld!  ,hello,   ,,baR    ",
+                        frozenset(("Hello", "wörld!", "hello", "", "baR")),
+                    ),
+                    "url_set_op": (
+                        "www.a.b, http://127.0.0.1:2222   ,f,f,f, huh?whah=ok      ,f",
+                        frozenset(("www.a.b", "http://127.0.0.1:2222", "f", "huh?whah=ok")),
+                    ),
+                    "bool_tuple": (" True, 0   , No,Yes,on, ON  ", (True, False, False, True, True, True)),
+                    "int_set_op": ("  1, 2, 3  ,2,    42 ,-5", frozenset((1, 2, 3, 42, -5))),
+                    "float_set_op": (
+                        "1,   2.2, 3.14   ,0,1,0.001,  -9  ",
+                        frozenset((1.0, 2.2, 3.14, 0.0, 0.001, -9.0))
+                    ),
+                }
+
+                fill_config_w_oracles(
+                    cfg,
+                    env_map={f"SEC__{k.upper()}": v[0] for k, v in expected.items()},
+                )
+
+                for k, v in expected.items():
+                    self.assertEqual(v[1], getattr(cfg.sec, k), msg=k)
+
+                self.assertEqual(MyConfig().sec.str_tuple_op2, cfg.sec.str_tuple_op2)
+                self.assertEqual(MyConfig().sec.uuid_tuple_op2, cfg.sec.uuid_tuple_op2)
+                self.assertEqual(MyConfig().sec.float_set_op2, cfg.sec.float_set_op2)
+
+    def test_empty_str_for_optional_types(self):
+        for tp, expected in (
+            (tp, expected)
+            for tps in collection_type_holders
+            for tp, expected in (
+                (str, ""),
+                (Path, Path("")),
+                (SecretString, ""),
+                (URL, ""),
+                (tps.tuple[str, ...], ("",)),
+                (tps.frozenset[str], frozenset(("",))),
+                (tps.tuple[Path, ...], (Path(""),)),
+                (tps.frozenset[Path], frozenset((Path(""),))),
+                (tps.tuple[SecretString, ...], ("",)),
+                (tps.frozenset[SecretString], frozenset(("",))),
+                (tps.tuple[URL, ...], ("",)),
+                (tps.frozenset[URL], frozenset(("",))),
+            )
+        ):
+            with self.subTest("Should have same result as non-optional", type=tp):
+                class MySection(ConfigSection):
+                    my_entry: Optional[tp]
+
+                class MyConfig(Config):
+                    my_section: MySection
+
+                cfg = MyConfig()
+                fill_config_w_oracles(cfg, env_map={"MY_SECTION__MY_ENTRY": ""})
+                self.assertEqual(expected, cfg.my_section.my_entry)
+
+        for tp, base_str in (
+            (tp, base_str)
+            for base, base_str in (
+                (int, "int"),
+                (float, "float"),
+                (bool, "bool"),
+                (datetime, "datetime"),
+                (UUID, "UUID"),
+            )
+            for tps in collection_type_holders
+            for tp in (base, tps.tuple[base, ...], tps.frozenset[base])
+        ):
+            with self.subTest("Should fail just as for non-optional", type=tp):
+                class MySection(ConfigSection):
+                    my_entry: Optional[tp]
+
+                class MyConfig(Config):
+                    my_section: MySection
+
+                env_key = "MY_SECTION__MY_ENTRY"
+
+                with self.assertRaises(ParsingError) as ctx:
+                    fill_config_w_oracles(MyConfig(), env_map={env_key: ""})
+
+                msg = str(ctx.exception)
+                self.assertIn("'my_section'", msg)
+                self.assertIn("'my_entry'", msg)
+                self.assertIn(f"'{env_key}'", msg)
+                self.assertIn("environment", msg.lower())
+                self.assertIn(f"''", msg)
+                self.assertIn(f"{base_str.lower()}", msg.lower())
+
+    # TODO: Document restrictions with env. vars, incl.
+    #   - no strings/secrets with commas in collections,
+    #   - no strings/secrets with surrounding spaces in collections,
+    #   - cannot set collection to empty,
+    #   - cannot set optional to None,
+    #   - surrounding whitespace is kept for base types but not for single element collections
+    # TODO: One big complex test with the actual fill_config
+    # TODO: Which exceptions do we want?
+    #   - Invalid type-hint?
+    #   - Wrong type value (default or from yaml)?
+    #   - Default secret?
+    #   - Wrong class syntax?
+    # TODO: Do not include secret values in error messages (also check for default values)

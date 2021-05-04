@@ -80,7 +80,6 @@ def fill_config_w_oracles(cfg: Config, env_map: Mapping[str, str]):
                 try:
                     converted_new_value = _convert_string(new_value, type_info)
                 except ValueError as xcp:
-                    print(xcp)  # TODO: Remove this line
                     raise ParsingError(
                         f"Error parsing the value for section '{section_name}', attribute '{entry_name}'"
                         f" from environment variable '{env_key}': {xcp}"
