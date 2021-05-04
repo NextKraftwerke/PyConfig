@@ -821,16 +821,18 @@ class FillConfigEnvOnlyTestCase(TestCase):
                 self.assertIn(f"''", msg)
                 self.assertIn(f"{base_str.lower()}", msg.lower())
 
-    # TODO: Document restrictions with env. vars, incl.
-    #   - no strings/secrets with commas in collections,
-    #   - no strings/secrets with surrounding spaces in collections,
-    #   - cannot set collection to empty,
-    #   - cannot set optional to None,
-    #   - surrounding whitespace is kept for base types but not for single element collections
+    # TODO: Document restrictions with env. vars, incl.:
+    #   - No strings/secrets with commas in collections
+    #   - No strings/secrets with surrounding spaces in collections
+    #   - Cannot set collection to empty
+    #   - Cannot set optional to None
+    #   - Surrounding whitespace is kept for base types but not for single element collections
     # TODO: One big complex test with the actual fill_config
     # TODO: Which exceptions do we want?
     #   - Invalid type-hint?
     #   - Wrong type value (default or from yaml)?
     #   - Default secret?
     #   - Wrong class syntax?
-    # TODO: Do not include secret values in error messages (also check for default values)
+    # TODO: Do not include secret values in error messages. Check for:
+    #   - Invalid default values
+    #   - Invalid values from yaml
