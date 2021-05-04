@@ -9,6 +9,14 @@
 
 # PyConfig
 
+# Welcome!
+
+![WIP Sign](wip-sign.png)
+
+We're glad you're visiting. PyConfig is still under development and there are several important features missing. The current version is already _usable_... but there's no documentation yet, and it only supports setting configuration values through environment variables. Soon we'll support using YAML and INI configuration files, customizing names of environment variables, auto-generating configuration file templates and adding useful arguments to `argparse.ArgumentParser`s, as well as providing lots of documentation and examples.
+
+Also, _the rest of this README isn't the droids you're looking for_.
+
 ## README Plan
 
 1. One sentence description.

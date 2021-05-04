@@ -1,6 +1,6 @@
 from datetime import datetime
 from pathlib import Path
-from typing import Mapping
+from typing import Mapping, Any, Iterable
 from uuid import UUID
 
 from dateutil.parser import parse as dateutil_parse
@@ -18,20 +18,46 @@ _truey_strings = frozenset(("True", "true", "TRUE", "Yes", "yes", "YES", "On", "
 _falsey_strings = frozenset(("False", "false", "FALSE", "No", "no", "NO", "Off", "off", "OFF", "0"))
 
 
-def _convert_string(value_str: str, type_info: ConfigTypeInfo):
-    if type_info.base in (int, float, UUID, Path):
-        return type_info.base(value_str)
-    elif type_info.base is bool:
+def _convert_string_to_base(value_str: str, base: type) -> Any:
+    if base in (int, float, Path, UUID):
+        return base(value_str)
+    elif base is bool:
         if value_str in _truey_strings:
             return True
         elif value_str in _falsey_strings:
             return False
         else:
-            raise ValueError(f"Cannot convert string '{value_str}' into bool.")
-    elif type_info.base is datetime:
+            raise ValueError()
+    elif base is datetime:
         return dateutil_parse(value_str)
     else:
         return value_str
+
+
+def _convert_each_string_to_base(parts: Iterable[str], base: type) -> Iterable[Any]:
+    for value_str in parts:
+        try:
+            yield _convert_string_to_base(value_str, base)
+        except ValueError as xcp:
+            raise ValueError(f"Invalid part: '{value_str}'; {xcp}") from xcp
+
+
+def _convert_string(value_str: str, type_info: ConfigTypeInfo) -> Any:
+    coll = type_info.collection
+    base = type_info.base
+
+    if coll is None:
+        try:
+            return _convert_string_to_base(value_str, base)
+        except ValueError as xcp:
+            raise ValueError(f"Cannot convert string '{value_str}' into {type_info}; {xcp}") from xcp
+    else:
+        parts = (x.strip() for x in value_str.split(","))
+        try:
+            # noinspection PyArgumentList
+            return coll(_convert_each_string_to_base(parts, base))
+        except ValueError as xcp:
+            raise ValueError(f"Cannot convert string '{value_str}' into {type_info}; {xcp}") from xcp
 
 
 def _check_all_entries_were_set(section: ConfigSection):
