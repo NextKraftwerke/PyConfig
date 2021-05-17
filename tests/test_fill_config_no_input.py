@@ -101,3 +101,56 @@ class FillConfigNoInputTestCase(TestCase):
         msg = str(ctx.exception)
         self.assertIn(expected_in_msg, msg)
         self.assertIn("'my_section'", msg)
+
+    def test_fill_no_input_env_vars_prefix(self):
+        class MySection(ConfigSection):
+            my_int: int = 42
+
+        class MyConfig(Config):
+            sec: MySection
+
+        for prefix in ("HUBBA_HUBBA", "K", "_", "_1", "ABCDE_FGHIJ_KLMNO_PQRST_UVWXY_Z0123_45678__9_"):
+            with self.subTest(prefix=prefix):
+                cfg = MyConfig()
+                fill_config(cfg, env_prefix=prefix)
+                self.assertEqual(MyConfig().sec.my_int, cfg.sec.my_int)
+
+    def test_fill_no_input_invalid_env_vars_prefix(self):
+        class MySection(ConfigSection):
+            my_int: int = 42
+
+        class MyConfig(Config):
+            sec: MySection
+
+        with self.subTest(prefix=""):
+            with self.assertRaises(ValueError) as ctx:
+                fill_config(MyConfig(), env_prefix="")
+
+            msg = str(ctx.exception)
+            self.assertIn("empty", msg.lower())
+            self.assertIn("default", msg.lower())
+            self.assertIn("prefix", msg.lower())
+            self.assertIn("None", msg)
+
+        for prefix in ("Hello", "HElLO", "HÄLLO", "H.ELL.O", "HELL'O", "HE##O", "9TO5", "HEL LO", "H\tO", "H\nO"):
+            with self.subTest(prefix=prefix):
+                with self.assertRaises(ValueError) as ctx:
+                    fill_config(MyConfig(), env_prefix=prefix)
+
+                msg = str(ctx.exception)
+                self.assertIn(repr(prefix), msg)
+                self.assertIn("ABCDEFGHIJKLMNOPQRSTUVWXYZ", msg)
+                self.assertIn("_", msg)
+                self.assertIn("0123456789", msg)
+                self.assertIn("prefix", msg.lower())
+
+    def test_fill_no_input_env_prefix_is_keyword_only(self):
+        class MySection(ConfigSection):
+            my_int: int = 42
+
+        class MyConfig(Config):
+            sec: MySection
+
+        with self.assertRaises(TypeError):
+            # noinspection PyArgumentList
+            fill_config(MyConfig(), "HUBBA_HUBBA")
