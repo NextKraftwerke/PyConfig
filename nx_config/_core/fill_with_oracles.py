@@ -70,28 +70,34 @@ def _check_all_entries_were_set(section: ConfigSection):
             raise ValueError(f"Attribute '{entry_name}' has not been set and has no default value.")
 
 
+def _check_env_prefix(prefix: str):
+    if prefix == "":
+        raise ValueError(
+            f"Invalid empty prefix for configuration environment variables. If you do not want to use a custom"
+            f" prefix use the (default) value None for 'env_prefix'."
+        )
+
+    if (prefix[0] not in _env_prefix_first_char) or any(x not in _env_prefix_chars for x in prefix[1:]):
+        raise ValueError(
+            f"Invalid prefix {repr(prefix)} for configuration environment variables. The only characters"
+            f" allowed in the prefix are upper case ASCII letters '{_upper_ascii_letters}', numerical digits"
+            f" '{_digits}' and underscores '_', with the additional restriction that the first character cannot"
+            f" be a numerical digit."
+        )
+
+
 def fill_config_w_oracles(cfg: Config, env_prefix: Optional[str], env_map: Mapping[str, str]):
     if env_prefix is None:
-        pass
+        env_key_prefix = ""
     else:
-        if env_prefix == "":
-            raise ValueError(
-                f"Invalid empty prefix for configuration environment variables. If you do not want to use a custom"
-                f" prefix use the (default) value None for 'env_prefix'."
-            )
-        elif (env_prefix[0] not in _env_prefix_first_char) or any(x not in _env_prefix_chars for x in env_prefix[1:]):
-            raise ValueError(
-                f"Invalid prefix {repr(env_prefix)} for configuration environment variables. The only characters"
-                f" allowed in the prefix are upper case ASCII letters '{_upper_ascii_letters}', numerical digits"
-                f" '{_digits}' and underscores '_', with the additional restriction that the first character cannot"
-                f" be a numerical digit."
-            )
+        _check_env_prefix(env_prefix)
+        env_key_prefix = f"{env_prefix}__"
 
     for section_name in get_annotations(cfg):
         section = getattr(cfg, section_name)
 
         for entry_name in get_annotations(section):
-            env_key = f"{section_name.upper()}__{entry_name.upper()}"
+            env_key = f"{env_key_prefix}{section_name.upper()}__{entry_name.upper()}"
             new_value = env_map.get(env_key)
 
             if new_value is not None:

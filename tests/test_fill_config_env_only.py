@@ -828,6 +828,29 @@ class FillConfigEnvOnlyTestCase(TestCase):
                 self.assertIn(f"''", msg)
                 self.assertIn(f"{base_str.lower()}", msg.lower())
 
+    def test_custom_env_vars_prefix(self):
+        class MySection(ConfigSection):
+            my_entry: int
+
+        class MyConfig(Config):
+            my_section: MySection
+
+        new_value = 101
+        env_var = "MY_SECTION__MY_ENTRY"
+        prefix = "CU5T0M_PR3F1X"
+
+        cfg = MyConfig()
+        fill_config_w_oracles(
+            cfg,
+            env_prefix=prefix,
+            env_map={
+                f"{prefix}__{env_var}": str(new_value),
+                env_var: str(new_value + 1),
+            },
+        )
+
+        self.assertEqual(new_value, cfg.my_section.my_entry)
+
     # TODO: Document restrictions with env. vars, incl.:
     #   - No strings/secrets with commas in collections
     #   - No strings/secrets with surrounding spaces in collections
