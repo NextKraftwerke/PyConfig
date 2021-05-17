@@ -833,6 +833,11 @@ class FillConfigEnvOnlyTestCase(TestCase):
     #   - Wrong type value (default or from yaml)?
     #   - Default secret?
     #   - Wrong class syntax?
+    #   - Do we even want to keep the ones we already have? When would people use them?
+    #       When would people catch a config exception and react without crashing?
+    #       Isn't a config exception something that should just prevent an app from starting?
+    #       Specific exceptions can help with meaningful names, but we can get the same from
+    #       good error messages, can't we?
     # TODO: Do not include secret values in error messages. Check for:
     #   - Invalid default values
     #   - Invalid values from yaml
