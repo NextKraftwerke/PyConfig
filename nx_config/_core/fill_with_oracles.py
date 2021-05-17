@@ -1,6 +1,6 @@
 from datetime import datetime
 from pathlib import Path
-from typing import Mapping, Any, Iterable
+from typing import Mapping, Any, Iterable, Optional
 from uuid import UUID
 
 from dateutil.parser import parse as dateutil_parse
@@ -16,6 +16,10 @@ from nx_config.section import ConfigSection
 
 _truey_strings = frozenset(("True", "true", "TRUE", "Yes", "yes", "YES", "On", "on", "ON", "1"))
 _falsey_strings = frozenset(("False", "false", "FALSE", "No", "no", "NO", "Off", "off", "OFF", "0"))
+_upper_ascii_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+_digits = "0123456789"
+_env_prefix_first_char = _upper_ascii_letters + "_"
+_env_prefix_chars = _env_prefix_first_char + _digits
 
 
 def _convert_string_to_base(value_str: str, base: type) -> Any:
@@ -66,7 +70,23 @@ def _check_all_entries_were_set(section: ConfigSection):
             raise ValueError(f"Attribute '{entry_name}' has not been set and has no default value.")
 
 
-def fill_config_w_oracles(cfg: Config, env_map: Mapping[str, str]):
+def fill_config_w_oracles(cfg: Config, env_prefix: Optional[str], env_map: Mapping[str, str]):
+    if env_prefix is None:
+        pass
+    else:
+        if env_prefix == "":
+            raise ValueError(
+                f"Invalid empty prefix for configuration environment variables. If you do not want to use a custom"
+                f" prefix use the (default) value None for 'env_prefix'."
+            )
+        if (env_prefix[0] not in _env_prefix_first_char) or any(x not in _env_prefix_chars for x in env_prefix[1:]):
+            raise ValueError(
+                f"Invalid prefix {repr(env_prefix)} for configuration environment variables. The only characters"
+                f" allowed in the prefix are upper case ASCII letters '{_upper_ascii_letters}', numerical digits"
+                f" '{_digits}' and underscores '_', with the additional restriction that the first character cannot"
+                f" be a numerical digit."
+            )
+
     for section_name in get_annotations(cfg):
         section = getattr(cfg, section_name)
 
