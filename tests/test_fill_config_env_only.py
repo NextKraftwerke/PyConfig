@@ -835,21 +835,23 @@ class FillConfigEnvOnlyTestCase(TestCase):
         class MyConfig(Config):
             my_section: MySection
 
-        new_value = 101
         env_var = "MY_SECTION__MY_ENTRY"
         prefix = "CU5T0M_PR3F1X"
+        no_prefix_value = 101
+        prefix_value = no_prefix_value + 1
 
-        cfg = MyConfig()
-        fill_config_w_oracles(
-            cfg,
-            env_prefix=prefix,
-            env_map={
-                f"{prefix}__{env_var}": str(new_value),
-                env_var: str(new_value + 1),
-            },
-        )
+        env_map = {
+            env_var: str(no_prefix_value),
+            f"{prefix}__{env_var}": str(prefix_value),
+        }
 
-        self.assertEqual(new_value, cfg.my_section.my_entry)
+        cfg1 = MyConfig()
+        fill_config_w_oracles(cfg1, env_prefix=None, env_map=env_map)
+        self.assertEqual(no_prefix_value, cfg1.my_section.my_entry)
+
+        cfg2 = MyConfig()
+        fill_config_w_oracles(cfg2, env_prefix=prefix, env_map=env_map)
+        self.assertEqual(prefix_value, cfg2.my_section.my_entry)
 
     # TODO: Document restrictions with env. vars, incl.:
     #   - No strings/secrets with commas in collections
