@@ -143,3 +143,14 @@ class FillConfigNoInputTestCase(TestCase):
                 self.assertIn("_", msg)
                 self.assertIn("0123456789", msg)
                 self.assertIn("prefix", msg.lower())
+
+    def test_fill_no_input_env_prefix_is_keyword_only(self):
+        class MySection(ConfigSection):
+            my_int: int = 42
+
+        class MyConfig(Config):
+            sec: MySection
+
+        with self.assertRaises(TypeError):
+            # noinspection PyArgumentList
+            fill_config(MyConfig(), "HUBBA_HUBBA")

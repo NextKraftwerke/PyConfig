@@ -6,7 +6,7 @@ from nx_config._core.fill_with_oracles import fill_config_w_oracles as _fill_con
 from nx_config.config import Config
 
 
-def fill_config(cfg: Config, env_prefix: Optional[str] = None):
+def fill_config(cfg: Config, *, env_prefix: Optional[str] = None):
     # WARNING: This function is difficult to test because testing would involve
     #   using lots of config files as resources and actually reading them, plus
     #   setting lots of environment variables (which remain set from test to test),

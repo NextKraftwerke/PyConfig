@@ -79,7 +79,7 @@ def fill_config_w_oracles(cfg: Config, env_prefix: Optional[str], env_map: Mappi
                 f"Invalid empty prefix for configuration environment variables. If you do not want to use a custom"
                 f" prefix use the (default) value None for 'env_prefix'."
             )
-        if (env_prefix[0] not in _env_prefix_first_char) or any(x not in _env_prefix_chars for x in env_prefix[1:]):
+        elif (env_prefix[0] not in _env_prefix_first_char) or any(x not in _env_prefix_chars for x in env_prefix[1:]):
             raise ValueError(
                 f"Invalid prefix {repr(env_prefix)} for configuration environment variables. The only characters"
                 f" allowed in the prefix are upper case ASCII letters '{_upper_ascii_letters}', numerical digits"
