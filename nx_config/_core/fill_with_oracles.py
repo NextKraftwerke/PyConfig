@@ -1,6 +1,6 @@
 from datetime import datetime
 from pathlib import Path
-from typing import Mapping, Any, Iterable, Optional
+from typing import Mapping, Any, Iterable, Optional, TextIO
 from uuid import UUID
 
 from dateutil.parser import parse as dateutil_parse
@@ -86,7 +86,12 @@ def _check_env_prefix(prefix: str):
         )
 
 
-def fill_config_w_oracles(cfg: Config, env_prefix: Optional[str], env_map: Mapping[str, str]):
+def fill_config_w_oracles(
+    cfg: Config,
+    in_stream: Optional[TextIO],
+    env_prefix: Optional[str],
+    env_map: Mapping[str, str],
+):
     if env_prefix is None:
         env_key_prefix = ""
     else:
