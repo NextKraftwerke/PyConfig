@@ -4,6 +4,7 @@ from typing import Mapping, Any, Iterable, Optional, TextIO
 from uuid import UUID
 
 from dateutil.parser import parse as dateutil_parse
+from yaml import safe_load
 
 from nx_config._core.iteration_utils import get_annotations
 from nx_config._core.naming_utils import internal_name
@@ -92,6 +93,8 @@ def fill_config_w_oracles(
     env_prefix: Optional[str],
     env_map: Mapping[str, str],
 ):
+    in_map = safe_load(in_stream) if in_stream is not None else None
+
     if env_prefix is None:
         env_key_prefix = ""
     else:
@@ -100,16 +103,29 @@ def fill_config_w_oracles(
 
     for section_name in get_annotations(cfg):
         section = getattr(cfg, section_name)
+        section_in_map = in_map.get(section_name) if in_map is not None else None
 
         for entry_name in get_annotations(section):
             env_key = f"{env_key_prefix}{section_name.upper()}__{entry_name.upper()}"
-            new_value = env_map.get(env_key)
+            env_value = env_map.get(env_key)
 
-            if new_value is not None:
+            if env_value is None:
+                if section_in_map is not None:
+                    # try: TODO: Add test setting entry to None
+                    #     in_map_value = section_in_map[entry_name]
+                    # except KeyError:
+                    #     pass
+                    # else:
+                    #     setattr(section, internal_name(entry_name), in_map_value)
+                    in_map_value = section_in_map.get(entry_name)
+                    # if in_map_value is not None: TODO: Add test with missing entry in file
+                    #     setattr(section, internal_name(entry_name), in_map_value)
+                    setattr(section, internal_name(entry_name), in_map_value)
+            else:
                 type_info = getattr(type(section), entry_name).type_info
 
                 try:
-                    converted_new_value = _convert_string(new_value, type_info)
+                    converted_new_value = _convert_string(env_value, type_info)
                 except ValueError as xcp:
                     raise ParsingError(
                         f"Error parsing the value for section '{section_name}', attribute '{entry_name}'"

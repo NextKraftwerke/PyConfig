@@ -9,7 +9,10 @@ setup(
     name="nx_config",
     version="0.2.0",
     packages=["nx_config", "nx_config._core"],
-    install_requires=["python-dateutil >= 2.8.1, < 3"],
+    install_requires=[
+        "python-dateutil >= 2.8.1, < 3",
+        "pyyaml >= 5.4.1, < 6",
+    ],
     extras_require={
         "tests": [],
         "tox": ["tox >=3.21.4, <4"],

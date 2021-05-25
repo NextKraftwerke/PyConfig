@@ -63,8 +63,8 @@ class TestFillFromPath(TestCase):
                     self.assertIn(ext, msg)
 
     def test_valid_extensions(self):
-        for ext in expected_valid_extensions:
-            with self.subTest(extension=ext):
+        for dot_ext in expected_valid_extensions:
+            with self.subTest(extension=dot_ext):
                 cfg = SmallConfig()
-                fill_config(cfg, path=rel_resources_path / f"small{ext}")
+                fill_config(cfg, path=rel_resources_path / f"small{dot_ext}")
                 self.assertEqual(42, cfg.sec.entry)

@@ -887,3 +887,8 @@ class FillConfigEnvOnlyTestCase(TestCase):
     # TODO: Do not include secret values in error messages. Check for:
     #   - Invalid default values
     #   - Invalid values from yaml
+    # TODO: Document that env takes precedence over config files and that if an env var is present,
+    #   it must be a valid value (will not fallback to config file in case of invalid env var) and
+    #   the corresponding value in the config file (if any) will not be used and therefore will not
+    #   be validated. So an invalid entry in a config file might go unnoticed if it is overriden by
+    #   an env var.
