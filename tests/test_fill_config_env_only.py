@@ -892,29 +892,3 @@ class FillConfigEnvOnlyTestCase(TestCase):
         cfg2 = MyConfig()
         fill_config_w_oracles(cfg2, in_stream=None, fmt=None, env_prefix=prefix, env_map=env_map)
         self.assertEqual(prefix_value, cfg2.my_section.my_entry)
-
-    # TODO: Document restrictions with env. vars, incl.:
-    #   - No strings/secrets with commas in collections
-    #   - No strings/secrets with surrounding spaces in collections
-    #   - Cannot set collection to empty
-    #   - Cannot set optional to None
-    #   - Surrounding whitespace is kept for base types but not for single element collections
-    # TODO: One big complex test with the actual fill_config
-    # TODO: Which exceptions do we want?
-    #   - Invalid type-hint?
-    #   - Wrong type value (default or from yaml)?
-    #   - Default secret?
-    #   - Wrong class syntax?
-    #   - Do we even want to keep the ones we already have? When would people use them?
-    #       When would people catch a config exception and react without crashing?
-    #       Isn't a config exception something that should just prevent an app from starting?
-    #       Specific exceptions can help with meaningful names, but we can get the same from
-    #       good error messages, can't we?
-    # TODO: Do not include secret values in error messages. Check for:
-    #   - Invalid default values
-    #   - Invalid values from yaml
-    # TODO: Document that env takes precedence over config files and that if an env var is present,
-    #   it must be a valid value (will not fallback to config file in case of invalid env var) and
-    #   the corresponding value in the config file (if any) will not be used and therefore will not
-    #   be validated. So an invalid entry in a config file might go unnoticed if it is overriden by
-    #   an env var.

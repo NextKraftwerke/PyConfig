@@ -12,6 +12,7 @@ from yaml.constructor import ConstructorError
 from nx_config import ConfigSection, Config, Format, SecretString, URL
 # noinspection PyProtectedMember
 from nx_config._core.fill_with_oracles import fill_config_w_oracles
+from tests.typing_test_helpers import collection_type_holders
 
 
 def _in(s: str) -> TextIO:
@@ -314,17 +315,36 @@ class FillFromYAMLTestCase(TestCase):
         self.assertIn(f"'{invalid}'", msg)
         self.assertIn("UUID", msg)
 
-    # tuple (old and new)
-    # frozenset (old and new)
-    # wrong collection type
-    # wrong element type
-    # invalid collection syntax
-    # invalid for conversion to element in collection
-    # dict
-    # int for str
-    # optional collection (to none, to empty, to some)
-    # optional tuple[str] (to none, to empty, to some, to single empty, whitespace)
-    # validates
-    # all entries must be set
-    # env takes precedence
-    # Uset _set to get error messages!
+    def test_set_collections(self):
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    int_tuple: tps.tuple[int, ...]
+
+                class MyConfig(Config):
+                    sec: MySection
+
+                cfg = MyConfig()
+                _fill_in(
+                    cfg,
+                    """
+                    sec:
+                      int_tuple: [3, 7, 1]
+                    """,
+                )
+
+                self.assertEqual((3, 7, 1), cfg.sec.int_tuple)
+
+    # TODO: tuple and frozenset (incl. UUID and Path)
+    # TODO: wrong collection type
+    # TODO: wrong element type
+    # TODO: invalid collection syntax
+    # TODO: invalid for conversion to element in collection
+    # TODO: dict
+    # TODO: int for str
+    # TODO: optional collection (to none, to empty, to some)
+    # TODO: optional tuple[str] (to none, to empty, to some, to single empty, whitespace)
+    # TODO: validates
+    # TODO: all entries must be set
+    # TODO: env takes precedence
+    # TODO: One big complex test with the actual fill_config

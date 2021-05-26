@@ -24,6 +24,24 @@ _env_prefix_first_char = _upper_ascii_letters + "_"
 _env_prefix_chars = _env_prefix_first_char + _digits
 
 
+def _convert_yaml(yaml_value: Any, type_info: ConfigTypeInfo) -> Any:
+    base = type_info.base
+    coll = type_info.collection
+
+    if isinstance(yaml_value, str) and (base in (Path, UUID)):
+        try:
+            return base(yaml_value)
+        except ValueError as xcp:
+            raise ValueError(
+                f"Cannot convert string '{yaml_value}' into {type_info}: {xcp}"
+            ) from xcp
+    elif isinstance(yaml_value, list) and (coll is not None):
+        # noinspection PyArgumentList
+        return coll(yaml_value)
+    else:
+        return yaml_value
+
+
 def _convert_string_to_base(value_str: str, base: type) -> Any:
     if base in (int, float, Path, UUID):
         return base(value_str)
@@ -122,16 +140,12 @@ def fill_config_w_oracles(
                         entry = getattr(type(section), entry_name)
                         type_info = entry.type_info
 
-                        if isinstance(in_map_value, str) and (type_info.base in (Path, UUID)):
-                            try:
-                                converted_new_value = type_info.base(in_map_value)
-                            except ValueError as xcp:
-                                raise ValueError(
-                                    f"Cannot convert string '{in_map_value}' for attribute '{entry_name}'"
-                                    f" into {type_info}: {xcp}"
-                                ) from xcp
-                        else:
-                            converted_new_value = in_map_value
+                        try:
+                            converted_new_value = _convert_yaml(in_map_value, type_info)
+                        except ValueError as xcp:
+                            raise ValueError(
+                                f"Error converting value for attribute '{entry_name}': {xcp}"
+                            ) from xcp
 
                         # noinspection PyProtectedMember
                         entry._set(section, converted_new_value)
