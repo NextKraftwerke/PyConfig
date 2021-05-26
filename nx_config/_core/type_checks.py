@@ -105,7 +105,7 @@ class ConfigTypeInfo(NamedTuple):
     def __str__(self):
         return self.full_str
 
-    def check_type(self, value: Any):  # TODO: If used only in update_section, move it there.
+    def check_type(self, value: Any):
         if value is None:
             if self.optional:
                 return
