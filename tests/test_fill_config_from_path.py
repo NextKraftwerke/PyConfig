@@ -1,7 +1,7 @@
 from pathlib import Path
 from unittest import TestCase
 
-from nx_config import Config, fill_config, ConfigSection
+from nx_config import Config, fill_config_from_path, ConfigSection
 
 abs_resources_path = Path(__file__).parent / "resources"
 rel_resources_path = abs_resources_path.relative_to(Path.cwd())
@@ -16,16 +16,16 @@ class SmallConfig(Config):
     sec: SmallSection
 
 
-class TestFillFromPath(TestCase):
+class FillFromPathTestCase(TestCase):
     def test_path_is_optional_arg(self):
         cfg = SmallConfig()
-        fill_config(cfg)
+        fill_config_from_path(cfg)
         self.assertEqual(0, cfg.sec.entry)
 
     def test_path_is_keyword_only(self):
         with self.assertRaises(TypeError):
             # noinspection PyArgumentList
-            fill_config(SmallConfig(), f"{abs_resources_path}/small.yaml")
+            fill_config_from_path(SmallConfig(), f"{abs_resources_path}/small.yaml")
 
     def test_accepts_str_and_pathlike(self):
         for p in (
@@ -36,7 +36,7 @@ class TestFillFromPath(TestCase):
         ):
             with self.subTest(path=p):
                 cfg = SmallConfig()
-                fill_config(cfg, path=p)
+                fill_config_from_path(cfg, path=p)
                 self.assertEqual(42, cfg.sec.entry)
 
     def test_invalid_extensions(self):
@@ -52,7 +52,7 @@ class TestFillFromPath(TestCase):
         ):
             with self.subTest(path=p):
                 with self.assertRaises(ValueError) as ctx:
-                    fill_config(SmallConfig(), path=p)
+                    fill_config_from_path(SmallConfig(), path=p)
 
                 msg = str(ctx.exception)
                 self.assertIn(f"'{p}'", msg)
@@ -66,5 +66,21 @@ class TestFillFromPath(TestCase):
         for dot_ext in expected_valid_extensions:
             with self.subTest(extension=dot_ext):
                 cfg = SmallConfig()
-                fill_config(cfg, path=rel_resources_path / f"small{dot_ext}")
+                fill_config_from_path(cfg, path=rel_resources_path / f"small{dot_ext}")
                 self.assertEqual(42, cfg.sec.entry)
+
+    def test_file_not_found(self):
+        missing = rel_resources_path / "does_not_exist.yaml"
+        with self.assertRaises(FileNotFoundError) as ctx:
+            fill_config_from_path(SmallConfig(), path=missing)
+
+        msg = str(ctx.exception)
+        self.assertIn(str(missing), msg)
+
+    def test_not_a_file(self):
+        dir_path = rel_resources_path
+        with self.assertRaises(IsADirectoryError) as ctx:
+            fill_config_from_path(SmallConfig(), path=dir_path)
+
+        msg = str(ctx.exception)
+        self.assertIn(str(dir_path), msg)

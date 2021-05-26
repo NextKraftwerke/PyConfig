@@ -52,7 +52,7 @@ class SectionEntry:
             " loaded at startup from defaults, configuration files and environment variables."
         )
 
-    def _set(self, instance, value):
+    def _set(self, instance, value):  # TODO: If used only in update_section, move it there.
         try:
             self.type_info.check_type(value)
         except TypeError as xcp:

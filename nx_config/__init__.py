@@ -3,7 +3,9 @@ from .config import Config
 # noinspection PyUnresolvedReferences
 from .exceptions import NxConfigError, ValidationError, IncompleteSectionError, ParsingError
 # noinspection PyUnresolvedReferences
-from .fill import fill_config
+from .fill import fill_config, fill_config_from_path
+# noinspection PyUnresolvedReferences
+from .format import Format
 # noinspection PyUnresolvedReferences
 from .secret_string import SecretString
 # noinspection PyUnresolvedReferences

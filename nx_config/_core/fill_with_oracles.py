@@ -13,6 +13,7 @@ from nx_config._core.type_checks import ConfigTypeInfo
 from nx_config._core.unset import Unset
 from nx_config.config import Config
 from nx_config.exceptions import ValidationError, IncompleteSectionError, ParsingError
+from nx_config.format import Format
 from nx_config.section import ConfigSection
 
 _truey_strings = frozenset(("True", "true", "TRUE", "Yes", "yes", "YES", "On", "on", "ON", "1"))
@@ -90,6 +91,7 @@ def _check_env_prefix(prefix: str):
 def fill_config_w_oracles(
     cfg: Config,
     in_stream: Optional[TextIO],
+    fmt: Optional[Format],
     env_prefix: Optional[str],
     env_map: Mapping[str, str],
 ):
@@ -111,16 +113,12 @@ def fill_config_w_oracles(
 
             if env_value is None:
                 if section_in_map is not None:
-                    # try: TODO: Add test setting entry to None
-                    #     in_map_value = section_in_map[entry_name]
-                    # except KeyError:
-                    #     pass
-                    # else:
-                    #     setattr(section, internal_name(entry_name), in_map_value)
-                    in_map_value = section_in_map.get(entry_name)
-                    # if in_map_value is not None: TODO: Add test with missing entry in file
-                    #     setattr(section, internal_name(entry_name), in_map_value)
-                    setattr(section, internal_name(entry_name), in_map_value)
+                    try:
+                        in_map_value = section_in_map[entry_name]
+                    except KeyError:
+                        continue
+                    else:
+                        setattr(section, internal_name(entry_name), in_map_value)
             else:
                 type_info = getattr(type(section), entry_name).type_info
 
