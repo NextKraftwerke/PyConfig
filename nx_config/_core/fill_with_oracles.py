@@ -107,30 +107,48 @@ def fill_config_w_oracles(
         section = getattr(cfg, section_name)
         section_in_map = in_map.get(section_name) if in_map is not None else None
 
-        for entry_name in get_annotations(section):
-            env_key = f"{env_key_prefix}{section_name.upper()}__{entry_name.upper()}"
-            env_value = env_map.get(env_key)
+        try:
+            for entry_name in get_annotations(section):
+                env_key = f"{env_key_prefix}{section_name.upper()}__{entry_name.upper()}"
+                env_value = env_map.get(env_key)
 
-            if env_value is None:
-                if section_in_map is not None:
+                if env_value is None:
+                    if section_in_map is not None:
+                        try:
+                            in_map_value = section_in_map[entry_name]
+                        except KeyError:
+                            continue
+
+                        entry = getattr(type(section), entry_name)
+                        type_info = entry.type_info
+
+                        if isinstance(in_map_value, str) and (type_info.base in (Path, UUID)):
+                            try:
+                                converted_new_value = type_info.base(in_map_value)
+                            except ValueError as xcp:
+                                raise ValueError(
+                                    f"Cannot convert string '{in_map_value}' for attribute '{entry_name}'"
+                                    f" into {type_info}: {xcp}"
+                                ) from xcp
+                        else:
+                            converted_new_value = in_map_value
+
+                        # noinspection PyProtectedMember
+                        entry._set(section, converted_new_value)
+                else:
+                    type_info = getattr(type(section), entry_name).type_info
+
                     try:
-                        in_map_value = section_in_map[entry_name]
-                    except KeyError:
-                        continue
-                    else:
-                        setattr(section, internal_name(entry_name), in_map_value)
-            else:
-                type_info = getattr(type(section), entry_name).type_info
+                        converted_new_value = _convert_string(env_value, type_info)
+                    except ValueError as xcp:
+                        raise ParsingError(
+                            f"Error parsing the value for attribute '{entry_name}'"
+                            f" from environment variable '{env_key}': {xcp}"
+                        ) from xcp
 
-                try:
-                    converted_new_value = _convert_string(env_value, type_info)
-                except ValueError as xcp:
-                    raise ParsingError(
-                        f"Error parsing the value for section '{section_name}', attribute '{entry_name}'"
-                        f" from environment variable '{env_key}': {xcp}"
-                    ) from xcp
-
-                setattr(section, internal_name(entry_name), converted_new_value)
+                    setattr(section, internal_name(entry_name), converted_new_value)
+        except Exception as xcp:
+            raise type(xcp)(f"Error filling section '{section_name}': {xcp}") from xcp
 
         try:
             _check_all_entries_were_set(section)
