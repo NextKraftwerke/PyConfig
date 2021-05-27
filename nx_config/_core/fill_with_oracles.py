@@ -1,9 +1,10 @@
 from datetime import datetime
 from pathlib import Path
-from typing import Mapping, Any, Iterable, Optional
+from typing import Mapping, Any, Iterable, Optional, TextIO
 from uuid import UUID
 
 from dateutil.parser import parse as dateutil_parse
+from yaml import safe_load
 
 from nx_config._core.iteration_utils import get_annotations
 from nx_config._core.naming_utils import internal_name
@@ -12,6 +13,7 @@ from nx_config._core.type_checks import ConfigTypeInfo
 from nx_config._core.unset import Unset
 from nx_config.config import Config
 from nx_config.exceptions import ValidationError, IncompleteSectionError, ParsingError
+from nx_config.format import Format
 from nx_config.section import ConfigSection
 
 _truey_strings = frozenset(("True", "true", "TRUE", "Yes", "yes", "YES", "On", "on", "ON", "1"))
@@ -20,6 +22,35 @@ _upper_ascii_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 _digits = "0123456789"
 _env_prefix_first_char = _upper_ascii_letters + "_"
 _env_prefix_chars = _env_prefix_first_char + _digits
+
+
+def _convert_yaml_str_to_element(yaml_str: str, base: type) -> Any:
+    try:
+        return base(yaml_str)
+    except ValueError as xcp:
+        raise ValueError(f"Cannot convert string '{yaml_str}' into {base.__name__}: {xcp}") from xcp
+
+
+def _convert_yaml(yaml_value: Any, type_info: ConfigTypeInfo) -> Any:
+    base = type_info.base
+    coll = type_info.collection
+
+    if isinstance(yaml_value, str) and (base in (Path, UUID)):
+        try:
+            return base(yaml_value)
+        except ValueError as xcp:
+            raise ValueError(f"Cannot convert string '{yaml_value}' into {type_info}: {xcp}") from xcp
+    elif isinstance(yaml_value, list) and (coll is not None):
+        if base in (Path, UUID):
+            try:
+                # noinspection PyArgumentList
+                return coll(_convert_yaml_str_to_element(x, base) if isinstance(x, str) else x for x in yaml_value)
+            except ValueError as xcp:
+                raise ValueError(f"Failed to convert list into {type_info}: {xcp}") from xcp
+        # noinspection PyArgumentList
+        return coll(yaml_value)
+    else:
+        return yaml_value
 
 
 def _convert_string_to_base(value_str: str, base: type) -> Any:
@@ -54,14 +85,14 @@ def _convert_string(value_str: str, type_info: ConfigTypeInfo) -> Any:
         try:
             return _convert_string_to_base(value_str, base)
         except ValueError as xcp:
-            raise ValueError(f"Cannot convert string '{value_str}' into {type_info}; {xcp}") from xcp
+            raise ValueError(f"Cannot convert string '{value_str}' into {type_info}: {xcp}") from xcp
     else:
         parts = (x.strip() for x in value_str.split(","))
         try:
             # noinspection PyArgumentList
             return coll(_convert_each_string_to_base(parts, base))
         except ValueError as xcp:
-            raise ValueError(f"Cannot convert string '{value_str}' into {type_info}; {xcp}") from xcp
+            raise ValueError(f"Cannot convert string '{value_str}' into {type_info}: {xcp}") from xcp
 
 
 def _check_all_entries_were_set(section: ConfigSection):
@@ -86,7 +117,15 @@ def _check_env_prefix(prefix: str):
         )
 
 
-def fill_config_w_oracles(cfg: Config, env_prefix: Optional[str], env_map: Mapping[str, str]):
+def fill_config_w_oracles(
+    cfg: Config,
+    in_stream: Optional[TextIO],
+    fmt: Optional[Format],
+    env_prefix: Optional[str],
+    env_map: Mapping[str, str],
+):
+    in_map = safe_load(in_stream) if in_stream is not None else None
+
     if env_prefix is None:
         env_key_prefix = ""
     else:
@@ -95,23 +134,46 @@ def fill_config_w_oracles(cfg: Config, env_prefix: Optional[str], env_map: Mappi
 
     for section_name in get_annotations(cfg):
         section = getattr(cfg, section_name)
+        section_in_map = in_map.get(section_name) if in_map is not None else None
 
-        for entry_name in get_annotations(section):
-            env_key = f"{env_key_prefix}{section_name.upper()}__{entry_name.upper()}"
-            new_value = env_map.get(env_key)
+        try:
+            for entry_name in get_annotations(section):
+                env_key = f"{env_key_prefix}{section_name.upper()}__{entry_name.upper()}"
+                env_value = env_map.get(env_key)
 
-            if new_value is not None:
-                type_info = getattr(type(section), entry_name).type_info
+                if env_value is None:
+                    if section_in_map is not None:
+                        try:
+                            in_map_value = section_in_map[entry_name]
+                        except KeyError:
+                            continue
 
-                try:
-                    converted_new_value = _convert_string(new_value, type_info)
-                except ValueError as xcp:
-                    raise ParsingError(
-                        f"Error parsing the value for section '{section_name}', attribute '{entry_name}'"
-                        f" from environment variable '{env_key}': {xcp}"
-                    ) from xcp
+                        entry = getattr(type(section), entry_name)
+                        type_info = entry.type_info
 
-                setattr(section, internal_name(entry_name), converted_new_value)
+                        try:
+                            converted_new_value = _convert_yaml(in_map_value, type_info)
+                        except ValueError as xcp:
+                            raise ValueError(
+                                f"Error converting value for attribute '{entry_name}': {xcp}"
+                            ) from xcp
+
+                        # noinspection PyProtectedMember
+                        entry._set(section, converted_new_value)
+                else:
+                    type_info = getattr(type(section), entry_name).type_info
+
+                    try:
+                        converted_new_value = _convert_string(env_value, type_info)
+                    except ValueError as xcp:
+                        raise ParsingError(
+                            f"Error parsing the value for attribute '{entry_name}'"
+                            f" from environment variable '{env_key}': {xcp}"
+                        ) from xcp
+
+                    setattr(section, internal_name(entry_name), converted_new_value)
+        except Exception as xcp:
+            raise type(xcp)(f"Error filling section '{section_name}': {xcp}") from xcp
 
         try:
             _check_all_entries_were_set(section)

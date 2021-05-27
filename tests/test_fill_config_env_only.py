@@ -16,10 +16,10 @@ class FillConfigEnvOnlyTestCase(TestCase):
             pass
 
         with self.subTest("Empty env_map"):
-            fill_config_w_oracles(MyConfig(), env_prefix=None, env_map={})
+            fill_config_w_oracles(MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={})
 
         with self.subTest("Extra items in env_map"):
-            fill_config_w_oracles(MyConfig(), env_prefix=None, env_map={"a": "A", "b": "B"})
+            fill_config_w_oracles(MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={"a": "A", "b": "B"})
 
     def test_fill_empty_section(self):
         class MySection(ConfigSection):
@@ -29,10 +29,10 @@ class FillConfigEnvOnlyTestCase(TestCase):
             my_section: MySection
 
         with self.subTest("Empty env_map"):
-            fill_config_w_oracles(MyConfig(), env_prefix=None, env_map={})
+            fill_config_w_oracles(MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={})
 
         with self.subTest("Extra items in env_map"):
-            fill_config_w_oracles(MyConfig(), env_prefix=None, env_map={"a": "A", "b": "B"})
+            fill_config_w_oracles(MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={"a": "A", "b": "B"})
 
     def test_fill_already_full_empty_env_map(self):
         class MySection1(ConfigSection):
@@ -47,7 +47,7 @@ class FillConfigEnvOnlyTestCase(TestCase):
             my_sec2: MySection2
 
         cfg = MyConfig()
-        fill_config_w_oracles(cfg, env_prefix=None, env_map={"a": "A"})
+        fill_config_w_oracles(cfg, in_stream=None, fmt=None, env_prefix=None, env_map={"a": "A"})
 
         self.assertEqual(42, cfg.my_sec1.my_int)
         self.assertEqual(None, cfg.my_sec1.my_opt_str)
@@ -68,6 +68,8 @@ class FillConfigEnvOnlyTestCase(TestCase):
         with self.assertRaises(IncompleteSectionError) as ctx:
             fill_config_w_oracles(
                 MyConfig(),
+                in_stream=None,
+                fmt=None,
                 env_prefix=None,
                 env_map={
                     "a": "A",
@@ -90,7 +92,9 @@ class FillConfigEnvOnlyTestCase(TestCase):
 
         new_value = "something"
         cfg = MyConfig()
-        fill_config_w_oracles(cfg, env_prefix=None, env_map={"MY_SECTION__MY_ENTRY": new_value})
+        fill_config_w_oracles(
+            cfg, in_stream=None, fmt=None, env_prefix=None, env_map={"MY_SECTION__MY_ENTRY": new_value},
+        )
 
         self.assertEqual(new_value, cfg.my_section.my_entry)
 
@@ -107,6 +111,8 @@ class FillConfigEnvOnlyTestCase(TestCase):
         cfg = MyConfig()
         fill_config_w_oracles(
             cfg,
+            in_stream=None,
+            fmt=None,
             env_prefix=None,
             env_map={
                 "MY_SECTION__MY_ENTRY1": new_value1,
@@ -199,6 +205,8 @@ class FillConfigEnvOnlyTestCase(TestCase):
                 cfg = MyConfig()
                 fill_config_w_oracles(
                     cfg,
+                    in_stream=None,
+                    fmt=None,
                     env_prefix=None,
                     env_map={
                         "MY_SECTION__MY_INT": new_int_as_str,
@@ -235,19 +243,21 @@ class FillConfigEnvOnlyTestCase(TestCase):
         for value_str in ("True", "true", "TRUE", "Yes", "yes", "YES", "On", "on", "ON", "1"):
             with self.subTest("Truey strings", value_str=value_str):
                 cfg = MyConfig()
-                fill_config_w_oracles(cfg, env_prefix=None, env_map={env_key: value_str})
+                fill_config_w_oracles(cfg, in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str})
                 self.assertEqual(True, cfg.my_section.my_entry)
 
         for value_str in ("False", "false", "FALSE", "No", "no", "NO", "Off", "off", "OFF", "0"):
             with self.subTest("Falsey strings", value_str=value_str):
                 cfg = MyConfig()
-                fill_config_w_oracles(cfg, env_prefix=None, env_map={env_key: value_str})
+                fill_config_w_oracles(cfg, in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str})
                 self.assertEqual(False, cfg.my_section.my_entry)
 
         for value_str in ("42", "tRUe", "zero", "Schrödinger's cat is dead", ""):
             with self.subTest("Invalid strings", value_str=value_str):
                 with self.assertRaises(ParsingError) as ctx:
-                    fill_config_w_oracles(MyConfig(), env_prefix=None, env_map={env_key: value_str})
+                    fill_config_w_oracles(
+                        MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str},
+                    )
 
                 msg = str(ctx.exception)
                 self.assertIn("'my_section'", msg)
@@ -276,6 +286,8 @@ class FillConfigEnvOnlyTestCase(TestCase):
 
         fill_config_w_oracles(
             cfg,
+            in_stream=None,
+            fmt=None,
             env_prefix=None,
             env_map={
                 "SEC__FIRST": new_str,
@@ -302,7 +314,13 @@ class FillConfigEnvOnlyTestCase(TestCase):
         naive = datetime(2001, 1, 1)
         cfg = MyConfig()
 
-        fill_config_w_oracles(cfg, env_prefix=None, env_map={"SEC__DT1": aware.isoformat(), "SEC__DT2": naive.isoformat()})
+        fill_config_w_oracles(
+            cfg,
+            in_stream=None,
+            fmt=None,
+            env_prefix=None,
+            env_map={"SEC__DT1": aware.isoformat(), "SEC__DT2": naive.isoformat()},
+        )
         self.assertEqual(aware, cfg.sec.dt1)
         self.assertEqual(naive, cfg.sec.dt2)
 
@@ -316,7 +334,9 @@ class FillConfigEnvOnlyTestCase(TestCase):
         new_value = UUID("cb46fff2-5a46-4859-9eae-901d4fc33943")
 
         cfg = MyConfig()
-        fill_config_w_oracles(cfg, env_prefix=None, env_map={"SEC__MY_UUID": str(new_value).replace("-", "")})
+        fill_config_w_oracles(
+            cfg, in_stream=None, fmt=None, env_prefix=None, env_map={"SEC__MY_UUID": str(new_value).replace("-", "")}
+        )
 
         self.assertEqual(new_value, cfg.sec.my_uuid)
 
@@ -332,7 +352,9 @@ class FillConfigEnvOnlyTestCase(TestCase):
         for value_str in ("", "3.14", "forty two"):
             with self.subTest("Invalid strings", value_str=value_str):
                 with self.assertRaises(ParsingError) as ctx:
-                    fill_config_w_oracles(MyConfig(), env_prefix=None, env_map={env_key: value_str})
+                    fill_config_w_oracles(
+                        MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str}
+                    )
 
                 msg = str(ctx.exception)
                 self.assertIn("'my_section'", msg)
@@ -354,7 +376,9 @@ class FillConfigEnvOnlyTestCase(TestCase):
         for value_str in ("", "pi", "True", "1.0.1"):
             with self.subTest("Invalid strings", value_str=value_str):
                 with self.assertRaises(ParsingError) as ctx:
-                    fill_config_w_oracles(MyConfig(), env_prefix=None, env_map={env_key: value_str})
+                    fill_config_w_oracles(
+                        MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str}
+                    )
 
                 msg = str(ctx.exception)
                 self.assertIn("'my_section'", msg)
@@ -376,7 +400,9 @@ class FillConfigEnvOnlyTestCase(TestCase):
         for value_str in ("", "today at noon", "2021-13-01 25:61:62"):
             with self.subTest("Invalid strings", value_str=value_str):
                 with self.assertRaises(ParsingError) as ctx:
-                    fill_config_w_oracles(MyConfig(), env_prefix=None, env_map={env_key: value_str})
+                    fill_config_w_oracles(
+                        MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str}
+                    )
 
                 msg = str(ctx.exception)
                 self.assertIn("'my_section'", msg)
@@ -399,7 +425,9 @@ class FillConfigEnvOnlyTestCase(TestCase):
         for value_str in ("", "42", valid_str.replace("f", "g"), valid_str[:-1]):
             with self.subTest("Invalid strings", value_str=value_str):
                 with self.assertRaises(ParsingError) as ctx:
-                    fill_config_w_oracles(MyConfig(), env_prefix=None, env_map={env_key: value_str})
+                    fill_config_w_oracles(
+                        MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str}
+                    )
 
                 msg = str(ctx.exception)
                 self.assertIn("'my_section'", msg)
@@ -515,6 +543,8 @@ class FillConfigEnvOnlyTestCase(TestCase):
 
                 fill_config_w_oracles(
                     cfg,
+                    in_stream=None,
+                    fmt=None,
                     env_prefix=None,
                     env_map={f"SEC__{k.upper()}": v[0] for k, v in expected.items()},
                 )
@@ -579,6 +609,8 @@ class FillConfigEnvOnlyTestCase(TestCase):
 
                 fill_config_w_oracles(
                     cfg,
+                    in_stream=None,
+                    fmt=None,
                     env_prefix=None,
                     env_map={f"SEC__{k.upper()}": v[0] for k, v in expected.items()},
                 )
@@ -612,7 +644,9 @@ class FillConfigEnvOnlyTestCase(TestCase):
                 env_key = "MY_SECTION__MY_ENTRY"
 
                 with self.assertRaises(ParsingError) as ctx:
-                    fill_config_w_oracles(MyConfig(), env_prefix=None, env_map={env_key: value_str})
+                    fill_config_w_oracles(
+                        MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str}
+                    )
 
                 msg = str(ctx.exception)
                 self.assertIn("'my_section'", msg)
@@ -646,7 +680,9 @@ class FillConfigEnvOnlyTestCase(TestCase):
                     my_section: MySection
 
                 cfg = MyConfig()
-                fill_config_w_oracles(cfg, env_prefix=None, env_map={"MY_SECTION__MY_ENTRY": ""})
+                fill_config_w_oracles(
+                    cfg, in_stream=None, fmt=None, env_prefix=None, env_map={"MY_SECTION__MY_ENTRY": ""}
+                )
                 self.assertEqual(expected, cfg.my_section.my_entry)
 
         for tp, base_str in (
@@ -671,7 +707,7 @@ class FillConfigEnvOnlyTestCase(TestCase):
                 env_key = "MY_SECTION__MY_ENTRY"
 
                 with self.assertRaises(ParsingError) as ctx:
-                    fill_config_w_oracles(MyConfig(), env_prefix=None, env_map={env_key: ""})
+                    fill_config_w_oracles(MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={env_key: ""})
 
                 msg = str(ctx.exception)
                 self.assertIn("'my_section'", msg)
@@ -755,6 +791,8 @@ class FillConfigEnvOnlyTestCase(TestCase):
 
                 fill_config_w_oracles(
                     cfg,
+                    in_stream=None,
+                    fmt=None,
                     env_prefix=None,
                     env_map={f"SEC__{k.upper()}": v[0] for k, v in expected.items()},
                 )
@@ -793,7 +831,9 @@ class FillConfigEnvOnlyTestCase(TestCase):
                     my_section: MySection
 
                 cfg = MyConfig()
-                fill_config_w_oracles(cfg, env_prefix=None, env_map={"MY_SECTION__MY_ENTRY": ""})
+                fill_config_w_oracles(
+                    cfg, in_stream=None, fmt=None, env_prefix=None, env_map={"MY_SECTION__MY_ENTRY": ""}
+                )
                 self.assertEqual(expected, cfg.my_section.my_entry)
 
         for tp, base_str in (
@@ -818,7 +858,7 @@ class FillConfigEnvOnlyTestCase(TestCase):
                 env_key = "MY_SECTION__MY_ENTRY"
 
                 with self.assertRaises(ParsingError) as ctx:
-                    fill_config_w_oracles(MyConfig(), env_prefix=None, env_map={env_key: ""})
+                    fill_config_w_oracles(MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={env_key: ""})
 
                 msg = str(ctx.exception)
                 self.assertIn("'my_section'", msg)
@@ -846,30 +886,9 @@ class FillConfigEnvOnlyTestCase(TestCase):
         }
 
         cfg1 = MyConfig()
-        fill_config_w_oracles(cfg1, env_prefix=None, env_map=env_map)
+        fill_config_w_oracles(cfg1, in_stream=None, fmt=None, env_prefix=None, env_map=env_map)
         self.assertEqual(no_prefix_value, cfg1.my_section.my_entry)
 
         cfg2 = MyConfig()
-        fill_config_w_oracles(cfg2, env_prefix=prefix, env_map=env_map)
+        fill_config_w_oracles(cfg2, in_stream=None, fmt=None, env_prefix=prefix, env_map=env_map)
         self.assertEqual(prefix_value, cfg2.my_section.my_entry)
-
-    # TODO: Document restrictions with env. vars, incl.:
-    #   - No strings/secrets with commas in collections
-    #   - No strings/secrets with surrounding spaces in collections
-    #   - Cannot set collection to empty
-    #   - Cannot set optional to None
-    #   - Surrounding whitespace is kept for base types but not for single element collections
-    # TODO: One big complex test with the actual fill_config
-    # TODO: Which exceptions do we want?
-    #   - Invalid type-hint?
-    #   - Wrong type value (default or from yaml)?
-    #   - Default secret?
-    #   - Wrong class syntax?
-    #   - Do we even want to keep the ones we already have? When would people use them?
-    #       When would people catch a config exception and react without crashing?
-    #       Isn't a config exception something that should just prevent an app from starting?
-    #       Specific exceptions can help with meaningful names, but we can get the same from
-    #       good error messages, can't we?
-    # TODO: Do not include secret values in error messages. Check for:
-    #   - Invalid default values
-    #   - Invalid values from yaml
