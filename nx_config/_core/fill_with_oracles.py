@@ -24,6 +24,13 @@ _env_prefix_first_char = _upper_ascii_letters + "_"
 _env_prefix_chars = _env_prefix_first_char + _digits
 
 
+def _convert_yaml_str_to_element(yaml_str: str, base: type) -> Any:
+    try:
+        return base(yaml_str)
+    except ValueError as xcp:
+        raise ValueError(f"Cannot convert string '{yaml_str}' into {base.__name__}: {xcp}") from xcp
+
+
 def _convert_yaml(yaml_value: Any, type_info: ConfigTypeInfo) -> Any:
     base = type_info.base
     coll = type_info.collection
@@ -32,10 +39,14 @@ def _convert_yaml(yaml_value: Any, type_info: ConfigTypeInfo) -> Any:
         try:
             return base(yaml_value)
         except ValueError as xcp:
-            raise ValueError(
-                f"Cannot convert string '{yaml_value}' into {type_info}: {xcp}"
-            ) from xcp
+            raise ValueError(f"Cannot convert string '{yaml_value}' into {type_info}: {xcp}") from xcp
     elif isinstance(yaml_value, list) and (coll is not None):
+        if base in (Path, UUID):
+            try:
+                # noinspection PyArgumentList
+                return coll(_convert_yaml_str_to_element(x, base) if isinstance(x, str) else x for x in yaml_value)
+            except ValueError as xcp:
+                raise ValueError(f"Failed to convert list into {type_info}: {xcp}") from xcp
         # noinspection PyArgumentList
         return coll(yaml_value)
     else:
@@ -74,14 +85,14 @@ def _convert_string(value_str: str, type_info: ConfigTypeInfo) -> Any:
         try:
             return _convert_string_to_base(value_str, base)
         except ValueError as xcp:
-            raise ValueError(f"Cannot convert string '{value_str}' into {type_info}; {xcp}") from xcp
+            raise ValueError(f"Cannot convert string '{value_str}' into {type_info}: {xcp}") from xcp
     else:
         parts = (x.strip() for x in value_str.split(","))
         try:
             # noinspection PyArgumentList
             return coll(_convert_each_string_to_base(parts, base))
         except ValueError as xcp:
-            raise ValueError(f"Cannot convert string '{value_str}' into {type_info}; {xcp}") from xcp
+            raise ValueError(f"Cannot convert string '{value_str}' into {type_info}: {xcp}") from xcp
 
 
 def _check_all_entries_were_set(section: ConfigSection):
