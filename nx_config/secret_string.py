@@ -9,8 +9,3 @@ class SecretString:
     In the end, the actual type of the config entries is simply ``str``.
     """
     __new__ = None
-
-
-# TODO: Do not include secret values in error messages. Check for:
-#   - Invalid default values
-#   - Invalid values from yaml
