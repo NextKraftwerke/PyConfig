@@ -104,8 +104,8 @@ def _check_all_entries_were_set(section: ConfigSection):
 def _check_env_prefix(prefix: str):
     if prefix == "":
         raise ValueError(
-            f"Invalid empty prefix for configuration environment variables. If you do not want to use a custom"
-            f" prefix use the (default) value None for 'env_prefix'."
+            f"Invalid empty prefix for configuration environment variables. If you don't want to use a custom"
+            f" prefix, use None instead (default)."
         )
 
     if (prefix[0] not in _env_prefix_first_char) or any(x not in _env_prefix_chars for x in prefix[1:]):
