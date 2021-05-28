@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 from pathlib import Path
 from unittest import TestCase
 
@@ -14,7 +15,7 @@ class PathResolutionTestCase(TestCase):
         expected = Path("../a/b/c.d")
         self.assertEqual(
             expected,
-            resolve_path_w_oracles(prefix=None, env_map={"CONFIG_PATH": str(expected)}),
+            resolve_path_w_oracles(prefix=None, cli_args=None, env_map={"CONFIG_PATH": str(expected)}),
         )
 
     def test_env_var_prefix(self):
@@ -35,7 +36,11 @@ class PathResolutionTestCase(TestCase):
             with self.subTest(prefix=prefix, env_key_prefix=env_key_prefix):
                 self.assertEqual(
                     expected,
-                    resolve_path_w_oracles(prefix=prefix, env_map={f"{env_key_prefix}_CONFIG_PATH": str(expected)}),
+                    resolve_path_w_oracles(
+                        prefix=prefix,
+                        cli_args=None,
+                        env_map={"CONFIG_PATH": "not_expected", f"{env_key_prefix}_CONFIG_PATH": str(expected)}
+                    ),
                 )
 
     def test_invalid_prefix(self):
@@ -62,3 +67,106 @@ class PathResolutionTestCase(TestCase):
                 self.assertIn("_", msg)
                 self.assertIn("0123456789", msg)
                 self.assertIn("prefix", msg.lower())
+
+    def test_use_argparser(self):
+        expected = Path("/foo/bar.ini")
+        option = "--config-path"
+        parser = ArgumentParser()
+        parser.add_argument(option, type=str)
+        args = parser.parse_args((option, str(expected)))
+
+        self.assertEqual(
+            expected,
+            resolve_config_path(cli_args=args),
+        )
+
+    def test_argparser_wo_value_for_option(self):
+        option = "--config-path"
+        parser = ArgumentParser()
+        parser.add_argument(option, type=str)
+        args = parser.parse_args(())
+
+        with self.subTest("No env var"):
+            self.assertIsNone(resolve_config_path(cli_args=args))
+
+        with self.subTest("With env var"):
+            expected = Path("/foo/bar.json")
+            self.assertEqual(
+                expected,
+                resolve_path_w_oracles(prefix=None, cli_args=args, env_map={"CONFIG_PATH": str(expected)}),
+            )
+
+    def test_argparser_wo_option(self):
+        parser = ArgumentParser()
+        args = parser.parse_args(())
+
+        with self.assertRaises(AttributeError) as ctx:
+            resolve_config_path(cli_args=args)
+
+        msg = str(ctx.exception)
+        self.assertIn("'config_path'", msg)
+
+    def test_cli_args_takes_precedence(self):
+        expected = Path("/path/from/cli.yaml")
+        option = "--config-path"
+        parser = ArgumentParser()
+        parser.add_argument(option, type=str)
+        args = parser.parse_args((option, str(expected)))
+
+        self.assertEqual(
+            expected,
+            resolve_path_w_oracles(prefix=None, cli_args=args, env_map={"CONFIG_PATH": "/path/from/env.var"}),
+        )
+
+    def test_cli_args_is_keyword_only(self):
+        option = "--abc-config-path"
+        parser = ArgumentParser()
+        parser.add_argument(option, type=str)
+        args = parser.parse_args((option, "whatever"))
+
+        with self.assertRaises(TypeError):
+            # noinspection PyArgumentList
+            resolve_config_path("abc", args)
+
+    def test_argparser_with_prefix(self):
+        expected = Path("foo/../bar.txt")
+        prefix = "cU5t0M_-pr3f1x"
+        option = f"--{prefix}-config-path"
+        parser = ArgumentParser()
+        parser.add_argument(option, type=str)
+
+        with self.subTest("With CLI value"):
+            args = parser.parse_args((option, str(expected)))
+
+            self.assertEqual(
+                expected,
+                resolve_config_path(prefix, cli_args=args),
+            )
+
+        with self.subTest("Without CLI value"):
+            args = parser.parse_args(())
+
+            self.assertEqual(
+                expected,
+                resolve_path_w_oracles(
+                    prefix=prefix,
+                    cli_args=args,
+                    env_map={"CONFIG_PATH": "not_expected", "CU5T0M__PR3F1X_CONFIG_PATH": str(expected)},
+                ),
+            )
+
+        with self.subTest("With nothing"):
+            args = parser.parse_args(())
+            self.assertIsNone(resolve_config_path(prefix, cli_args=args))
+
+    def test_argparser_wo_option_with_prefix(self):
+        option = "--config-path"
+        parser = ArgumentParser()
+        parser.add_argument(option, type=str)
+        args = parser.parse_args((option, "whatever"))
+
+        with self.assertRaises(AttributeError) as ctx:
+            resolve_config_path("prfx", cli_args=args)
+
+        msg = str(ctx.exception)
+        self.assertIn("'prfx_config_path'", msg)

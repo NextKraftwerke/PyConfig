@@ -1,3 +1,4 @@
+from argparse import Namespace
 from os import environ
 from pathlib import Path
 from typing import Optional
@@ -6,7 +7,7 @@ from typing import Optional
 from nx_config._core.path_with_oracles import resolve_path_w_oracles as _resolve_path_w_oracles
 
 
-def resolve_config_path(prefix: Optional[str] = None) -> Optional[Path]:
+def resolve_config_path(prefix: Optional[str] = None, *, cli_args: Optional[Namespace] = None) -> Optional[Path]:
     # WARNING: This function is difficult to test because testing would involve
     #   setting environment variables (which remain set from test to test),
     #   or mocking and patching 'environ' (which is messy).
@@ -17,4 +18,4 @@ def resolve_config_path(prefix: Optional[str] = None) -> Optional[Path]:
     #   of additional logic. So please keep this a simple one-liner and make any
     #   necessary changes directly to resolve_path_w_oracles instead of here.
     #     Thanks!
-    return _resolve_path_w_oracles(prefix=prefix, env_map=environ)
+    return _resolve_path_w_oracles(prefix=prefix, cli_args=cli_args, env_map=environ)

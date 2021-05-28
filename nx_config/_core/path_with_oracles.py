@@ -1,7 +1,9 @@
+from argparse import Namespace
 from pathlib import Path
 from typing import Mapping, Optional
 
-_base_env_key = "CONFIG_PATH"
+_base_cli_option = "config_path"
+_base_env_key = _base_cli_option.upper()
 _lower_ascii_letters = "abcdefghijklmnopqrstuvwxyz"
 _digits = "0123456789"
 _prefix_first_char = _lower_ascii_letters + _lower_ascii_letters.upper()
@@ -24,12 +26,31 @@ def _check_prefix(prefix: str):
         )
 
 
-def resolve_path_w_oracles(prefix: Optional[str], env_map: Mapping[str, str]) -> Optional[Path]:
+def resolve_path_w_oracles(
+    prefix: Optional[str],
+    cli_args: Optional[Namespace],
+    env_map: Mapping[str, str],
+) -> Optional[Path]:
     if prefix is None:
+        cli_option = _base_cli_option
         env_key = _base_env_key
     else:
         _check_prefix(prefix)
-        env_key = f"{prefix.upper().replace('-', '_')}_{_base_env_key}"
+        prefix = prefix.replace("-", "_")
+        cli_option = f"{prefix}_{_base_cli_option}"
+        env_key = f"{prefix.upper()}_{_base_env_key}"
+
+    if cli_args is not None:
+        try:
+            cli_value = getattr(cli_args, cli_option)
+        except AttributeError as xcp:
+            raise AttributeError(
+                f"Argument 'cli_args' is expected to be an 'argparser.Namespace' and have an attribute '{cli_option}'"
+                f" (whose value may be None, if this option was not used in the command-line)."
+            ) from xcp
+
+        if cli_value is not None:
+            return Path(cli_value)
 
     try:
         return Path(env_map[env_key])
