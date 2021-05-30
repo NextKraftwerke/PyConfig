@@ -2,7 +2,9 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Mapping, Optional
 
-_base_cli_option = "config_path"
+from nx_config.cli import _base_cli_path_option
+
+_base_cli_option = _base_cli_path_option.replace("-", "_")
 _base_env_key = _base_cli_option.upper()
 _lower_ascii_letters = "abcdefghijklmnopqrstuvwxyz"
 _digits = "0123456789"
