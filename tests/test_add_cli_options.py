@@ -128,7 +128,29 @@ class AddCLIOptionsTestCase(TestCase):
                     self.assertIn(MyConfig.__name__, msg)
 
     def test_invalid_prefixes(self):
-        pass  # TODO
+        with self.subTest(prefix=""):
+            with self.assertRaises(ValueError) as ctx:
+                add_cli_options(ArgumentParser(), config_t=MyConfig, prefix="")
+
+            msg = str(ctx.exception)
+            self.assertIn("empty", msg.lower())
+            self.assertIn("default", msg.lower())
+            self.assertIn("prefix", msg.lower())
+            self.assertIn("None", msg)
+
+        for prefix in ("hällo", "H.ELL.O", "HELL'o", "he##o", "HEL LO", "H\tO", "H\nO", "9to5", "-hello", "_HELLO"):
+            with self.subTest(prefix=prefix):
+                with self.assertRaises(ValueError) as ctx:
+                    add_cli_options(ArgumentParser(), config_t=MyConfig, prefix=prefix)
+
+                msg = str(ctx.exception)
+                self.assertIn(repr(prefix), msg)
+                self.assertIn("abcdefghijklmnopqrstuvwxyz", msg)
+                self.assertIn("ABCDEFGHIJKLMNOPQRSTUVWXYZ", msg)
+                self.assertIn("-", msg)
+                self.assertIn("_", msg)
+                self.assertIn("0123456789", msg)
+                self.assertIn("prefix", msg.lower())
 
     def test_add_multiple(self):
         prog = "my_program"
