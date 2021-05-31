@@ -1,4 +1,6 @@
 # noinspection PyUnresolvedReferences
+from .cli import add_cli_options
+# noinspection PyUnresolvedReferences
 from .config import Config
 # noinspection PyUnresolvedReferences
 from .exceptions import NxConfigError, ValidationError, IncompleteSectionError, ParsingError
