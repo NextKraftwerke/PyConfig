@@ -1,12 +1,14 @@
 from argparse import ArgumentParser
 from contextlib import redirect_stdout, redirect_stderr
+from datetime import datetime
 from inspect import cleandoc
 from io import StringIO
+from pathlib import Path
 from sys import stdout, stderr
-from typing import Type, Union, Optional
+from typing import Type, Union, Optional, Tuple, FrozenSet
 from unittest import TestCase
 
-from nx_config import Config, add_cli_options, ConfigSection
+from nx_config import Config, add_cli_options, ConfigSection, SecretString
 
 
 class GenerateTemplateYAMLTestCase(TestCase):
@@ -36,7 +38,10 @@ class GenerateTemplateYAMLTestCase(TestCase):
             print(out_stream.getvalue(), file=stdout)
             raise xcp
 
-        self.assertEqual(cleandoc(expected), out_stream.getvalue())
+        expected = cleandoc(expected)
+        if expected != "":
+            expected += "\n"
+        self.assertEqual(expected, out_stream.getvalue())
 
     def test_empty_config(self):
         class MyConfig(Config):
@@ -101,4 +106,75 @@ class GenerateTemplateYAMLTestCase(TestCase):
             """,
             parser,
             prefix="other",
+        )
+
+    def test_multiple_empty_sections(self):
+        class EmptySection(ConfigSection):
+            pass
+
+        class MyConfig(Config):
+            foo: EmptySection
+            bar: EmptySection
+            baz: EmptySection
+
+        self.assert_generates_equal(
+            """
+            foo:
+            bar:
+            baz:
+            """,
+            MyConfig,
+        )
+
+    def test_with_entries_no_defaults(self):
+        class MySection(ConfigSection):
+            foo: int
+            bar: bool
+
+        class MyConfig(Config):
+            buzz: MySection
+
+        self.assert_generates_equal(
+            """
+            buzz:
+              foo:
+              bar:
+            """,
+            MyConfig,
+        )
+
+    def test_full(self):
+        class FirstSection(ConfigSection):
+            foo: str
+            bar: datetime
+            baz: Optional[Tuple[Path, ...]] = None
+
+        class SecondSection(ConfigSection):
+            buzz: Optional[int] = 42
+            huhu: FrozenSet[SecretString] = frozenset()
+            foo: float
+            hubba_hubba: SecretString
+
+        class MyConfig(Config):
+            some: FirstSection
+            other: SecondSection
+            again: FirstSection
+
+        self.assert_generates_equal(
+            """
+            some:
+              foo:
+              bar:
+              #baz:
+            other:
+              #buzz:
+              #huhu:
+              foo:
+              hubba_hubba:
+            again:
+              foo:
+              bar:
+              #baz:
+            """,
+            MyConfig,
         )
