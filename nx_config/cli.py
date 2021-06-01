@@ -4,7 +4,7 @@ from typing import Type, Optional
 from nx_config.config import Config
 
 _base_cli_path_option = "config-path"
-_path_metavar = _base_cli_path_option.upper().replace("-", "_")
+_base_cli_generate_option = "generate-config"
 _lower_ascii_letters = "abcdefghijklmnopqrstuvwxyz"
 _upper_ascii_letters = _lower_ascii_letters.upper()
 _digits = "0123456789"
@@ -31,13 +31,25 @@ def _check_prefix(prefix: str, purpose: str):
 def add_cli_options(parser: ArgumentParser, *, prefix: Optional[str] = None, config_t: Type[Config]):
     if prefix is None:
         path_option = f"--{_base_cli_path_option}"
+        generate_option = f"--{_base_cli_generate_option}"
     else:
         _check_prefix(prefix, purpose="option")
         path_option = f"--{prefix}-{_base_cli_path_option}"
+        generate_option = f"--{prefix}-{_base_cli_generate_option}"
 
     parser.add_argument(
         path_option,
         type=str,
         help=f"Path to configuration file. Target python class: {config_t.__name__}.",
-        metavar=_path_metavar,
+        metavar="CONFIG_PATH",
+    )
+    parser.add_argument(
+        generate_option,
+        type=str,
+        help=(
+            f"Generate a template configuration file in the specified format %(metavar)s,"
+            f" print it to the standard output and exit. Target python class: {config_t.__name__}."
+            f" Supported formats are 'yaml'."
+        ),
+        metavar="FORMAT",
     )
