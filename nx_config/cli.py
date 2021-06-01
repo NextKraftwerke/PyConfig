@@ -1,4 +1,4 @@
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Action
 from typing import Type, Optional
 
 from nx_config.config import Config
@@ -28,6 +28,11 @@ def _check_prefix(prefix: str, purpose: str):
         )
 
 
+class GenerateConfigAction(Action):
+    def __call__(self, action_parser, namespace, values, option_string=None):
+        action_parser.exit(0)
+
+
 def add_cli_options(parser: ArgumentParser, *, prefix: Optional[str] = None, config_t: Type[Config]):
     if prefix is None:
         path_option = f"--{_base_cli_path_option}"
@@ -46,10 +51,10 @@ def add_cli_options(parser: ArgumentParser, *, prefix: Optional[str] = None, con
     parser.add_argument(
         generate_option,
         type=str,
+        choices=("yaml",),
         help=(
-            f"Generate a template configuration file in the specified format %(metavar)s,"
+            f"Generate a template configuration file in the specified format,"
             f" print it to the standard output and exit. Target python class: {config_t.__name__}."
-            f" Supported formats are 'yaml'."
         ),
-        metavar="FORMAT",
+        action=GenerateConfigAction,
     )

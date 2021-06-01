@@ -6,6 +6,8 @@ from unittest import TestCase
 
 from nx_config import add_cli_options, Config, ConfigSection
 
+format_choices = "{yaml}"
+
 
 class MyConfig(Config):
     class First(ConfigSection):
@@ -65,13 +67,11 @@ class AddCLIOptionsTestCase(TestCase):
             self.assertIn("file", msg.lower())
             self.assertGreaterEqual(msg.lower().count("class"), 2)
             self.assertGreaterEqual(msg.count(MyConfig.__name__), 2)
-            self.assertIn("[--generate-config FORMAT]", msg)
+            self.assertIn(f"[--generate-config {format_choices}]", msg)
             self.assertIn("print", msg.lower())
             self.assertIn("standard", msg.lower())
             self.assertIn("output", msg.lower())
             self.assertIn("exit", msg.lower())
-            self.assertIn("supported", msg.lower())
-            self.assertIn("yaml", msg)
 
     def test_prefix_is_keyword_only(self):
         with self.assertRaises(TypeError):
@@ -133,13 +133,11 @@ class AddCLIOptionsTestCase(TestCase):
                     self.assertIn("file", msg.lower())
                     self.assertGreaterEqual(msg.lower().count("class"), 2)
                     self.assertGreaterEqual(msg.count(MyConfig.__name__), 2)
-                    self.assertIn(f"[--{prefix}-generate-config FORMAT]", msg)
+                    self.assertIn(f"[--{prefix}-generate-config {format_choices}]", msg)
                     self.assertIn("print", msg.lower())
                     self.assertIn("standard", msg.lower())
                     self.assertIn("output", msg.lower())
                     self.assertIn("exit", msg.lower())
-                    self.assertIn("supported", msg.lower())
-                    self.assertIn("yaml", msg)
 
     def test_invalid_prefixes(self):
         with self.subTest(prefix=""):
@@ -219,13 +217,11 @@ class AddCLIOptionsTestCase(TestCase):
             self.assertGreaterEqual(msg.lower().count("class"), 8)
             self.assertGreaterEqual(msg.count(MyConfig.__name__), 4)
             self.assertGreaterEqual(msg.count(OtherConfig.__name__), 4)
-            self.assertIn("[--generate-config FORMAT]", msg)
-            self.assertIn("[--other-generate-config FORMAT]", msg)
-            self.assertIn("[--same-generate-config FORMAT]", msg)
-            self.assertIn("[--other_again-generate-config FORMAT]", msg)
+            self.assertIn(f"[--generate-config {format_choices}]", msg)
+            self.assertIn(f"[--other-generate-config {format_choices}]", msg)
+            self.assertIn(f"[--same-generate-config {format_choices}]", msg)
+            self.assertIn(f"[--other_again-generate-config {format_choices}]", msg)
             self.assertGreaterEqual(msg.lower().count("print"), 4)
             self.assertGreaterEqual(msg.lower().count("standard"), 4)
             self.assertGreaterEqual(msg.lower().count("output"), 4)
             self.assertGreaterEqual(msg.lower().count("exit"), 4)
-            self.assertGreaterEqual(msg.lower().count("supported"), 4)
-            self.assertGreaterEqual(msg.count("yaml"), 4)
