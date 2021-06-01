@@ -29,7 +29,8 @@ def _check_prefix(prefix: str, purpose: str):
 
 
 class GenerateConfigAction(Action):
-    def __call__(self, action_parser, namespace, values, option_string=None):
+    def __call__(self, action_parser, namespace, value, option_string=None):
+        # format_str = value
         action_parser.exit(0)
 
 

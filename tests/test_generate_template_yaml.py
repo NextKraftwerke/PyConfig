@@ -41,3 +41,6 @@ class GenerateTemplateYAMLTestCase(TestCase):
         if xcp.code != 2:
             print(err_stream.getvalue(), file=stderr)
             raise xcp
+
+# TODO: Generate
+# TODO: prefix
