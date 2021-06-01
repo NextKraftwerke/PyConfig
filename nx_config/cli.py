@@ -1,6 +1,9 @@
+import sys
 from argparse import ArgumentParser, Action
 from typing import Type, Optional
 
+# noinspection PyProtectedMember
+from nx_config._core.generate_template import generate_template as _generate_template
 from nx_config.config import Config
 
 _base_cli_path_option = "config-path"
@@ -28,12 +31,6 @@ def _check_prefix(prefix: str, purpose: str):
         )
 
 
-class GenerateConfigAction(Action):
-    def __call__(self, action_parser, namespace, value, option_string=None):
-        # format_str = value
-        action_parser.exit(0)
-
-
 def add_cli_options(parser: ArgumentParser, *, prefix: Optional[str] = None, config_t: Type[Config]):
     if prefix is None:
         path_option = f"--{_base_cli_path_option}"
@@ -49,6 +46,13 @@ def add_cli_options(parser: ArgumentParser, *, prefix: Optional[str] = None, con
         help=f"Path to configuration file. Target python class: {config_t.__name__}.",
         metavar="CONFIG_PATH",
     )
+
+    class _GenerateConfigAction(Action):
+        def __call__(self, action_parser, namespace, value, option_string=None):
+            # Note: format_str = value
+            _generate_template(config_t, sys.stdout)
+            action_parser.exit(0)
+
     parser.add_argument(
         generate_option,
         type=str,
@@ -57,5 +61,5 @@ def add_cli_options(parser: ArgumentParser, *, prefix: Optional[str] = None, con
             f"Generate a template configuration file in the specified format,"
             f" print it to the standard output and exit. Target python class: {config_t.__name__}."
         ),
-        action=GenerateConfigAction,
+        action=_GenerateConfigAction,
     )
