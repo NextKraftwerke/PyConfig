@@ -7,7 +7,7 @@ with (Path(__file__).parent / "README.md").open("r") as h:
 
 setup(
     name="nx_config",
-    version="0.2.0-alpha.7",
+    version="0.2.0-alpha.8",
     packages=["nx_config", "nx_config._core"],
     install_requires=[
         "python-dateutil >= 2.8.1, < 3",
