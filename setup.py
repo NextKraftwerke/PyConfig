@@ -7,7 +7,7 @@ with (Path(__file__).parent / "README.md").open("r") as h:
 
 setup(
     name="nx_config",
-    version="0.2.0",
+    version="0.2.0-alpha.7",
     packages=["nx_config", "nx_config._core"],
     install_requires=[
         "python-dateutil >= 2.8.1, < 3",
@@ -30,7 +30,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/NextKraftwerke/PyConfig",
     classifiers=[
-        "Development Status :: 1 - Planning",
+        "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
