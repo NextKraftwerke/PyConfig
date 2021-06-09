@@ -15,7 +15,7 @@
 
 ## Introduction by example
 
-You can find a complete guide of the library further down, but for simple use cases it might suffice to just look at an example, so that's how we'll start. Some of the rationale behind PyConfig will be highlighted throughout the example below.
+You can find a complete guide of the library further down, but for simple use cases it might suffice to just look at an example, so that's how we'll start.
 
 In this example we pretend to build an app that greets the user and exits. The user can provide a name through the `--name` argument. The greeting also includes a suggestion to go out or stay home depending on whether it's going to rain.
 
@@ -169,19 +169,132 @@ fill_config_from_path(config, path=resolve_config_path(cli_args=args))
 greet(name=args.name or "world")
 ```
 
+The magic here happens in `fill_config_from_path`. This function will read a configuration file and fill the `config` object's entries with the corresponding values. The path can be hard-coded (not recommended) or you can use `resolve_config_path()` without arguments, in which case the path is provided through the `CONFIG_PATH` environment variable (better) or, as in this example, you can use an `argparse.ArgumentParser` to allow the user to provide the config-path as a CLI argument. The helper `add_cli_options` will add the option `--config-path` (among other things), which `resolve_config_path` will try to read. If the user does not provide a path on the command line, `resolve_config_path` will still use the `CONFIG_PATH` environment variable as a fallback.
+
+The format of the config file will be determined by the path's extension (e.g. '.yaml' for YAML). Note that it's fine (and a common practice) to not provide a config file at all (neither through the CLI nor through the environment variable). In this case, the configuration values will be read from environment variables named `SECTIONNAME__ENTRYNAME` (double underscore!). Even if a config file is provided, values can still be overriden through these environment variables, as we'll see below.
+
+### Write a configuration file
+
+The `add_cli_options` function above also adds a `--generate-config` option that prints out a template config file and exits. It is intended to be used as follows:
+
+```commandline
+$ python -m demo --generate-config=yaml > demo/config.yaml
+```
+
+which in this example results in the following file:
+
+```yaml
+# demo/config.yaml
+
+greet:
+  #num_exclamation_marks:
+  #all_caps:
+weather:
+  service_url:
+  #username:
+  #password:
+  #timeout_s:
+```
+
+All entries and all sections are present, but entries that have a default value are commented-out, so you know exactly what you _need_ to fill out for the program to run. We can fill out the `service_url` in this file, say 
+
+```yaml
+  service_url: www.weatherservice24.com/rain
+```
+
+and use it to run our app. We can still change other entries (or even override values from this file) using canonically named environment variables such as `GREET__NUM_EXCLAMATION_MARKS`:
+
+```commandline
+$ export GREET__NUM_EXCLAMATION_MARKS=5
+$ python -m demo --name Dave --config-path demo/config.yaml
+Hello, Dave!!!!! It's a beautiful day outside. Have fun!
+```
+
+## Why?
+
+What's so great about PyConfig? Why should you bother learning to use yet another library when `configparser` already does a pretty good job? Also: There are **dozens** of configuration libraries for python already! What makes PyConfig different?
+
+### Avoiding hard-coded paths
+
+The `configparser.ConfigParser.read` method takes a string or `PathLike` (or several) as argument. I have seen and worked on many, many projects where this argument was written as a hard-coded, version-controlled string. This is, of course, in most cases a bad idea. It makes it difficult to try out the code locally, or deploy it on multiple servers automatically, can result in clashes with different applications using the same path (and therefore making it impossible to configure them independently), cause headaches due to missing permissions and so on. It also makes it annoying and slow to use different configurations for different runs of the same application.
+
+Most developers working on those projects knew it was a bad idea and knew how to avoid it (e.g. get the path from a CLI argument or from an environment variable) but A) these solutions would require a bit of extra work and B) they would require teaching the user how to provide the config path... for each application!
+
+PyConfig offers two really simple solutions to this, making the best practice _nearly_ the easiest thing to do. First, you can use the function `resolve_config_path()` with no arguments. This will return a `pathlib.Path` from the value of the `CONFIG_PATH` environment variable if defined, and `None` otherwise. With a little extra effort, by using an `argparse.ArgumentParser` and the function `add_cli_options(<parser>, config_t=<config_class>)` you can allow your end-users to provide a config path either through the `--config-path` CLI option or the `CONFIG_PATH` environment variable:
+
+```python
+parser = ArgumentParser()
+add_cli_options(parser, config_t=DemoConfig)
+args = parser.parse_args()
+path = resolve_config_path(cli_args=args)
+```
+
+If you have multiple apps sharing environment variables or you use multiple config classes for a single app (should rarely be necessary), you can add a prefix to both the CLI option and the path environment variable:
+
+```python
+parser = ArgumentParser()
+add_cli_options(parser, prefix="demo", config_t=DemoConfig)
+args = parser.parse_args()
+path = resolve_config_path("demo", cli_args=args)
+```
+
+Now the CLI option `--demo-config-path` and the environment variable `DEMO_CONFIG_PATH` will be used instead. Most importantly, this solution offers a standardized way for users to provide config files, through arguments that follow a simple naming convention, for all apps using PyConfig.
+
+### Immutability
+
+Some might argue that in the example above we shouldn't have created a global `config` object that's just _loaded_ at startup, but instead we should have created and loaded a `config` object in `__main__.py` and then injected it into the `greet` call. In most cases, I'd agree with this advice. But it is aimed at avoiding global _state_, i.e., global variables that can be read and modified from anywhere in the code, usually causing trouble.
+
+In the case of `Config` instances we don't have to worry*. The config object, each of its sections and each their entries are all immutable** so the `config` object is just a namespace for some constants. The supported types for section entries are also immutable, including the supported collection types `tuple` and `frozenset`.
+
+To facilitate testing with different configurations, we've added the function `test_utils.update_section` (can only be imported through the module `test_utils`, not directly from `nx_config`):
+
+```python
+# tests/test_greeting.py
+from unittest import TestCase
+from nx_config.test_utils import update_section
+from demo.config import config
+
+class DemoTests(TestCase):
+    def setUp(self):
+        ...  # load your base config values for testing
+
+    def test_something(self):
+        update_section(config.greet, num_exclamation_marks=7)
+        ...  # call code that uses config
+```
+
+Clearly, there are two ways to mutate a `config` object. One is when you load it, of course. The other is via `test_utils.update_section`. But you can easily scan your project for uses of `fill_config`/`fill_config_from_path` to make sure there is one and only one such call and it's right at the app's startup. Similarly, you can scan your project for uses of `test_utils` to make sure all occurrences are in your directories for tests.
+
+_* and **: Of course, this is python, so there's always a way to cheat by messing with the internal attributes of configs and sections. Let's just assume all contributors to your project are grown ups._
+
+### Automatic validation and failing at startup
+
+### Secrets
+
+### Config file formats
+
+### Documenting configuration options
+
+### Attributes instead of strings
+
+### Handy configuration through environment variables
 
 
 
+.
 
+.
 
+.
 
+.
 
+.
 
+.
 
+.
 
+.
 
-
-
-
-
-
+.
