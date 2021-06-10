@@ -17,7 +17,7 @@ setup(
         "tests": [],
         "tox": ["tox >=3.21.4, <4"],
         "coverage": ["coverage >=5.4, <6"],
-        "docs": ["sphinx >=4.0.2, <5"],
+        "docs": ["sphinx >=4.0.2, <5", "sphinx-rtd-theme >=0.5.2, <1"],
     },
     python_requires=">=3.6, <3.10",
     author="Tomás Silveira Salles",
