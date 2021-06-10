@@ -305,13 +305,23 @@ Contributers to your project are even happier: they only have to look at the pyt
 
 ### Automatic validation and failing at startup
 
+TODO
+
 ### Logging (and secrets)
+
+TODO
 
 ### Attributes instead of strings
 
+TODO
+
 ### Handy configuration through environment variables
 
+TODO
 
+## Detailed documentation
+
+TODO
 
 .
 
