@@ -242,9 +242,11 @@ Now the CLI option `--demo-config-path` and the environment variable `DEMO_CONFI
 
 ### Immutability
 
-Some might argue that in the example above we shouldn't have created a global `config` object that's just _loaded_ at startup, but instead we should have created and loaded a `config` object in `__main__.py` and then injected it into the `greet` call. In most cases, I'd agree with this advice. But it is aimed at avoiding global _state_, i.e., global variables that can be read and modified from anywhere in the code, usually causing trouble.
+Some might argue that in the example above we shouldn't have created a _global_ `config` object that's just _loaded_ at startup, but instead we should have created and loaded a `config` object in `__main__.py` and then injected it into the `greet` call. In most cases, I'd agree with this advice. But it is aimed at avoiding global _state_, i.e., global variables that can be read and modified from anywhere in the code, usually causing trouble.
 
-In the case of `Config` instances we don't have to worry*. The config object, each of its sections and each their entries are all immutable** so the `config` object is just a namespace for some constants. The supported types for section entries are also immutable, including the supported collection types `tuple` and `frozenset`.
+In the case of `Config` instances we don't have to worry*. The config object, each of its sections and each their entries are all immutable** so the instance is just a namespace for some constants. The supported types for section entries are also immutable, including the supported collection types `tuple` and `frozenset`.
+
+Most configuration libraries allow the config object to be modified freely at any time, which is particularly problematic with long-running services. If a critical error or even a crash occurs, you don't have any guarantees that the configuration you provided at startup is still valid. The configuration being used by the application might be completely different from the values you see in your configuration files. This makes it difficult to understand and replicate bugs. With PyConfig it's very easy to check whether the config can ever change by searching for uses of `fill_config` and `fill_config_from_path` in the project. Ideally it will be loaded once and only once at startup but even if your app allows for config updates while running, the logic coordinating this will at least be easy to find. Also, check out the section on 'logging' below, which can be very helpful to make your app easy to debug.
 
 To facilitate testing with different configurations, we've added the function `test_utils.update_section` (can only be imported through the module `test_utils`, not directly from `nx_config`):
 
@@ -263,17 +265,23 @@ class DemoTests(TestCase):
         ...  # call code that uses config
 ```
 
-Clearly, there are two ways to mutate a `config` object. One is when you load it, of course. The other is via `test_utils.update_section`. But you can easily scan your project for uses of `fill_config`/`fill_config_from_path` to make sure there is one and only one such call and it's right at the app's startup. Similarly, you can scan your project for uses of `test_utils` to make sure all occurrences are in your directories for tests.
+Again, there are exactly two ways to mutate a `config` object. One is when you load it, of course. The other is via `test_utils.update_section`. But you can easily scan your project for uses of `fill_config`/`fill_config_from_path` to make sure there is one and only one such call and it's right at the app's startup, and you can scan your project for uses of `test_utils` to make sure all occurrences are in your directories for tests.
 
-_* and **: Of course, this is python, so there's always a way to cheat by messing with the internal attributes of configs and sections. Let's just assume all contributors to your project are grown ups._
-
-### Automatic validation and failing at startup
-
-### Secrets
+_* and **: Of course... this is python. There are dark ways to cheat by messing with the internal attributes of configs and sections. Let's just assume all contributors to your project are grown ups._
 
 ### Config file formats
 
+Unlike many configuration libraries, PyConfig completely separates your code (and the modelling of your configuration options) from the input formats the end-user is allowed to use for configuration. You only write python and don't need to think for a second about YAML, INI, JSON, .ENV or whatever.
+
+In this early version, PyConfig only supports YAML and environment variables but very soon we'll add support for INI files and the library is designed to be easily extensible to add more supported formats. Once INI is supported, we'll be listening to the community to see what other formats would be good candidates. And as a developer using PyConfig, all you need to do is install a new version and your end-users immediately have the option to use the newly supported input format. _Your code is config-format-agnostic_.
+
 ### Documenting configuration options
+
+
+
+### Automatic validation and failing at startup
+
+### Logging (and secrets)
 
 ### Attributes instead of strings
 
