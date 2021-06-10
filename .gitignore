@@ -6,3 +6,4 @@ htmlcov*
 nx_config.egg-info/
 /coverage.json
 /demo/
+/docs/_build/
