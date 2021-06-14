@@ -307,7 +307,15 @@ Contributers to your project are even happier: they only have to look at the pyt
 
 ### Automatic validation and failing at startup
 
-TODO
+PyConfig always validates the configuration input against the type-hints used in the `ConfigSection` subclass declaration. In the case of environment variables or INI files, the values are initially interpreted as strings, so "checking the type" means checking that the provided strings can be transformed into the intended types (i.e. the string `"3.14"` is fine for a `float`, but no good for a `UUID`). In the case of YAML or JSON files, for example, there are already standard libraries that parse them into python objects of different types, so only smaller conversions will be made (e.g. `str -> Path` or `list -> frozenset`) depending on the provided type-hints.
+
+Two more out-of-the-box automatic checks are:
+* Users must provide a value for every field that doesn't have a default.
+* Secrets cannot have default values. They must always be provided by the end-user. (But `Optional[SecretString]` can have default `None`, `tuple[SecretString, ...]` can have default `()` etc.)
+
+On top of these, you can add validating methods (single parameter `self`, no return value) to your section classes through the `@validate` annotation. These methods will be called right after filling in the values for the section in `fill_config` or `fill_config_from_path` (see examples above).
+
+If you use PyConfig and follow the best practice of loading all configuration at the app's startup (and only then), you'll never have to worry about an invalid configuration value causing trouble days after your long-running service went up, in the middle of the night or during your soon-to-be-cut-short vacation. Can you do the same with other configuration libraries? Certainly. PyConfig is just friendly and convenient.
 
 ### Logging (and secrets)
 
@@ -389,21 +397,3 @@ Keep it simple. Use PyConfig in applications. Use injection (of every necessary 
 ## Detailed documentation
 
 TODO
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
-
-.
