@@ -273,7 +273,9 @@ _* and **: Of course... this is python. There are dark ways to cheat by messing 
 
 Unlike many configuration libraries, PyConfig completely separates your code (and the modelling of your configuration options) from the input formats the end-user is allowed to use for configuration. You only write python and don't need to think for a second about YAML, INI, JSON, .ENV or whatever.
 
-In this early version, PyConfig only supports YAML and environment variables but very soon we'll add support for INI files and the library is designed to be easily extensible to add more supported formats. Once INI is supported, we'll be listening to the community to see what other formats would be good candidates. And as a developer using PyConfig, all you need to do is install a new version and your end-users immediately have the option to use the newly supported input format. _Your code is config-format-agnostic_.
+In this early version, PyConfig only supports YAML and environment variables but very soon we'll add support for INI files and the library is designed to be easily extensible to add more supported formats. Once INI is supported, we'll be listening to the community to see what other formats would be good candidates. And as a developer using PyConfig, all you'll need to do is install a new version and your end-users immediately have the option to use the newly supported input format. _Your code is config-format-agnostic_.
+
+This freedom of choice can also be interesting for companies with teams using different programming languages. They have the option of defining a single, company-wide "configuration language" to be used in all projects. This is convenient for everyone and allows, for example, the use of centralized configuration files in production (e.g. with credentials to different services, common URLs and so on). And with PyConfig, individual programmers can still pick a different "configuration language" during development and for local testing. 
 
 ### Documenting configuration options
 
@@ -321,7 +323,27 @@ TODO
 
 ## A note on imports
 
-TODO
+Everything you need from PyConfig for production code can (and ideally should) be imported directly from the `nx_config` module:
+```python
+from nx_config import Config, ConfigSection, SecretString, fill_config, ...
+```
+Everything you need from PyConfig for your tests can (and ideally should) be imported directly from the `nx_config.test_utils` module:
+```python
+from nx_config.test_utils import update_section
+```
+And that's everything. If you find yourself importing stuff from other submodules: it's probably not meant for you. I've made an effort to keep everything else protected behind underscores, but something may have slipped through, or might slip through in the future.
+
+## A note on configuring libraries vs apps
+
+It usually doesn't make much sense to use configuration from files and environment variables directly into libraries. Configuration should be required from and received by applications, which can then inject any necessary values into library classes and functions. Libraries should at least offer the application the _possibility_ of injecting all relevant values as input parameters. This makes it easier and more convenient to write tests, and can even be important for performance.
+
+I've seen libraries offering classes that parsed configuration files when initialized (using default, hard-coded paths). Very well-informed users would initialize such objects rarely in their applications and keep them around for as long as possible. But most users just assumed initialization had probably near-zero cost and created new objects whenever one was needed.
+
+App writers should have the ultimate control over how and when files are read and parsed.
+
+Adding a `Config` subclass to a library is a very bad idea. It would force the app writers to use that class for that specific library and then use a different class for their own configuration options. Adding a `ConfigSection` subclass to a library _can_ be a friendly feature for application writers, who can use such sections in their own `Config` classes. But even that might carry some rigidity with it: Apps might only want to give their users _some_ control over the configuration of a library, but the `ConfigSection` provided will likely give them full control.
+
+Keep it simple. Use PyConfig in applications. Use injection (of every necessary input or configuration value) in libraries.
 
 ## Detailed documentation
 
