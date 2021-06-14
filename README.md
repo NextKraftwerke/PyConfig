@@ -311,7 +311,48 @@ TODO
 
 ### Logging (and secrets)
 
-TODO
+Both `Config` and `ConfigSection` subclasses can be very nicely printed with ease. The `__str__` method produces an inline description, while the `__repr__` method gives a multi-line and indented version. Moreover, secrets (i.e. section entries type-annotated as `SecretString`) are automatically masked with asterisks, including optional secrets and collections of secrets.
+
+Here are example outputs using the `DemoConfig` class from above:
+```commandline
+>>> print(str(config))
+DemoConfig(greet=GreetingSection(num_exclamation_marks=1, all_caps=False), weather=WeatherSection(service_url='www.weatherservice24.dummy', username='Dave', password='*****', timeout_s=70.0))
+>>> print(str(config.greet))
+GreetingSection(num_exclamation_marks=1, all_caps=False)
+>>> print(repr(config))
+DemoConfig(
+    greet=GreetingSection(
+        num_exclamation_marks=1,
+        all_caps=False,
+    ),
+    weather=WeatherSection(
+        service_url='www.weatherservice24.dummy',
+        username='Dave',
+        password='*****',
+        timeout_s=70.0,
+    ),
+)
+>>> print(repr(config.greet))
+GreetingSection(
+    num_exclamation_marks=1,
+    all_caps=False,
+)
+```
+
+Having both formats available is very convenient when writing log messages, and indeed you should make take advantage of this and log your app's configuration in certain situations. A good idea would be to log the configuration right after it's loaded at startup. Another approach would be to log the configuration whenever a serious error happens (this is more convenient for debugging, having all the necessary information bundled into the error message). It's also convenient to just log the entire configuration so easily, instead of trying to guess a subset of its values that you think will be sufficient when debugging. And if you always log entire configs (or at least entire sections), you don't have to worry about accidentally exposing your end-user's secrets.
+
+The choice of which method gets which format was made with debugging in mind. In the REPL, if you just type the object you want to inspect, the result will be printed using `__repr__`:
+```commandline
+>>> config.weather
+WeatherSection(
+    service_url='www.weatherservice24.dummy',
+    username='Dave',
+    password='*****',
+    timeout_s=70.0,
+)
+```
+
+And if you use PyCharm, the "Variables" view on the console and the debugger displays values next to variable names using `__str__`, and the one-line description is much more suitable in that case.
 
 ### Attributes instead of strings
 
