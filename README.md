@@ -11,7 +11,7 @@
 
 **TL;DR:** PyConfig helps you write configurable applications with ease and takes care of config validation at loading time. It allows the end-user to choose their configuration language and whether to use files or environment variables or both. The library is designed to make best practices the natural way to do things and to remove the need to write and maintain documentation of the configuration options.
 
-**STL;INRAOT (Still Too Long; I'm Not Reading All Of That):** Like `configparser` but, like, waaay cooler. And safer. And with dot-completion.
+**STL;INRAOT (Still Too Long; I'm Not Reading All Of That):** Like `configparser` but, like, waaay cooler. And safer. And with dot-autocompletion.
 
 ## Introduction by example
 
