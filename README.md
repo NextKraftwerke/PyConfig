@@ -349,7 +349,7 @@ GreetingSection(
 )
 ```
 
-Having both formats available is very convenient when writing log messages, and indeed you should make take advantage of this and log your app's configuration in certain situations. A good idea would be to log the configuration right after it's loaded at startup. Another approach would be to log the configuration whenever a serious error happens (this is more convenient for debugging, having all the necessary information bundled into the error message). It's also convenient to just log the entire configuration so easily, instead of trying to guess a subset of its values that you think will be sufficient when debugging. And if you always log entire configs (or at least entire sections), you don't have to worry about accidentally exposing your end-user's secrets.
+Having both formats available is very convenient when writing log messages, and indeed you should take advantage of this and log your app's configuration in certain situations. A good idea would be to log the configuration right after it's loaded at startup. Another approach would be to log the configuration whenever a serious error happens (this is more convenient for debugging, having all the necessary information bundled into the error message). It's also convenient to just always (easily) log the entire configuration, instead of trying to guess a subset of its values that you think will be sufficient when debugging. And if you always log entire configs (or at least entire sections), you don't have to worry about accidentally exposing your end-user's secrets.
 
 The choice of which method gets which format was made with debugging in mind. In the REPL, if you just type the object you want to inspect, the result will be printed using `__repr__`:
 ```commandline
