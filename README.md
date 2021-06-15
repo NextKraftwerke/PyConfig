@@ -374,7 +374,13 @@ Still, autocompletion + shorter + prettier is plenty of reason to prefer the att
 
 ### Handy configuration through environment variables
 
-TODO
+There are situations in which configuring apps with files can be annoying, such as when doing quick tests and experiments locally on a terminal and changing just one or two configuration options all the time.
+
+With PyConfig you can _always_ override any configurations from files with environment variables. The standard naming convention is `SECTIONNAME__ENTRYNAME` (yes, double underscore, which makes the separation clearer when the section name or the entry name also contain underscores). In the example above, we've seen how to override the `config.greet.num_exclamation_marks` entry by setting the `GREET__NUM_EXCLAMATION_MARKS` environment variable.
+
+If you have several configs in a single app or several apps sharing some environment variables, it's also possible to use a prefix to make variable names more specific. For example, you could use the environment variable `FOO__GREET__NUM_EXCLAMATION_MARKS` instead, and load the configuration with `fill_config_from_path(config, path=..., env_prefix="FOO")`.
+
+Finally, even the path to the configuration file can be provided through an environment variable, namely `CONFIG_PATH`. Again, it's possible to use a prefix to make this name more specific. For example, you could use the variable `FOO_CONFIG_PATH` instead, and get the path with `resolve_config_path("foo", cli_args=...)`. In this case, the prefix will also be used when inspecting the CLI arguments, so check out the documentation linked below (or the source code) for more details.
 
 ## A note on imports
 
@@ -402,4 +408,4 @@ Keep it simple. Use PyConfig in applications. Use injection (of every necessary 
 
 ## Detailed documentation
 
-TODO
+_TBD. Sorry. Really._
