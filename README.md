@@ -158,13 +158,13 @@ Your IDE will probably offer auto-completion for section names and entries withi
 # demo/__main__.py
 from argparse import ArgumentParser
 
-from demo.config import DemoConfig, config
+from demo.config import config
 from demo.greet import greet
 from nx_config import add_cli_options, resolve_config_path, fill_config_from_path
 
 parser = ArgumentParser()
 parser.add_argument("--name")
-add_cli_options(parser, config_t=DemoConfig)
+add_cli_options(parser, config_t=type(config))
 args = parser.parse_args()
 
 fill_config_from_path(config, path=resolve_config_path(cli_args=args))
@@ -174,7 +174,7 @@ greet(name=args.name or "world")
 
 The magic here happens in `fill_config_from_path`. This function will read a configuration file and fill the `config` object's entries with the corresponding values. The path can be hard-coded (not recommended) or you can use `resolve_config_path()` without arguments, in which case the path is provided through the `CONFIG_PATH` environment variable (better) or, as in this example, you can use an `argparse.ArgumentParser` to allow the user to provide the config-path as a CLI argument. The helper `add_cli_options` will add the option `--config-path` (among other things), which `resolve_config_path` will try to read. If the user does not provide a path on the command line, `resolve_config_path` will still use the `CONFIG_PATH` environment variable as a fallback.
 
-The format of the config file will be determined by the path's extension (e.g. '.yaml' for YAML). Note that it's fine (and a common practice) to not provide a config file at all (neither through the CLI nor through the environment variable). In this case, the configuration values will be read from environment variables named `SECTIONNAME__ENTRYNAME` (double underscore!). Even if a config file is provided, values can still be overriden through these environment variables, as we'll see below.
+The format of the config file will be determined by the path's extension (e.g. `.yaml` for YAML). Note that it's fine (and a common practice) to not provide a config file at all (neither through `--config-path` nor through `CONFIG_PATH`). In this case, the configuration values will be read from environment variables named `SECTIONNAME__ENTRYNAME` (double underscore!). Even if a config file is provided, values can still be overriden through these environment variables, as we'll see below.
 
 ### Write a configuration file
 
@@ -188,7 +188,6 @@ which in this example results in the following file:
 
 ```yaml
 # demo/config.yaml
-
 greet:
   #num_exclamation_marks:
   #all_caps:
@@ -221,7 +220,7 @@ What's so great about PyConfig? Why should you bother learning to use yet anothe
 
 The `configparser.ConfigParser.read` method takes a string or `PathLike` (or several) as argument. I have seen and worked on many, many projects where this argument was written as a hard-coded, version-controlled string. This is, of course, in most cases a bad idea. It makes it difficult to try out the code locally, or deploy it on multiple servers automatically, can result in clashes with different applications using the same path (and therefore making it impossible to configure them independently), cause headaches due to missing permissions and so on. It also makes it annoying and slow to use different configurations for different runs of the same application.
 
-Most developers working on those projects knew it was a bad idea and knew how to avoid it (e.g. get the path from a CLI argument or from an environment variable) but A) these solutions would require a bit of extra work and B) they would require teaching the user how to provide the config path... for each application!
+Most developers working on those projects knew it was a bad idea and knew how to avoid it (e.g. get the path from a CLI argument or from an environment variable) but (a) these solutions would require a bit of extra work and (b) they would require teaching the user how to provide the config path... for each application!
 
 PyConfig offers two really simple solutions to this, making the best practice _nearly_ the easiest thing to do. First, you can use the function `resolve_config_path()` with no arguments. This will return a `pathlib.Path` from the value of the `CONFIG_PATH` environment variable if defined, and `None` otherwise. With a little extra effort, by using an `argparse.ArgumentParser` and the function `add_cli_options(<parser>, config_t=<config_class>)` you can allow your end-users to provide a config path either through the `--config-path` CLI option or the `CONFIG_PATH` environment variable:
 
@@ -249,7 +248,7 @@ Some might argue that in the example above we shouldn't have created a _global_ 
 
 In the case of `Config` instances we don't have to worry*. The config object, each of its sections and each their entries are all immutable** so the instance is just a namespace for some constants. The supported types for section entries are also immutable, including the supported collection types `tuple` and `frozenset`.
 
-Most configuration libraries allow the config object to be modified freely at any time, which is particularly problematic with long-running services. If a critical error or even a crash occurs, you don't have any guarantees that the configuration you provided at startup is still valid. The configuration being used by the application might be completely different from the values you see in your configuration files. This makes it difficult to understand and replicate bugs. With PyConfig it's very easy to check whether the config can ever change by searching for uses of `fill_config` and `fill_config_from_path` in the project. Ideally it will be loaded once and only once at startup but even if your app allows for config updates while running, the logic coordinating this will at least be easy to find. Also, check out the section on 'logging' below, which can be very helpful to make your app easy to debug.
+Many configuration libraries allow the config object to be modified freely at any time, which is particularly problematic with long-running services. If a critical error or even a crash occurs, you don't have any guarantees that the configuration you provided at startup is still valid. The configuration being used by the application might be completely different from the values you see in your configuration files. This makes it difficult to understand and replicate bugs. With PyConfig it's very easy to check whether the config can ever change by searching for uses of `fill_config` and `fill_config_from_path` in the project. Ideally it will be loaded once and only once at startup but even if your app allows for config updates while running, the logic coordinating this will at least be easy to find. Also, check out the section on 'logging' below, which can be very helpful to make your app easy to debug.
 
 To facilitate testing with different configurations, we've added the function `test_utils.update_section` (can only be imported through the module `test_utils`, not directly from `nx_config`):
 
