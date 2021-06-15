@@ -364,7 +364,13 @@ And if you use PyCharm, the "Variables" view on the console and the debugger dis
 
 ### Attributes instead of strings
 
-TODO
+Using attributes for sections and section-entries (`cfg.a_section.an_entry`) instead of the mapping style with strings used in many configuration libraries (`cfg["a_section"]["an_entry"]`) is more than just shorter, prettier and easier to type.
+
+Your IDE can help you with dot-autocompletion to (a) present the available sections and section-entries and (b) avoid typing errors. This is especially important because even if your configuration is thoroughly validated at startup, a typing error when _using_ the configuration might only cause trouble much, much later, when no one is watching and ready to take action. (Yes, of course, you'd find such bugs either way if you have 100% code coverage...)
+
+In theory, there's even more the IDE could do. If you still make typing errors in such attributes because you didn't use autocompletion, the static analyser could highlight them and warn you. And if you decide to change the name of a section or section-entry, the IDE could help with automatic refactoring. Both things work more reliably and conveniently with attributes instead of mappings, usually. Unfortunately, we haven't manage to get them to work with PyConfig sections and entries yet. We know this is due to limitations of the IDE and the fact that PyConfig uses a lot of magic behind the scenes, but we're still trying to understand the issue.
+
+Still, autocompletion + shorter + prettier is plenty of reason to prefer the attribute variant.
 
 ### Handy configuration through environment variables
 
