@@ -400,7 +400,7 @@ And that's everything. If you find yourself importing stuff from other submodule
 
 It usually doesn't make much sense to use configuration from files and environment variables directly into libraries. Configuration should be required from and received by applications, which can then inject any necessary values into library classes and functions. Libraries should at least offer the application the _possibility_ of injecting all relevant values as input parameters. This makes it easier and more convenient to write tests, and can even be important for performance.
 
-I've seen libraries offering classes that parsed configuration files when initialized (using default, hard-coded paths). Very well-informed users would initialize such objects rarely in their applications and keep them around for as long as possible. But most users just assumed initialization had probably near-zero cost and created new objects whenever one was needed, paying loads of pointless overhead.
+I've seen libraries offering classes that parsed configuration files when initialized (using default, hard-coded paths). Very well-informed users would initialize such objects rarely in their applications and keep them around for as long as possible. But most users just assumed initialization would have near-zero cost and created new objects whenever one was needed, unknowingly parsing files and throwing the information away over and over again.
 
 App writers should have the ultimate control over how and when files are read and parsed.
 
@@ -411,3 +411,9 @@ Keep it simple. Use PyConfig in applications. Use injection (of every necessary 
 ## Detailed documentation
 
 _TBD. Sorry. Really._
+
+## FAQ
+
+1. _Why can't I nest sections into other sections?_ This was not the easiest design choice. One of the most important requirements when writing PyConfig was that it should support INI files, and those only really support 1 level of nesting. In the end, even though this question is asked fairly often, there are barely any use cases for deeper nesting in configs. And in the few such use cases I've seen, the problem could be elegantly solved by using more than one `Config` subclass in the application.
+2. _Why can't I have entries directly in the `Config` subclass? Why must all entries be in a section?_ Firstly, it would add more complexity to the implementation. Secondly, INI doesn't allow entries without sections. Thirdly, this isn't much of an issue, really. You can always just add a `general` section to your config.
+3. _Why aren't dictionaries supported as types for section-entries?_ INI. The answer is almost always INI. I've chosen to support the iterable types `tuple` and `frozenset` because it's so common and natural to interpret comma-separated values as sequences, and these types are increadibly helpful in configurations. Moreover, I'd already seen several projects where configuration values were being transformed into sequences via comma-separation, except that developers had to parse those strings themselves, without any help from `configparser`. But there's nothing as simple, elegant and commonplace for dictionaries. Gladly, there's also almost no demand for dictionaries as section-entries.
