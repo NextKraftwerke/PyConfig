@@ -301,11 +301,11 @@ weather:
   #timeout_s:
 ```
 
-Another (soon to be implemented) feature is the `--config-help` CLI option, that will also be added automatically through `add_cli_options`. This option will show a message documenting your app's config model specifically, followed by basic, cheat-sheet-style instructions for configuring with PyConfig. You might prefer suggesting this option to your end-users instead of actually showing them python code.
+Another (soon to be implemented) feature is the `--config-help` CLI option, that will also be added automatically through `add_cli_options`. This option will show a message specifically documenting your app's config model, followed by cheat-sheet-style instructions for configuring with PyConfig (as an end-user).
 
 This means all the documentation your app needs (in terms of configuration options) is easily automagically generated from your class definitions and is always up-to-date. Even if you want to have the documentation directly available on your website or on github, you can setup the pipeline to re-generate it after every release. No maintenance needed.
 
-Contributers to your project are even happier: they only have to look at the python code, just the one module, without any additional PDFs or markdown files or webpages, and they're guaranteed to find all relevant, current information there.
+Contributors to your project are even happier: they only have to look at the python code, just the one module, without any additional PDFs or markdown files or webpages, and they're guaranteed to find all relevant, current information there.
 
 ### Automatic validation and failing at startup
 
