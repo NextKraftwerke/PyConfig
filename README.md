@@ -400,7 +400,7 @@ And that's everything. If you find yourself importing stuff from other submodule
 
 It usually doesn't make much sense to use configuration from files and environment variables directly into libraries. Configuration should be required from and received by applications, which can then inject any necessary values into library classes and functions. Libraries should at least offer the application the _possibility_ of injecting all relevant values as input parameters. This makes it easier and more convenient to write tests, and can even be important for performance.
 
-I've seen libraries offering classes that parsed configuration files when initialized (using default, hard-coded paths). Very well-informed users would initialize such objects rarely in their applications and keep them around for as long as possible. But most users just assumed initialization had probably near-zero cost and created new objects whenever one was needed.
+I've seen libraries offering classes that parsed configuration files when initialized (using default, hard-coded paths). Very well-informed users would initialize such objects rarely in their applications and keep them around for as long as possible. But most users just assumed initialization had probably near-zero cost and created new objects whenever one was needed, paying loads of pointless overhead.
 
 App writers should have the ultimate control over how and when files are read and parsed.
 
