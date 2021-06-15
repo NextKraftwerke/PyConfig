@@ -28,20 +28,21 @@ Hello, Dave! (you should probably stay home today...)
 
 ### Install PyConfig (package name `nx_config`)
 
-PyConfig ist meant to be used in _applications_, not _libraries_. Most likely you're using `pipenv` to manage your dependencies, so just add something like
-```
-# demo/Pipfile
-...
+PyConfig is meant to be used in _applications_, not _libraries_ (more on this later). It is a PyPI package so you can easily install it with `pip`:
 
-[packages]
-...
-nx_config = ">= x.y.z, <x+1" 
+```commandline
+$ pip install nx_config
 ```
-to your Pipfile, `pipenv lock` and `pipenv install`.
+
+Or with `poetry`:
+
+```commandline
+$ poetry add nx_config
+```
 
 ### Create a config class and its sections classes
 
-Add a new file `config.py` to your app. In it, you'll define a few "section classes", which are subclasses of `ConfigSection`, one "config class", which is a subclass of `Config`, and then initialize a global instance of it (see below why this global instance is okay):
+Add a new file `config.py` to your app. In it, you'll define a few "section classes", which are subclasses of `ConfigSection`, one "config class", which is a subclass of `Config`, and then initialize a global instance of it (see below why this is okay):
 
 ```python
 # demo/config.py
@@ -84,7 +85,7 @@ class DemoConfig(Config):
 config = DemoConfig()
 ```
 
-Here we make it configurable:
+Here we make the following configurable:
 - How many exclamation marks are added after "world" or the user's name.
 - Whether the whole greeting is printed in upper case letters or not.
 - Which web service will be used to get the weather data (rain probability).
@@ -99,7 +100,9 @@ The methods annotated with `@validate` will be called automatically right after 
 
 The combination of the entry `timeout_s` and the method `timeout` above helps us avoid ambiguity for the users (it's clear they must provide a timeout value _in seconds_) while being able to work with a unit-agnostic type in our code (`timedelta`).
 
-Finally, the use of a global config object may seem dangerous (especially in python). However, `Config` and `ConfigSection` objects are always* immutable, so there's no global _state_ to worry about. (*: There are two ways in which the contents of the config can be mutated. One is when loading with `fill_config` or `fill_config_from_path`. The other is with `test_utils.update_section`. You can quickly check that the loading functions are used only once and only at startup. Using the `test_utils` module in production code should be entirely forbidden in your project.)
+Finally, the use of a global config object may seem dangerous (especially in python), but `Config` and `ConfigSection` objects are always* immutable, so there's no global _state_ to worry about.
+
+_*: There are two ways in which the contents of the config can be mutated. One is when loading with `fill_config` or `fill_config_from_path`. The other is with `test_utils.update_section`. You can quickly find all usages of these functions in your repository. Loading functions are ideally used only once and only at startup. Using the `test_utils` module in production code should be entirely forbidden._
 
 ### Use the configuration in your code
 
