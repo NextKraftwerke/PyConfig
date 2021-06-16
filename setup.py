@@ -7,8 +7,8 @@ with (Path(__file__).parent / "README.md").open("r") as h:
 
 setup(
     name="nx_config",
-    version="0.2.0-alpha.8",
-    packages=["nx_config", "nx_config._core"],
+    version="0.2.0-beta.1",
+    packages=["nx_config", "nx_config.test_utils", "nx_config._core"],
     install_requires=[
         "python-dateutil >= 2.8.1, < 3",
         "pyyaml >= 5.4.1, < 6",
@@ -17,6 +17,7 @@ setup(
         "tests": [],
         "tox": ["tox >=3.21.4, <4"],
         "coverage": ["coverage >=5.4, <6"],
+        "docs": ["sphinx >=4.0.2, <5", "python-docs-theme >=2021.5, <2022"],
     },
     python_requires=">=3.6, <3.10",
     author="Tomás Silveira Salles",
@@ -30,7 +31,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/NextKraftwerke/PyConfig",
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
