@@ -386,10 +386,11 @@ Finally, even the path to the configuration file can be provided through an envi
 
 ### Support for the most useful types
 
-After loading the config values, you should be able to use them without having to first convert them into other types. If you have your own unit-agnostic `Temperature` type, for instance, you'll have to work a little harder, ask your end-users for a unit-bound value (e.g. `surface_temp_celsius: float`) and then convert it yourself (e.g. through a method `def surface_temp(self) -> Temperature:` in the same section). But most use cases should be covered by the types already supported by PyConfig (and there might be more on the way).
+After loading the config values, you should ideally be able to use them without having to first convert them into other types. If you have your own unit-agnostic `Temperature` type, for instance, you'll have to work a little harder, ask your end-users for a unit-bound value (e.g. `surface_temp_celsius: float`) and then convert it yourself (e.g. through a method `def surface_temp(self) -> Temperature:` in the same section). But most use cases should be covered by the types already supported by PyConfig (and there might be more on the way).
 
-* **Base** supported types are `int`, `float`, `bool`, `str`, `datetime`, `UUID`, `Path`, `SecretString`, and `URL`.
-* **Collection** supported types are `typing.Tuple[base, ...]` and `typing.FrozenSet[base]` in all python versions, and `tuple[base, ...]` and `frozenset[base]` for python 3.9 and later (where `base` is one of the **base** supported types above).
+* **Base** supported types are `int`, `float`, `bool`, `str`, `datetime.datetime`, `uuid.UUID`, `pathlib.Path`, `nx_config.SecretString`, and `nx_config.URL`.
+* **Collection** supported types are `typing.Tuple[base, ...]` and `typing.FrozenSet[base]` in all python versions, and `tuple[base, ...]` and `frozenset[base]` for python 3.9 and later (where `base` is one of the **base** supported types above). _Note that the `...` in the tuple types is meant literally here, i.e., they represent tuples of arbitrary length where all elements are of the same type._
+* **Optional** supported types are `typing.Optional[base_or_coll]` (where `base_or_coll` is either one of the **base** or one of the **collection** supported types listed above). _Note that optional base types are not allowed as the element type in collections (e.g. `tuple[Optional[int], ...]`)._
 
 ## A note on imports
 
