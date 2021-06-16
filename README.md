@@ -384,6 +384,13 @@ If you have several configs in a single app or several apps sharing some environ
 
 Finally, even the path to the configuration file can be provided through an environment variable, namely `CONFIG_PATH`. Again, it's possible to use a prefix to make this name more specific. For example, you could use the variable `BAR_CONFIG_PATH` instead, and get the path with `resolve_config_path("bar", cli_args=...)`. Note: If you use the `cli_args` argument in this case, `resolve_config_path` will look for the option `--bar-config-path` instead of `--config-path`, so make sure you use the same prefix when adding options to the `argparser.ArgumentParser` by calling `add_cli_options(parser, prefix="bar", config_t=type(config))`.
 
+### Support for the most useful types
+
+After loading the config values, you should be able to use them without having to first convert them into other types. If you have your own unit-agnostic `Temperature` type, for instance, you'll have to work a little harder, ask your end-users for a unit-bound value (e.g. `surface_temp_celsius: float`) and then convert it yourself (e.g. through a method `def surface_temp(self) -> Temperature:` in the same section). But most use cases should be covered by the types already supported by PyConfig (and there might be more on the way).
+
+* **Base** supported types are `int`, `float`, `bool`, `str`, `datetime`, `UUID`, `Path`, `SecretString`, and `URL`.
+* **Collection** supported types are `typing.Tuple[base, ...]` and `typing.FrozenSet[base]` in all python versions, and `tuple[base, ...]` and `frozenset[base]` for python 3.9 and later (where `base` is one of the **base** supported types above).
+
 ## A note on imports
 
 Everything you need from PyConfig for production code can (and ideally should) be imported directly from the `nx_config` module:
