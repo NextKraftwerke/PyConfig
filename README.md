@@ -382,7 +382,7 @@ With PyConfig you can _always_ override any configurations from files with envir
 
 If you have several configs in a single app or several apps sharing some environment variables, it's also possible to use a prefix to make variable names more specific. For example, you could use the environment variable `FOO__GREET__NUM_EXCLAMATION_MARKS` instead, and load the configuration with `fill_config_from_path(config, path=..., env_prefix="FOO")`.
 
-Finally, even the path to the configuration file can be provided through an environment variable, namely `CONFIG_PATH`. Again, it's possible to use a prefix to make this name more specific. For example, you could use the variable `FOO_CONFIG_PATH` instead, and get the path with `resolve_config_path("foo", cli_args=...)`. In this case, the prefix will also be used when inspecting the CLI arguments, so check out the documentation linked below (or the source code) for more details.
+Finally, even the path to the configuration file can be provided through an environment variable, namely `CONFIG_PATH`. Again, it's possible to use a prefix to make this name more specific. For example, you could use the variable `BAR_CONFIG_PATH` instead, and get the path with `resolve_config_path("bar", cli_args=...)`. Note: If you use the `cli_args` argument in this case, `resolve_config_path` will look for the option `--bar-config-path` instead of `--config-path`, so make sure you use the same prefix when adding options to the `argparser.ArgumentParser` by calling `add_cli_options(parser, prefix="bar", config_t=type(config))`.
 
 ## A note on imports
 
