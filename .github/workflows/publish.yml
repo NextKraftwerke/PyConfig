@@ -8,6 +8,7 @@ on:
         required: true
       package_index:
         description: 'Where to publish (testpypi or pypi)'
+        required: true
         default: 'testpypi'
 
 jobs:
@@ -28,6 +29,6 @@ jobs:
       run: |
         python -m build
         ls -l dist
-    #- name: Upload dist archives
-    #  run: |
-    #    python -m twine upload -r ${{github.event.inputs.package_index}} -u __token__ -p ${{github.event.inputs.api_token}} dist/*
+    - name: Upload dist archives
+      run: |
+        python -m twine upload -r ${{github.event.inputs.package_index}} -u __token__ -p ${{github.event.inputs.api_token}} dist/*
