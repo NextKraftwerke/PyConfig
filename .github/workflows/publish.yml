@@ -1,0 +1,33 @@
+name: publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_token:
+        description: 'API Token (from https://pypi.org/manage/account/#api-tokens)'     
+        required: true
+      package_index:
+        description: 'Where to publish (testpypi or pypi)'
+        default: 'testpypi'
+
+jobs:
+  publish_to_pypi:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install --upgrade build
+        pip install --upgrade twine
+    - name: Build dist archives
+      run: |
+        python -m build
+        ls -l dist
+    #- name: Upload dist archives
+    #  run: |
+    #    python -m twine upload -r ${{github.event.inputs.package_index}} -u __token__ -p ${{github.event.inputs.api_token}} dist/*
