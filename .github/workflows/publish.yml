@@ -4,18 +4,26 @@ on:
   workflow_dispatch:
     inputs:
       api_token:
-        description: 'API Token (from https://pypi.org/manage/account/#api-tokens)'     
+        description: 'API Token'     
         required: true
       package_index:
-        description: 'Where to publish (https://upload.pypi.org/legacy/ or https://test.pypi.org/legacy/)'
+        description: 'Where to publish (pypi or testpypi)'
         required: true
-        default: 'https://upload.pypi.org/legacy/'
+        default: 'pypi'
+        
+env:
+  pypi_api_token: ${{github.event.inputs.api_token}}  # ${{secrets.PYPI_API_TOKEN}}
+  test_pypi_api_token: ${{github.event.inputs.api_token}}  # ${{secrets.TEST_PYPI_API_TOKEN}}
 
 jobs:
   publish_to_pypi:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Mask tokens
+      run: |
+        echo "::add-mask::${{pypi_api_token}}"
+        echo "::add-mask::${{test_pypi_api_token}}"
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
@@ -25,9 +33,17 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install --upgrade build
         python -m build
-    - name: Upload
+    - name: Upload to PyPI
+      if: ${{github.event.inputs.package_index}} == 'pypi'
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         user: __token__
-        password: ${{github.event.inputs.api_token}}
-        repository_url: ${{github.event.inputs.package_index}}
+        password: ${{pypi_api_token}}
+        repository_url: 'https://upload.pypi.org/legacy/'
+    - name: Upload to TestPyPI
+      if: ${{github.event.inputs.package_index}} == 'testpypi'
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{test_pypi_api_token}}
+        repository_url: 'https://test.pypi.org/legacy/'
