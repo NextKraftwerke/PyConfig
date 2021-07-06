@@ -3,28 +3,16 @@ name: publish
 on:
   workflow_dispatch:
     inputs:
-      api_token:
-        description: 'API Token'     
-        required: true
       package_index:
         description: 'Where to publish (pypi or testpypi)'
         required: true
         default: 'pypi'
         
-env:
-  pypi_api_token: ${{github.event.inputs.api_token}}  # ${{secrets.PYPI_API_TOKEN}}
-  test_pypi_api_token: ${{github.event.inputs.api_token}}  # ${{secrets.TEST_PYPI_API_TOKEN}}
-
 jobs:
-  publish_to_pypi:
+  publish:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Mask tokens
-      run: |
-        echo "${{github.event.inputs.package_index}}"
-        echo "::add-mask::${{env.pypi_api_token}}"
-        echo "::add-mask::${{env.test_pypi_api_token}}"
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
@@ -35,16 +23,16 @@ jobs:
         python -m pip install --upgrade build
         python -m build
     - name: Upload to PyPI
-      if: ${{github.event.inputs.package_index}} == 'pypi'
       uses: pypa/gh-action-pypi-publish@release/v1
+      if: ${{github.event.inputs.package_index == 'pypi'}}
       with:
         user: __token__
-        password: ${{env.pypi_api_token}}
+        password: 'abcde'  # ${{secrets.PYPI_API_TOKEN}}
         repository_url: 'https://upload.pypi.org/legacy/'
     - name: Upload to TestPyPI
-      if: ${{github.event.inputs.package_index}} == 'testpypi'
       uses: pypa/gh-action-pypi-publish@release/v1
+      if: ${{github.event.inputs.package_index == 'testpypi'}}
       with:
         user: __token__
-        password: ${{env.test_pypi_api_token}}
+        password: 'abcde'  # ${{secrets.TEST_PYPI_API_TOKEN}}
         repository_url: 'https://test.pypi.org/legacy/'
