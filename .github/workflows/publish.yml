@@ -28,7 +28,6 @@ jobs:
     - name: Build dist archives
       run: |
         python -m build
-        ls -l dist
     - name: Upload dist archives
       run: |
         python -m twine upload -r ${{github.event.inputs.package_index}} -u __token__ -p ${{github.event.inputs.api_token}} dist/*
