@@ -22,8 +22,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Mask tokens
       run: |
-        echo "::add-mask::${{pypi_api_token}}"
-        echo "::add-mask::${{test_pypi_api_token}}"
+        echo "::add-mask::${{env.pypi_api_token}}"
+        echo "::add-mask::${{env.test_pypi_api_token}}"
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
@@ -38,12 +38,12 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         user: __token__
-        password: ${{pypi_api_token}}
+        password: ${{env.pypi_api_token}}
         repository_url: 'https://upload.pypi.org/legacy/'
     - name: Upload to TestPyPI
       if: ${{github.event.inputs.package_index}} == 'testpypi' && always()
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         user: __token__
-        password: ${{test_pypi_api_token}}
+        password: ${{env.test_pypi_api_token}}
         repository_url: 'https://test.pypi.org/legacy/'
