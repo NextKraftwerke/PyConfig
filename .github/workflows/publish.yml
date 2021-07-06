@@ -9,7 +9,7 @@ on:
       package_index:
         description: 'Where to publish (testpypi or pypi)'
         required: true
-        default: 'testpypi'
+        default: 'pypi'
 
 jobs:
   publish_to_pypi:
