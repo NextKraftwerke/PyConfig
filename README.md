@@ -28,7 +28,7 @@ Hello, Dave! (you should probably stay home today...)
 
 ### Install PyConfig (package name `nx_config`)
 
-PyConfig is meant to be used in _applications_, not _libraries_ (more on this later). It is a PyPI package so you can easily install it with `pip`:
+With `pip`:
 
 ```commandline
 $ pip install nx_config
