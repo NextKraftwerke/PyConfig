@@ -27,12 +27,12 @@ jobs:
       if: ${{github.event.inputs.package_index == 'pypi'}}
       with:
         user: __token__
-        password: 'abcde'  # ${{secrets.PYPI_API_TOKEN}}
+        password: ${{secrets.PYPI_API_TOKEN}}
         repository_url: 'https://upload.pypi.org/legacy/'
     - name: Upload to TestPyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       if: ${{github.event.inputs.package_index == 'testpypi'}}
       with:
         user: __token__
-        password: 'abcde'  # ${{secrets.TEST_PYPI_API_TOKEN}}
+        password: ${{secrets.TEST_PYPI_API_TOKEN}}
         repository_url: 'https://test.pypi.org/legacy/'
