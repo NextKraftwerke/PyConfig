@@ -42,7 +42,7 @@ $ poetry add nx_config
 
 ### Create a config class and its sections classes
 
-Add a new file `config.py` to your app. In it, you'll define a few "section classes", which are subclasses of `ConfigSection`, one "config class", which is a subclass of `Config`, and then initialize a global instance of it (see below why this is okay):
+Start by adding a new file, say `config.py`, to your app. In it, you'll define a few "section classes", which are subclasses of `ConfigSection`, one "config class", which is a subclass of `Config`, and then initialize a global instance of it (see further down why this is okay):
 
 ```python
 # demo/config.py
@@ -98,19 +98,20 @@ We see here the `URL` and `SecretString` types. The values of such entries are s
 
 The methods annotated with `@validate` will be called automatically right after the config is loaded (ideally at the startup of your app). Each is used to validate an individual section and sections can have multiple validators.
 
-The combination of the entry `timeout_s` and the method `timeout` above helps us avoid ambiguity for the users (it's clear they must provide a timeout value _in seconds_) while being able to work with a unit-agnostic type in our code (`timedelta`).
+The combination of the entry `timeout_s` and the method `timeout` above helps us avoid ambiguity for the users while being able to work with a unit-agnostic type: The name of the actual config field `timeout_s` clearly tells users they must provide the value _in seconds_, but in our code we instead use the `timeout` method and therefore work with the `timedelta` type, never having to worry about measurement units.
 
 Finally, the use of a global config object may seem dangerous (especially in python), but `Config` and `ConfigSection` objects are always* immutable, so there's no global _state_ to worry about.
 
-_*: There are two ways in which the contents of the config can be mutated. One is when loading with `fill_config` or `fill_config_from_path`. The other is with `test_utils.update_section`. You can quickly find all usages of these functions in your repository. Loading functions are ideally used only once and only at startup. Using the `test_utils` module in production code should be entirely forbidden._
+_*: There are two ways in which the contents of the config can be mutated. One is when loading it with `fill_config` or `fill_config_from_path`. The other is with `test_utils.update_section`. You can quickly find all usages of these functions in your repository. Loading functions are ideally used only once and only at startup. Using the `test_utils` module in production code should be entirely forbidden._
 
 ### Use the configuration in your code
 
-In the `greet.py` module we use our config several times:
+The core of our app will be implemented in the `greet.py` module, where we use the global config several times:
 
 ```python
 # demo/greet.py
 from datetime import timedelta
+from random import random
 from typing import Mapping
 
 from demo.config import config
@@ -119,27 +120,27 @@ from demo.config import config
 def _get_rain_probability(
     url: str, params: Mapping[str, str], timeout: timedelta
 ) -> float:
-    ...
+    return random()  # Just as reliable as a weather service...
 
 
 def greet(name: str):
-    msg = f"Hello, {name}" + ("!" * config.greet.num_exclamation_marks)  # <===
+    msg = f"Hello, {name}" + ("!" * config.greet.num_exclamation_marks)  # <= config used here
 
-    if config.greet.all_caps:  # <===
+    if config.greet.all_caps:  # <= and here
         msg = msg.upper()
 
-    if config.weather.username is None:  # <===
+    if config.weather.username is None:  # <= here too
         params = {}
     else:
         params = {
-            "username": config.weather.username,  # <===
-            "password": config.weather.password,  # <===
+            "username": config.weather.username,  # <= and here
+            "password": config.weather.password,  # <= and again
         }
 
     rain_prob = _get_rain_probability(
-        url=config.weather.service_url,  # <===
+        url=config.weather.service_url,  # <= once more
         params=params,
-        timeout=config.weather.timeout(),  # <===
+        timeout=config.weather.timeout(),  # <= last time
     )
 
     if rain_prob > 0.5:
@@ -150,9 +151,9 @@ def greet(name: str):
     print(msg)
 ```
 
-Your IDE will probably offer auto-completion for section names and entries within sections. In contrast to the usual approach with dictionaries (e.g. with `configparser`), it's very unlikely that you'll make a typing error this way. And even if you do, you'll be trying to get an attribute that doesn't exist and in this case the attributes of both configs and sections are determined at class declaration (instead of depending on the user's config file) and cannot be changed afterwards. This means that if you test your code and don't get an `AttributeError`, you can be certain you won't get an `AttributeError` in production, regardless of what your users write in their configuration files.
+Your IDE will probably offer auto-completion for section names and entries within sections. In contrast to the usual approach with dictionaries (e.g. with `configparser`), it's very unlikely that you'll make a typing error this way. And even if you do, you'll be trying to get an attribute that doesn't exist and in PyConfig the attributes of configs and sections are determined by the class declaration (they do not depend on the configuration file provided by the user at runtime). This means that if you test your code and don't get an `AttributeError`, you can be certain you won't get an `AttributeError` in production either, regardless of what your users write in their configuration files.
 
-### Load configuration on startup
+### Load the configuration on startup
 
 ```python
 # demo/__main__.py
@@ -172,7 +173,7 @@ fill_config_from_path(config, path=resolve_config_path(cli_args=args))
 greet(name=args.name or "world")
 ```
 
-The magic here happens in `fill_config_from_path`. This function will read a configuration file and fill the `config` object's entries with the corresponding values. The path can be hard-coded (not recommended) or you can use `resolve_config_path()` without arguments, in which case the path is provided through the `CONFIG_PATH` environment variable (better) or, as in this example, you can use an `argparse.ArgumentParser` to allow the user to provide the config-path as a CLI argument. The helper `add_cli_options` will add the option `--config-path` (among other things), which `resolve_config_path` will try to read. If the user does not provide a path on the command line, `resolve_config_path` will still use the `CONFIG_PATH` environment variable as a fallback.
+The magic here happens in `fill_config_from_path`. This function will read a configuration file and fill the `config` object's entries with the corresponding values. The path can be hard-coded (not recommended) or you can use `resolve_config_path()` without arguments, in which case the path is provided through the `CONFIG_PATH` environment variable (better), or you can use an `argparse.ArgumentParser` as above to allow the user to provide the config-path as a CLI argument (best). The helper `add_cli_options` will add the option `--config-path` (among other things), which `resolve_config_path` will try to read. If the user does not provide a path on the command line, `resolve_config_path` will still use the `CONFIG_PATH` environment variable as a fallback.
 
 The format of the config file will be determined by the path's extension (e.g. `.yaml` for YAML). Note that it's fine (and a common practice) to not provide a config file at all (neither through `--config-path` nor through `CONFIG_PATH`). In this case, the configuration values will be read from environment variables named `SECTIONNAME__ENTRYNAME` (double underscore!). Even if a config file is provided, values can still be overriden through these environment variables, as we'll see below.
 
