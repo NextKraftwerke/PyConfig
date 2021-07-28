@@ -241,15 +241,17 @@ args = parser.parse_args()
 path = resolve_config_path("demo", cli_args=args)
 ```
 
-Now the CLI option `--demo-config-path` and the environment variable `DEMO_CONFIG_PATH` will be used instead. Most importantly, this solution offers a standardized way for users to provide config files, through arguments that follow a simple naming convention, for all apps using PyConfig.
+Now the CLI option `--demo-config-path` and the environment variable `DEMO_CONFIG_PATH` will be used instead.
+
+Most importantly, this solution offers a standardized way for users to provide config files, through arguments that follow a simple naming convention, for _all_ apps using PyConfig.
 
 ### Immutability
 
 Some might argue that in the example above we shouldn't have created a _global_ `config` object that's just _loaded_ at startup, but instead we should have created and loaded a `config` object in `__main__.py` and then injected it into the `greet` call. In most cases, I'd agree with this advice. But it is aimed at avoiding global _state_, i.e., global variables that can be read and modified from anywhere in the code, usually causing trouble.
 
-In the case of `Config` instances we don't have to worry*. The config object, each of its sections and each their entries are all immutable** so the instance is just a namespace for some constants. The supported types for section entries are also immutable, including the supported collection types `tuple` and `frozenset`.
+In the case of `Config` instances we don't have to worry*. The config object, each of its sections and each of their entries are all immutable** so an instance is just a namespace for some constants. The supported types for section entries are also all immutable, including the supported collection types `tuple` and `frozenset`.
 
-Many configuration libraries allow the config object to be modified freely at any time, which is particularly problematic with long-running services. If a critical error or even a crash occurs, you don't have any guarantees that the configuration you provided at startup is still valid. The configuration being used by the application might be completely different from the values you see in your configuration files. This makes it difficult to understand and replicate bugs. With PyConfig it's very easy to check whether the config can ever change by searching for uses of `fill_config` and `fill_config_from_path` in the project. Ideally it will be loaded once and only once at startup but even if your app allows for config updates while running, the logic coordinating this will at least be easy to find. Also, check out the section on 'logging' below, which can be very helpful to make your app easy to debug.
+Many configuration libraries allow the config object to be modified freely at any time, which is particularly problematic with long-running services. If a critical error or even a crash occurs, you don't have any guarantees that the configuration you provided at startup is still the one being used. The current configuration might be completely different from the values you see in your config files. This makes it difficult to understand and replicate bugs. With PyConfig it's very easy to check whether the config can ever change by searching for uses of `fill_config` and `fill_config_from_path` in the project. Ideally it will be loaded once and only once at startup but even if your app allows for config updates while running, the logic coordinating this will at least be easy to find. Also, check out the section on 'logging' below, which can be very helpful to make your app easy to debug.
 
 To facilitate testing with different configurations, we've added the function `test_utils.update_section` (can only be imported through the module `test_utils`, not directly from `nx_config`):
 
@@ -268,17 +270,17 @@ class DemoTests(TestCase):
         ...  # call code that uses config
 ```
 
-Again, there are exactly two ways to mutate a `config` object. One is when you load it, of course. The other is via `test_utils.update_section`. But you can easily scan your project for uses of `fill_config`/`fill_config_from_path` to make sure there is one and only one such call and it's right at the app's startup, and you can scan your project for uses of `test_utils` to make sure all occurrences are in your directories for tests.
+Again, you can easily scan your project for uses of `test_utils`. It should obviously be used only in tests and never in production code. And that's it! `fill_config/fill_config_from_path` and `test_utils.update_section` are the only ways to modify a config instance***.
 
-_* and **: Of course... this is python. There are dark ways to cheat by messing with the internal attributes of configs and sections. Let's just assume all contributors to your project are grown ups._
+_*, ** and ***: Of course... this is python... There are always dark ways to cheat by messing with the internal attributes of configs and sections. Let's just assume all contributors to your project are well-meaning grown ups._
 
 ### Config file formats
 
-Unlike many configuration libraries, PyConfig completely separates your code (and the modelling of your configuration options) from the input formats the end-user is allowed to use for configuration. You only write python and don't need to think for a second about YAML, INI, JSON, .ENV or whatever.
+Unlike many configuration libraries, PyConfig completely separates your code (and the modelling of your configuration options) from the input formats the end-user is allowed to choose for configuration. You only write python and don't need to think for a second about YAML, INI, JSON, .ENV or whatever. _Your code is config-format-agnostic_.
 
-In this early version, PyConfig only supports YAML and environment variables but very soon we'll add support for INI files and the library is designed to be easily extensible to add more supported formats. Once INI is supported, we'll be listening to the community to see what other formats would be good candidates. And as a developer using PyConfig, all you'll need to do is install a new version and your end-users immediately have the option to use the newly supported input format. _Your code is config-format-agnostic_.
+PyConfig currently supports YAML, INI and environment variables. However, it is designed to be easily extensible and we'll be listening to the community to see what other formats would be good candidates. When new formats are added, all you need to do as a developer is install the latest version and your end-users can start enjoying the extra flexibility, even though your code stays the same. 
 
-This freedom of choice can also be interesting for companies with teams using different programming languages. They have the option of defining a single, company-wide "configuration language" to be used in all projects. This is convenient for everyone and allows, for example, the use of centralized configuration files in production (e.g. with credentials to different services, common URLs and so on). And with PyConfig, individual programmers can still pick a different "configuration language" during development and for local testing. 
+This freedom of choice can also be interesting for companies with teams using different programming languages. They have the option of defining a single, company-wide "configuration language" to be used in all projects. This is convenient for everyone and allows, for example, the use of centralized configuration files in production (e.g. with credentials to different services, common URLs and so on). At the same time, individual programmers can still pick a different "configuration language" for local testing if they want.
 
 ### Documenting configuration options
 
