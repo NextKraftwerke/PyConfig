@@ -399,27 +399,27 @@ After loading the config values, you should ideally be able to use them without 
 
 ## A note on imports
 
-Everything you need from PyConfig for production code can (and ideally should) be imported directly from the `nx_config` module:
+Everything you need from PyConfig for production code can (and should) be imported directly from the `nx_config` module:
 ```python
 from nx_config import Config, ConfigSection, SecretString, fill_config, ...
 ```
-Everything you need from PyConfig for your tests can (and ideally should) be imported directly from the `nx_config.test_utils` module:
+Everything you need from PyConfig for tests can (and should) be imported directly from the `nx_config.test_utils` module:
 ```python
 from nx_config.test_utils import update_section
 ```
-And that's everything. If you find yourself importing stuff from other submodules: it's probably not meant for you. I've made an effort to keep everything else protected behind underscores, but something may have slipped through, or might slip through in the future.
+_And that's everything._ If you find yourself importing stuff from other submodules: it's probably not meant for you. I've made an effort to keep everything else protected behind underscores, but something may have slipped through, or might slip through in the future.
 
 ## A note on configuring libraries vs apps
 
 It usually doesn't make much sense to use configuration from files and environment variables directly into libraries. Configuration should be required from and received by applications, which can then inject any necessary values into library classes and functions. Libraries should at least offer the application the _possibility_ of injecting all relevant values as input parameters. This makes it easier and more convenient to write tests, and can even be important for performance.
 
-I've seen libraries offering classes that parsed configuration files when initialized (using default, hard-coded paths). Very well-informed users would initialize such objects rarely in their applications and keep them around for as long as possible. But most users just assumed initialization would have near-zero cost and created new objects whenever one was needed, unknowingly parsing files and throwing the information away over and over again.
+I've seen libraries offering classes that parsed configuration files when initialized (using default, hard-coded paths). Very well-informed users would initialize such objects rarely in their applications and keep them around for as long as possible. But most users just assumed initialization would have near-zero cost and created a new object whenever one was needed, unknowingly parsing files and throwing the information away over and over again.
 
 App writers should have the ultimate control over how and when files are read and parsed.
 
-Adding a `Config` subclass to a library is a very bad idea. It would force the app writers to use that class for that specific library and then use a different class for their own configuration options. Adding a `ConfigSection` subclass to a library _can_ be a friendly feature for application writers, who can use such sections in their own `Config` classes. But even that might carry some rigidity with it: Apps might only want to give their users _some_ control over the configuration of a library, but the `ConfigSection` provided will likely give them full control.
+Adding a `Config` subclass to a library is a very bad idea. It would force the app writers to use that class for that specific library and then use a different class for their own configuration options. Adding a `ConfigSection` subclass to a library _can_ be a friendly feature for application writers, who can use such sections in their own `Config` classes. But even that might carry some rigidity with it: App writers might only want to give their users _some_ control over the configuration of a library, but the `ConfigSection` provided by the library would likely give them full control.
 
-Keep it simple. Use PyConfig in applications. Use injection (of every necessary input or configuration value) in libraries.
+Keep it simple: Use PyConfig in applications. Use injection in libraries.
 
 ## Detailed documentation
 
