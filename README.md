@@ -284,13 +284,13 @@ This freedom of choice can also be interesting for companies with teams using di
 
 ### Documenting configuration options
 
-One of the biggest advantages of using PyConfig is that the contents of the config model (i.e. which sections it should have, which entries each section should have, what their types should be etc) are defined in code.
+One of the biggest advantages of using PyConfig is that the contents of the config model (i.e. which sections it should have, which entries each section should have, what their types should be etc) are defined _only_ in code.
 
-With `configparser`, for example, it is common practice to have 3 independent "definitions" of the configuration options. One is the actual usage of the config mapping in the source code, which is spread throughout the repository and not always easy to find. The second is the documentation written for end-users, usually in PDF of markdown format, listing all the sections, entries, types and how to use each entry. The third is sometimes a template INI file that the end-users can copy and then fill out with their chosen values. These 3 "definitions" have to be maintained and kept in sync with each other, which is rarely the case. Very often developers might, for instance, delete some code that used a configuration value, or just use a new config entry, or change the default value of an entry and forget to update the documentation or the INI template. And even if you're extra careful and put a lot of work into keeping your docs up-to-date, experienced end-users will still not trust your docs because they've fallen into that trap enough times in the past already.
+With `configparser`, for example, it is common practice to have 3 independent "definitions" of the configuration options. One is the _usage_ of the config mapping in the source code, which is spread throughout the repository and not always easy to find. The second is the _documentation_ written for end-users, usually in PDF of markdown format, listing all the sections, entries, types and how to use each entry. The third is sometimes a _template_ INI file that the end-users can copy and then fill out with their chosen values. These 3 "definitions" have to be maintained and kept in sync with each other, which is rarely the case. Very often developers might, for instance, delete some code that used a configuration value, or add code using a brand new config entry, or change the default value of an entry... and forget to update the documentation or the INI template. And even if you're extra careful and put a lot of work into keeping your docs up-to-date, experienced end-users will still not trust your docs because they've fallen into that trap enough times in the past already.
 
-Enter: PyConfig. The code, i.e. your class definitions, is the only definition of the configuration options. It is the definitive truth and documents by definition every detail of the config, including types, default values _and validity checks_. And if you add docstrings to the config class and the section classes (and some tools also support docstrings directly below class attributes, so feel free), they are much more likely to be kept up-to-date because they're right next to the code they reference.
+Enter: PyConfig. The code, i.e. your class definitions, is the only definition of the configuration options. It is the definitive truth, is always up-to-date and documents every detail of the config, including types, default values _and validity criteria_. And if you add docstrings to the config class and the section classes (and some tools also support docstrings directly below class attributes, so feel free), they are much more likely to be kept up-to-date because they're right next to the code they reference.
 
-If you use the `add_cli_options` utility applied to an `argparse.ArgumentParser`, your end-users get the `--generate-config` CLI option for free, with which they can generate config templates for any supported file format, e.g.:
+If you use the `add_cli_options` function applied to an `argparse.ArgumentParser`, your end-users get the `--generate-config` CLI option for free, with which they can generate config templates for any supported file format, e.g.:
 
 ```commandline
 $ python -m demo --generate-config=yaml
@@ -304,15 +304,15 @@ weather:
   #timeout_s:
 ```
 
-Another (soon to be implemented) feature is the `--config-help` CLI option, that will also be added automatically through `add_cli_options`. This option will show a message specifically documenting your app's config model, followed by cheat-sheet-style instructions for configuring with PyConfig (as an end-user).
+Using `add_cli_options` also adds the `--config-help` CLI option. It shows a message specifically documenting your app's config model, followed by cheat-sheet-style, general instructions for configuring with PyConfig (as an end-user).
 
-This means all the documentation your app needs (in terms of configuration options) is easily automagically generated from your class definitions and is always up-to-date. Even if you want to have the documentation directly available on your website or on github, you can setup the pipeline to re-generate it after every release. No maintenance needed.
+This means all the documentation your app needs (in terms of configuration options) is easily, automagically generated from your class definitions and is always up-to-date! Even if you want to have the documentation directly available on your website or on github, you can setup the pipeline to re-generate it after every release. No maintenance needed.
 
-Contributors to your project are even happier: they only have to look at the python code, just the one module, without any additional PDFs or markdown files or webpages, and they're guaranteed to find all relevant, current information there.
+Contributors to your project are even happier: they only have to look at the python code, just the one module (often called `config.py`), without any additional PDFs or markdown files or webpages, and they're guaranteed to find all relevant, current information there.
 
 ### Automatic validation and failing at startup
 
-PyConfig always validates the configuration input against the type-hints used in the `ConfigSection` subclass declaration. In the case of environment variables or INI files, the values are initially interpreted as strings, so "checking the type" means checking that the provided strings can be transformed into the intended types (i.e. the string `"3.14"` is fine for a `float`, but no good for a `UUID`). In the case of YAML or JSON files, for example, there are already standard libraries that parse them into python objects of different types, so only smaller conversions will be made (e.g. `str -> Path` or `list -> frozenset`) depending on the provided type-hints.
+PyConfig always validates the configuration input against the type-hints used in the `ConfigSection` subclass declaration. In the case of environment variables or INI files, the values are initially interpreted as strings, so "checking the type" means checking that the provided strings can be transformed into the intended types (i.e. the string `"3.14"` is fine for a `float`, but no good for a `UUID`). In the case of YAML or JSON files, for example, there are already standard libraries that parse them into python objects of different types, so only smaller conversions will be made (e.g. `str` to `Path` or `list` to `frozenset`) depending on the provided type-hints.
 
 Two more out-of-the-box automatic checks are:
 * Users must provide a value for every field that doesn't have a default.
@@ -324,7 +324,7 @@ If you use PyConfig and follow the best practice of loading all configuration at
 
 ### Logging (and secrets)
 
-Both `Config` and `ConfigSection` subclasses can be very nicely printed with ease. The `__str__` method produces an inline description, while the `__repr__` method gives a multi-line and indented version. Moreover, secrets (i.e. section entries type-annotated as `SecretString`) are automatically masked with asterisks, including optional secrets and collections of secrets.
+Both `Config` and `ConfigSection` subclasses can be very nicely printed with ease. The `__str__` method produces an inline description, while the `__repr__` method gives a multi-line and indented version. Moreover, secrets (i.e. section entries type-annotated as `SecretString`) are automatically masked with asterisks, including optional secrets and collections of secrets*.
 
 Here are example outputs using the `DemoConfig` class from above:
 ```commandline
@@ -352,7 +352,7 @@ GreetingSection(
 )
 ```
 
-Having both formats available is very convenient when writing log messages, and indeed you should take advantage of this and log your app's configuration in certain situations. A good idea would be to log the configuration right after it's loaded at startup. Another approach would be to log the configuration whenever a serious error happens (this is more convenient for debugging, having all the necessary information bundled into the error message). It's also convenient to just always (easily) log the entire configuration, instead of trying to guess a subset of its values that you think will be sufficient when debugging. And if you always log entire configs (or at least entire sections), you don't have to worry about accidentally exposing your end-user's secrets.
+Having both formats available is very convenient when writing log messages, and indeed you should take advantage of this and log your app's configuration in certain situations. A good idea would be to log the configuration right after it's loaded at startup. Another approach would be to log the configuration whenever a serious error happens (this is more convenient for debugging, since all important information is bundled together with the error message). It's also handy to just always log the entire configuration, instead of trying to guess a subset of its values that you think will be sufficient when debugging. And if you always log entire configs (or at least entire sections), you don't have to worry about accidentally exposing your end-user's secrets.
 
 The choice of which method gets which format was made with debugging in mind. In the REPL, if you just type the object you want to inspect, the result will be printed using `__repr__`:
 ```commandline
@@ -367,15 +367,17 @@ WeatherSection(
 
 And if you use PyCharm, the "Variables" view on the console and the debugger displays values next to variable names using `__str__`, and the one-line description is much more suitable in that case.
 
+_*: Secrets are masked only when you use the methods `__str__` and `__repr__` of `Config` and `ConfigSection`. Remember that the actual value of `my_config.my_section.my_secret` is just an ordinary built-in `str`, so if you print it in your logs it will not be masked!_
+
 ### Attributes instead of strings
 
 Using attributes for sections and section-entries (`cfg.a_section.an_entry`) instead of the mapping style with strings used in many configuration libraries (`cfg["a_section"]["an_entry"]`) is more than just shorter, prettier and easier to type.
 
-Your IDE can help you with dot-autocompletion to (a) present the available sections and section-entries and (b) avoid typing errors. This is especially important because even if your configuration is thoroughly validated at startup, a typing error when _using_ the configuration might only cause trouble much, much later, when no one is watching and ready to take action. (Yes, of course, you'd find such bugs either way if you have 100% code coverage...)
+Your IDE can help you with dot-autocompletion to (a) present the available sections and section-entries and (b) avoid typing errors. This is especially important because even if your configuration is thoroughly validated at startup, a typing error when _using_ the configuration might only cause trouble much, much later, when no one is watching and ready to take action. _(Of course, this could never happen in your company, since every one of your projects has 100% code coverage...)_
 
-In theory, there's even more the IDE could do. If you still make typing errors in such attributes because you didn't use autocompletion, the static analyser could highlight them and warn you. And if you decide to change the name of a section or section-entry, the IDE could help with automatic refactoring. Both things work more reliably and conveniently with attributes instead of mappings, usually. Unfortunately, we haven't manage to get them to work with PyConfig sections and entries yet. We know this is due to limitations of the IDE and the fact that PyConfig uses a lot of magic behind the scenes, but we're still trying to understand the issue.
+In theory, there's even more the IDE could do. If you make typing errors in such attributes (because you didn't use autocompletion), the static analyser could highlight them and warn you. And if you decide to change the name of a section or section-entry, the IDE could help with automatic refactoring. Unfortunately, we haven't managed to get them to work with PyConfig sections and entries yet. We know this is due to limitations of the IDE and the fact that PyConfig uses a lot of magic behind the scenes, but we're still trying to understand exactly why it doesn't work.
 
-Still, autocompletion + shorter + prettier is plenty of reason to prefer the attribute variant.
+Still, autocompletion + shorter + prettier is plenty of reason to prefer attributes over mappings.
 
 ### Handy configuration through environment variables
 
@@ -389,11 +391,11 @@ Finally, even the path to the configuration file can be provided through an envi
 
 ### Support for the most useful types
 
-After loading the config values, you should ideally be able to use them without having to first convert them into other types. If you have your own unit-agnostic `Temperature` type, for instance, you'll have to work a little harder, ask your end-users for a unit-bound value (e.g. `surface_temp_celsius: float`) and then convert it yourself (e.g. through a method `def surface_temp(self) -> Temperature:` in the same section). But most use cases should be covered by the types already supported by PyConfig (and there might be more on the way).
+After loading the config values, you should ideally be able to use them without having to first convert them into other types. If you have your own unit-agnostic `Temperature` type, for instance, you'll have to work a little harder: ask your end-users for a unit-bound value (e.g. `surface_temp_celsius: float`) and then convert it yourself (e.g. through a method `def surface_temp(self) -> Temperature:` in the same section). But most use cases should be covered by the types already supported by PyConfig (and there might be more on the way).
 
 * **Base** supported types are `int`, `float`, `bool`, `str`, `datetime.datetime`, `uuid.UUID`, `pathlib.Path`, `nx_config.SecretString`, and `nx_config.URL`.
-* **Collection** supported types are `typing.Tuple[base, ...]` and `typing.FrozenSet[base]` in all python versions, and `tuple[base, ...]` and `frozenset[base]` for python 3.9 and later (where `base` is one of the **base** supported types above). _Note that the `...` in the tuple types is meant literally here, i.e., they represent tuples of arbitrary length where all elements are of the same type._
-* **Optional** supported types are `typing.Optional[base_or_coll]` (where `base_or_coll` is either one of the **base** or one of the **collection** supported types listed above). _Note that optional base types are not allowed as the element type in collections (e.g. `tuple[Optional[int], ...]`)._
+* **Collection** supported types are `typing.Tuple[base, ...]` and `typing.FrozenSet[base]` in all python versions, and `tuple[base, ...]` and `frozenset[base]` for python 3.9 and later (where `base` is one of the **base** supported types above). _Note that the Ellipsis (`...`) in the tuple types is meant literally here, i.e., they represent tuples of arbitrary length where all elements are of the same type._
+* **Optional** supported types are `typing.Optional[base_or_coll]` (where `base_or_coll` is either one of the **base** or one of the **collection** supported types listed above). _Note that "Optional" must be the outer-most layer, i.e. you cannot have collections of optional elements, such as `tuple[Optional[int], ...]`._
 
 ## A note on imports
 
