@@ -6,7 +6,7 @@ from unittest import TestCase
 
 from nx_config import add_cli_options, Config, ConfigSection
 
-format_choices = "{yaml}"
+format_choices = "{yaml,ini}"
 
 
 class MyConfig(Config):

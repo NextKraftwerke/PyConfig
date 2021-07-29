@@ -5,6 +5,7 @@ from typing import Type, Optional
 # noinspection PyProtectedMember
 from nx_config._core.generate_template import generate_template as _generate_template
 from nx_config.config import Config
+from nx_config.format import Format
 
 _base_cli_path_option = "config-path"
 _base_cli_generate_option = "generate-config"
@@ -49,14 +50,14 @@ def add_cli_options(parser: ArgumentParser, *, prefix: Optional[str] = None, con
 
     class _GenerateConfigAction(Action):
         def __call__(self, action_parser, namespace, value, option_string=None):
-            # Note: format_str = value
-            _generate_template(config_t, sys.stdout)
+            fmt = getattr(Format, value)
+            _generate_template(config_t, fmt, sys.stdout)
             action_parser.exit(0)
 
     parser.add_argument(
         generate_option,
         type=str,
-        choices=("yaml",),
+        choices=tuple(x.name for x in Format),
         help=(
             f"Generate a template configuration file in the specified format,"
             f" print it to the standard output and exit. Target python class: {config_t.__name__}."
