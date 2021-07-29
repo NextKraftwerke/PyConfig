@@ -276,7 +276,7 @@ _*, ** and ***: Of course... this is python... There are always dark ways to che
 
 ### Config file formats
 
-Unlike many configuration libraries, PyConfig completely separates your code (and the modelling of your configuration options) from the input formats the end-user is allowed to choose for configuration. You only write python and don't need to think for a second about YAML, INI, JSON, .ENV or whatever. _Your code is config-format-agnostic_.
+Unlike many configuration libraries, PyConfig completely separates your code (and the modeling of your configuration options) from the input formats the end-user is allowed to choose for configuration. You only write python and don't need to think for a second about YAML, INI, JSON, .ENV or whatever. _Your code is config-format-agnostic_.
 
 PyConfig currently supports YAML, INI and environment variables. However, it is designed to be easily extensible and we'll be listening to the community to see what other formats would be good candidates. When new formats are added, all you need to do as a developer is install the latest version and your end-users can start enjoying the extra flexibility, even though your code stays the same. 
 
@@ -375,7 +375,7 @@ Using attributes for sections and section-entries (`cfg.a_section.an_entry`) ins
 
 Your IDE can help you with dot-autocompletion to (a) present the available sections and section-entries and (b) avoid typing errors. This is especially important because even if your configuration is thoroughly validated at startup, a typing error when _using_ the configuration might only cause trouble much, much later, when no one is watching and ready to take action. _(Of course, this could never happen in your company, since every one of your projects has 100% code coverage...)_
 
-In theory, there's even more the IDE could do. If you make typing errors in such attributes (because you didn't use autocompletion), the static analyser could highlight them and warn you. And if you decide to change the name of a section or section-entry, the IDE could help with automatic refactoring. Unfortunately, we haven't managed to get them to work with PyConfig sections and entries yet. We know this is due to limitations of the IDE and the fact that PyConfig uses a lot of magic behind the scenes, but we're still trying to understand exactly why it doesn't work.
+In theory, there's even more the IDE could do. If you make typing errors in such attributes (because you didn't use autocompletion), the static analyzer could highlight them and warn you. And if you decide to change the name of a section or section-entry, the IDE could help with automatic refactoring. Unfortunately, we haven't managed to get them to work with PyConfig sections and entries yet. We know this is due to limitations of the IDE and the fact that PyConfig uses a lot of magic behind the scenes, but we're still trying to understand exactly why it doesn't work.
 
 Still, autocompletion + shorter + prettier is plenty of reason to prefer attributes over mappings.
 
@@ -423,13 +423,13 @@ Keep it simple: Use PyConfig in applications. Use injection in libraries.
 
 ## A note on `pydantic`
 
-If you're unfamiliar with [pydantic](https://pypi.org/project/pydantic/): It is a general "modelling" python library that offers pretty much everything that PyConfig does and **much more** (seriously). It is far more powerful and flexible and full of features and can be used brilliantly for configuration. It is also much older and more mature than PyConfig.
+If you're unfamiliar with [pydantic](https://pypi.org/project/pydantic/): It is a general "modeling" python library that offers pretty much everything that PyConfig does and **much more** (seriously). It is far more powerful and flexible and full of features and can be used brilliantly for configuration. It is also much older and more mature than PyConfig.
 
 When I first ran into `pydantic`, I was actually very surprised with some of the similarities to parts of PyConfig, like the `@validator` annotation they offer, the `NamedTuple`-style class declaration and even the `SecretStr` type! In this last case, the `nx_config.SecretString` type turns into a simple built-in `str` at runtime, while the `pydantic.SecretStr` type is a real wrapper and you need to call the `get_secret_value()` method to use the wrapped string. But that was even more interesting to see, because that's exactly the approach I used in the first version of PyConfig, except my method was called `get_value_at_own_peril()` and it returned the protected member `_dont_you_dare_use_me`. Then some of my colleagues said they found secret strings annoying to use and made me change my mind.
 
-I have no criticism about `pydantic` and I honestly don't see other libraries as "competition". We're all in this together. But I do think there are times to use `pydantic` and times to use PyConfig. If you're already using `pydantic` in your project, or you're already very familiar with it, or you actually need it for modelling things other than configuration, please, by all means, go for it.
+I have no criticism about `pydantic` and I honestly don't see other libraries as "competition". We're all in this together. But I do think there are times to use `pydantic` and times to use PyConfig. If you're already using `pydantic` in your project, or you're already very familiar with it, or you actually need it for modeling things other than configuration, please, by all means, go for it.
 
-If, however, you're just looking specifically for a better and safer way to add configuration to your app, then maybe you should check out PyConfig. It is minimalistic and simple. There's effectively no learning curve and the package is fairly small, with no unnecessary features. It also enforces immutability, which is optional in `pydantic`. In general, in my opinion, you need to know what you're doing and be disciplined with `pydantic` (specifically in terms of app configuration), while PyConfig naturally guides you towards the best practices. But I'm definitely biased...
+If, however, you're just looking specifically for a better and safer way to add configuration to your app, then maybe you should check out PyConfig. It is minimal, single-purpose and simple. There's effectively no learning curve and the package is fairly small, with no unnecessary features. It also enforces immutability, which is optional in `pydantic`. In general, in my opinion, you need to know what you're doing and be disciplined with `pydantic` (specifically in terms of app configuration), while PyConfig naturally guides you towards the best practices. But I'm definitely biased...
 
 ## Detailed documentation
 
