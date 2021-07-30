@@ -32,5 +32,5 @@ def _generate_template_ini(config_t: Type[Config], out_stream: TextIO):
 def generate_template(config_t: Type[Config], fmt: Format, out_stream: TextIO):
     if fmt == Format.yaml:
         _generate_template_yaml(config_t, out_stream)
-    elif fmt == Format.ini:
+    else:
         _generate_template_ini(config_t, out_stream)
