@@ -1,8 +1,6 @@
 from datetime import datetime, timezone, timedelta
-from inspect import cleandoc
-from io import StringIO
 from pathlib import Path
-from typing import TextIO, Optional
+from typing import Optional, Mapping
 from unittest import TestCase
 from uuid import UUID
 
@@ -21,17 +19,12 @@ from nx_config import (
     ValidationError,
     IncompleteSectionError,
 )
-# noinspection PyProtectedMember
-from nx_config._core.fill_with_oracles import fill_config_w_oracles
+from tests.fill_test_helpers import fill_from_str
 from tests.typing_test_helpers import collection_type_holders
 
 
-def _in(s: str) -> TextIO:
-    return StringIO(cleandoc(s))
-
-
-def _fill_in(cfg: Config, s: str):
-    fill_config_w_oracles(cfg, in_stream=_in(s), fmt=Format.yaml, env_prefix=None, env_map={})
+def _fill_in(cfg: Config, s: str, *, env_map: Optional[Mapping[str, str]] = None):
+    fill_from_str(cfg, s, Format.yaml, env_map)
 
 
 class FillFromYAMLTestCase(TestCase):
@@ -113,6 +106,27 @@ class FillFromYAMLTestCase(TestCase):
             """,
         )
         self.assertEqual(42, cfg.sec.entry)
+
+    def test_extra_yaml_ignored(self):
+        class MySection(ConfigSection):
+            entry: int = 42
+
+        class MyConfig(Config):
+            sec: MySection
+
+        cfg = MyConfig()
+        _fill_in(
+            cfg,
+            """
+            other:
+              e1: 51
+              e2: 99
+            sec:
+              entry: 13
+              other: 7
+            """,
+        )
+        self.assertEqual(13, cfg.sec.entry)
 
     def test_set_to_none(self):
         class MySection(ConfigSection):
@@ -568,16 +582,12 @@ class FillFromYAMLTestCase(TestCase):
 
         cfg = MyConfig()
         env_wins = "ENV wins!"
-        fill_config_w_oracles(
+        _fill_in(
             cfg,
-            in_stream=_in(
-                """
-                sec:
-                  entry: "YAML wins!"
-                """
-            ),
-            fmt=Format.yaml,
-            env_prefix=None,
+            """
+            sec:
+              entry: "YAML wins!"
+            """,
             env_map={"SEC__ENTRY": env_wins},
         )
 

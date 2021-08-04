@@ -1,3 +1,4 @@
+from configparser import ConfigParser
 from datetime import datetime
 from pathlib import Path
 from typing import Mapping, Any, Iterable, Optional, TextIO
@@ -126,6 +127,9 @@ def fill_config_w_oracles(
     env_prefix: Optional[str],
     env_map: Mapping[str, str],
 ):
+    if fmt == Format.ini:
+        ConfigParser().read_file(in_stream)
+
     in_map = safe_load(in_stream) if in_stream is not None else None
 
     if env_prefix is None:
