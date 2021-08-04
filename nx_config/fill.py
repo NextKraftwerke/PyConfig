@@ -64,16 +64,3 @@ def fill_config_from_path(
 
     with path.open() as fstream:
         return fill_config(cfg, stream=fstream, fmt=Format.yaml, env_prefix=env_prefix)
-
-
-# TODO: Document that env takes precedence over config files and that if an env var is present,
-#   it must be a valid value (will not fallback to config file in case of invalid env var) and
-#   the corresponding value in the config file (if any) will not be used and therefore will not
-#   be validated. So an invalid entry in a config file might go unnoticed if it is overriden by
-#   an env var.
-# TODO: Document restrictions with env. vars, incl.:
-#   - No strings/secrets with commas in collections
-#   - No strings/secrets with surrounding spaces in collections
-#   - Cannot set collection to empty
-#   - Cannot set optional to None
-#   - Surrounding whitespace is kept for base types but not for single element collections

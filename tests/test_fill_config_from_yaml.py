@@ -6,7 +6,9 @@ from typing import TextIO, Optional
 from unittest import TestCase
 from uuid import UUID
 
+# noinspection PyPackageRequirements
 from yaml import YAMLError
+# noinspection PyPackageRequirements
 from yaml.constructor import ConstructorError
 
 from nx_config import (
