@@ -8,7 +8,7 @@ rel_resources_path = abs_resources_path.relative_to(Path.cwd())
 
 expected_valid_extensions = (
     ".yaml", ".yml", ".YAML", ".YML",
-    ".ini",
+    ".ini", ".INI",
 )
 
 
@@ -47,9 +47,11 @@ class FillFromPathTestCase(TestCase):
             "invalid.txt",
             "invalid.exe",
             "invalid",
+            "invalid.yaml.md",
             ".yaml",  # hidden path without extension
             ".ini",   # hidden path without extension
-            "invalid.yaml.md",
+            ".env",   # hidden path without extension
+            ".json",  # hidden path without extension
             "invalid.env",
             "invalid.json",
         ):

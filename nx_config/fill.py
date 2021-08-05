@@ -8,7 +8,7 @@ from nx_config.config import Config
 from nx_config.format import Format
 
 _supported_yaml_extensions = (".yaml", ".yml", ".YAML", ".YML")
-_supported_ini_extensions = (".ini",)
+_supported_ini_extensions = (".ini", ".INI")
 
 
 def fill_config(
