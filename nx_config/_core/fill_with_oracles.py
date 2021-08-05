@@ -130,7 +130,11 @@ def fill_config_w_oracles(
     if in_stream is None:
         in_map = None
         convert = None
-    # elif fmt is None: TODO
+    elif fmt is None:
+        raise ValueError(
+            "When filling a config object directly from a TextIO stream you must"
+            " provide a corresponding nx_config.Format through the 'fmt' parameter."
+        )
     elif fmt == Format.yaml:
         in_map = safe_load(in_stream)
         convert = _convert_yaml

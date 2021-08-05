@@ -1,3 +1,4 @@
+from io import StringIO
 from unittest import TestCase
 
 from nx_config import fill_config, Config, ConfigSection, validate, ValidationError, IncompleteSectionError
@@ -154,3 +155,14 @@ class FillConfigNoInputTestCase(TestCase):
         with self.assertRaises(TypeError):
             # noinspection PyArgumentList
             fill_config(MyConfig(), "HUBBA_HUBBA")
+
+    def test_in_stream_requires_format(self):
+        class MyConfig(Config):
+            pass
+
+        with self.assertRaises(ValueError) as ctx:
+            fill_config(MyConfig(), stream=StringIO())
+
+        msg = str(ctx.exception)
+        self.assertIn("'fmt'", msg)
+        self.assertIn("stream", msg.lower())
