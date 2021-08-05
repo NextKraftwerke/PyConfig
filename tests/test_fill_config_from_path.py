@@ -6,7 +6,10 @@ from nx_config import Config, fill_config_from_path, ConfigSection
 abs_resources_path = Path(__file__).parent / "resources"
 rel_resources_path = abs_resources_path.relative_to(Path.cwd())
 
-expected_valid_extensions = (".yaml", ".yml", ".YAML", ".YML")
+expected_valid_extensions = (
+    ".yaml", ".yml", ".YAML", ".YML",
+    ".ini",
+)
 
 
 class SmallConfig(Config):
@@ -44,11 +47,11 @@ class FillFromPathTestCase(TestCase):
             "invalid.txt",
             "invalid.exe",
             "invalid",
-            ".yaml",
+            ".yaml",  # hidden path without extension
+            ".ini",   # hidden path without extension
             "invalid.yaml.md",
             "invalid.env",
             "invalid.json",
-            "invalid.ini",
         ):
             with self.subTest(path=p):
                 with self.assertRaises(ValueError) as ctx:

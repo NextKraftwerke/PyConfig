@@ -7,7 +7,8 @@ from nx_config._core.fill_with_oracles import fill_config_w_oracles as _fill_con
 from nx_config.config import Config
 from nx_config.format import Format
 
-_supported_extensions = (".yaml", ".yml", ".YAML", ".YML")
+_supported_yaml_extensions = (".yaml", ".yml", ".YAML", ".YML")
+_supported_ini_extensions = (".ini",)
 
 
 def fill_config(
@@ -56,11 +57,17 @@ def fill_config_from_path(
         raise IsADirectoryError(f"Is a directory: '{path}'")
 
     dot_ext = path.suffix
-    if dot_ext not in _supported_extensions:
+
+    if dot_ext in _supported_yaml_extensions:
+        fmt = Format.yaml
+    elif dot_ext in _supported_ini_extensions:
+        fmt = Format.ini
+    else:
         raise ValueError(
             f"Configuration filepath '{path}' has unsupported extension. This version of PyConfig supports"
-            f" the formats YAML (extensions: {', '.join(_supported_extensions)})."
+            f" the formats YAML (extensions: {', '.join(_supported_yaml_extensions)}) and INI (extensions:"
+            f" {', '.join(_supported_ini_extensions)})."
         )
 
     with path.open() as fstream:
-        return fill_config(cfg, stream=fstream, fmt=Format.yaml, env_prefix=env_prefix)
+        return fill_config(cfg, stream=fstream, fmt=fmt, env_prefix=env_prefix)

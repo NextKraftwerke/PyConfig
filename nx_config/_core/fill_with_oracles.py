@@ -127,10 +127,17 @@ def fill_config_w_oracles(
     env_prefix: Optional[str],
     env_map: Mapping[str, str],
 ):
-    if fmt == Format.ini:
-        ConfigParser().read_file(in_stream)
-
-    in_map = safe_load(in_stream) if in_stream is not None else None
+    if in_stream is None:
+        in_map = None
+        convert = None
+    # elif fmt is None: TODO
+    elif fmt == Format.yaml:
+        in_map = safe_load(in_stream)
+        convert = _convert_yaml
+    else:  # fmt == Format.ini
+        in_map = ConfigParser()
+        in_map.read_file(in_stream)
+        convert = lambda *_: 42
 
     if env_prefix is None:
         env_key_prefix = ""
@@ -140,7 +147,18 @@ def fill_config_w_oracles(
 
     for section_name in get_annotations(cfg):
         section = getattr(cfg, section_name)
-        section_in_map = in_map.get(section_name) if in_map is not None else None
+
+        if in_map is None:
+            section_in_map = None
+        else:
+            # Cumbersome alternative to 'dict.get', necessary because
+            # 'in_map' might be a 'configparser.RawConfigParser' and
+            # 'configparser.RawConfigParser.get' doesn't get a whole
+            # section but rather an option within a section.
+            try:
+                section_in_map = in_map[section_name]
+            except KeyError:
+                section_in_map = None
 
         try:
             for entry_name in get_annotations(section):
@@ -158,7 +176,7 @@ def fill_config_w_oracles(
                         type_info = entry.type_info
 
                         try:
-                            converted_new_value = _convert_yaml(in_map_value, type_info)
+                            converted_new_value = convert(in_map_value, type_info)
                         except ValueError as xcp:
                             raise ValueError(
                                 f"Error converting value for attribute '{entry_name}': {xcp}"
