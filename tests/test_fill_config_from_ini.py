@@ -11,8 +11,12 @@ from nx_config import (
     Format,
     SecretString,
     URL,
+    validate,
+    ValidationError,
+    IncompleteSectionError,
 )
 from tests.fill_test_helpers import fill_from_str
+from tests.typing_test_helpers import collection_type_holders
 
 
 def _fill_in(cfg: Config, s: str, *, env_map: Optional[Mapping[str, str]] = None):
@@ -300,7 +304,8 @@ class FillFromINITestCase(TestCase):
         self.assertIn(f"'{invalid}'", msg)
         self.assertIn("UUID", msg)
 
-    # def test_set_collections(self):
+    def test_set_collections(self):
+        pass  # TODO
     #     uuid1 = UUID("ab35dd93-4c8b-485f-b6cd-ba6a6b29daff")
     #     uuid2 = UUID("d7717fc6-6faa-43a1-b640-675de3115592")
     #     dt1 = datetime(2021, 5, 4, 9, 15, 14, 111_003)
@@ -350,178 +355,101 @@ class FillFromINITestCase(TestCase):
     #             self.assertEqual(frozenset((dt1, dt2)), cfg.sec.datetime_set)
     #             self.assertEqual(frozenset((secret,)), cfg.sec.secret_set)
 
-    # def test_dict_for_collection(self):
-    #     t = collection_type_holders[0].tuple
-    #
-    #     class MySection(ConfigSection):
-    #         an_entry: t[int, ...]
-    #
-    #     class MyConfig(Config):
-    #         a_sec: MySection
-    #
-    #     with self.assertRaises(TypeError) as ctx:
-    #         _fill_in(
-    #             MyConfig(),
-    #             """
-    #             a_sec:
-    #               an_entry:
-    #                 a: 42
-    #                 b: 7
-    #                 c: 99
-    #             """,
-    #         )
-    #
-    #     msg = str(ctx.exception)
-    #     self.assertIn("'an_entry'", msg)
-    #     self.assertIn("'a_sec'", msg)
-    #     self.assertIn("tuple[int, ...]", msg.lower())
-    #     self.assertIn("'dict'", msg)
+    def test_wrong_element_type(self):
+        t = collection_type_holders[0].tuple
 
-    # def test_str_for_collection(self):
-    #     fs = collection_type_holders[0].frozenset
-    #
-    #     class MySection(ConfigSection):
-    #         an_entry: fs[int]
-    #
-    #     class MyConfig(Config):
-    #         a_sec: MySection
-    #
-    #     with self.assertRaises(TypeError) as ctx:
-    #         _fill_in(
-    #             MyConfig(),
-    #             """
-    #             a_sec:
-    #               an_entry: "42, 7, 99"
-    #             """,
-    #         )
-    #
-    #     msg = str(ctx.exception)
-    #     self.assertIn("'an_entry'", msg)
-    #     self.assertIn("'a_sec'", msg)
-    #     self.assertIn("frozenset[int]", msg.lower())
-    #     self.assertIn("'str'", msg)
+        class MySection(ConfigSection):
+            an_entry: t[int, ...] = ()
 
-    # def test_wrong_element_type(self):
-    #     t = collection_type_holders[0].tuple
-    #
-    #     class MySection(ConfigSection):
-    #         an_entry: t[str, ...] = ()
-    #         another: t[UUID, ...] = ()
-    #
-    #     class MyConfig(Config):
-    #         a_sec: MySection
-    #
-    #     with self.subTest(base=str):
-    #         with self.assertRaises(TypeError) as ctx1:
-    #             _fill_in(
-    #                 MyConfig(),
-    #                 """
-    #                 a_sec:
-    #                   an_entry: [hello, 42, foo]
-    #                 """,
-    #             )
-    #
-    #         msg1 = str(ctx1.exception)
-    #         self.assertIn("'an_entry'", msg1)
-    #         self.assertIn("'a_sec'", msg1)
-    #         self.assertIn("tuple[str, ...]", msg1.lower())
-    #         self.assertIn("element", msg1.lower())
-    #
-    #     with self.subTest(base=UUID):
-    #         with self.assertRaises(TypeError) as ctx2:
-    #             _fill_in(
-    #                 MyConfig(),
-    #                 """
-    #                 a_sec:
-    #                   another:
-    #                     - '0694d040-f4ff-43a8-a1bc-590a50661885'
-    #                     - 42
-    #                     - 'f84d5678-8fd4-4562-8a24-d73da4425f70'
-    #                 """,
-    #             )
-    #
-    #         msg2 = str(ctx2.exception)
-    #         self.assertIn("'another'", msg2)
-    #         self.assertIn("'a_sec'", msg2)
-    #         self.assertIn("tuple", msg2.lower())
-    #         self.assertIn("UUID", msg2)
-    #         self.assertIn("element", msg2.lower())
+        class MyConfig(Config):
+            a_sec: MySection
 
-    # def test_invalid_uuid_str_in_collection(self):
-    #     t = collection_type_holders[0].tuple
-    #
-    #     class MySection(ConfigSection):
-    #         my_entry: t[UUID, ...]
-    #
-    #     class MyConfig(Config):
-    #         my_section: MySection
-    #
-    #     invalid = "boohoo-di-bapp"
-    #
-    #     with self.assertRaises(ValueError) as ctx:
-    #         _fill_in(
-    #             MyConfig(),
-    #             f"""
-    #             my_section:
-    #               my_entry:
-    #                 - '4d31b561-89a6-4a5b-a55f-b22e1eb94c22'
-    #                 - '{invalid}'
-    #                 - '1128c5b9-af97-4081-a71d-acceff2e2817'
-    #             """,
-    #         )
-    #
-    #     msg = str(ctx.exception)
-    #     self.assertIn("'my_section'", msg)
-    #     self.assertIn("'my_entry'", msg)
-    #     self.assertIn(f"'{invalid}'", msg)
-    #     self.assertIn("UUID", msg)
+        with self.assertRaises(ValueError) as ctx:
+            _fill_in(
+                MyConfig(),
+                """
+                [a_sec]
+                an_entry: 42, foo, 37
+                """,
+            )
 
-    # def test_fill_from_yaml_validates(self):
-    #     expected_msg = "gijslkrj vslkjdf haiu i8 8 u44iu h   "
-    #
-    #     class MySection(ConfigSection):
-    #         entry: int
-    #
-    #         @validate
-    #         def fail(self):
-    #             raise ValueError(expected_msg)
-    #
-    #     class MyConfig(Config):
-    #         a_sec: MySection
-    #
-    #     with self.assertRaises(ValidationError) as ctx:
-    #         _fill_in(
-    #             MyConfig(),
-    #             """
-    #             [a_sec]
-    #             entry = 42
-    #             """,
-    #         )
-    #
-    #     msg = str(ctx.exception)
-    #     self.assertIn("'a_sec'", msg)
-    #     self.assertIn(expected_msg, msg)
+        msg = str(ctx.exception)
+        self.assertIn("'an_entry'", msg)
+        self.assertIn("'a_sec'", msg)
+        self.assertIn("tuple[int, ...]", msg.lower())
 
-    # def test_all_entries_must_be_set(self):
-    #     class MySection(ConfigSection):
-    #         an_entry: int
-    #         another: int
-    #
-    #     class MyConfig(Config):
-    #         a_sec: MySection
-    #
-    #     with self.assertRaises(IncompleteSectionError) as ctx:
-    #         _fill_in(
-    #             MyConfig(),
-    #             """
-    #             a_sec:
-    #               an_entry: 42
-    #             """,
-    #         )
-    #
-    #     msg = str(ctx.exception)
-    #     self.assertIn("'a_sec'", msg)
-    #     self.assertIn("'another'", msg)
+    def test_invalid_uuid_str_in_collection(self):
+        t = collection_type_holders[0].tuple
+
+        class MySection(ConfigSection):
+            my_entry: t[UUID, ...]
+
+        class MyConfig(Config):
+            my_section: MySection
+
+        invalid = "boohoo-di-bapp"
+
+        with self.assertRaises(ValueError) as ctx:
+            _fill_in(
+                MyConfig(),
+                f"""
+                [my_section]
+                my_entry:4d31b561-89a6-4a5b-a55f-b22e1eb94c22, {invalid}, 1128c5b9-af97-4081-a71d-acceff2e2817
+                """,
+            )
+
+        msg = str(ctx.exception)
+        self.assertIn("'my_section'", msg)
+        self.assertIn("'my_entry'", msg)
+        self.assertIn(f"'{invalid}'", msg)
+        self.assertIn("UUID", msg)
+
+    def test_fill_from_ini_validates(self):
+        expected_msg = " 31 hhjo e 833 lkjh f    124popp9990 . .."
+
+        class MySection(ConfigSection):
+            entry: int
+
+            @validate
+            def fail(self):
+                raise ValueError(expected_msg)
+
+        class MyConfig(Config):
+            a_sec: MySection
+
+        with self.assertRaises(ValidationError) as ctx:
+            _fill_in(
+                MyConfig(),
+                """
+                [a_sec]
+                entry = 42
+                """,
+            )
+
+        msg = str(ctx.exception)
+        self.assertIn("'a_sec'", msg)
+        self.assertIn(expected_msg, msg)
+
+    def test_all_entries_must_be_set(self):
+        class MySection(ConfigSection):
+            an_entry: int
+            another: int
+
+        class MyConfig(Config):
+            a_sec: MySection
+
+        with self.assertRaises(IncompleteSectionError) as ctx:
+            _fill_in(
+                MyConfig(),
+                """
+                [a_sec]
+                an_entry = 42
+                """,
+            )
+
+        msg = str(ctx.exception)
+        self.assertIn("'a_sec'", msg)
+        self.assertIn("'another'", msg)
 
     def test_env_takes_precedence(self):
         class MySection(ConfigSection):
@@ -543,7 +471,8 @@ class FillFromINITestCase(TestCase):
 
         self.assertEqual(env_wins, cfg.sec.entry)
 
-    # def test_optional_collection(self):
+    def test_optional_collection(self):
+        pass  # TODO
     #     t = collection_type_holders[0].tuple
     #     fs = collection_type_holders[0].frozenset
     #
@@ -600,7 +529,8 @@ class FillFromINITestCase(TestCase):
     #         self.assertEqual(frozenset((3.14, 99.9)), cfg3.sec.other)
     #         self.assertEqual((5, 5, 5, 5), cfg3.sec.otherer)
 
-    # def test_optional_str_collection(self):
+    def test_optional_str_collection(self):
+        pass  # TODO
     #     t = collection_type_holders[0].tuple
     #     fs = collection_type_holders[0].frozenset
     #
