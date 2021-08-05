@@ -133,7 +133,85 @@ class FillFromINITestCase(TestCase):
         )
         self.assertEqual(13, cfg.sec.entry)
 
-    # TODO: Check out tests for env-only
+    def test_ultimate_empty_str_value(self):
+        pass  # TODO
+        # for tps in collection_type_holders:
+        #     with self.subTest(types=tps):
+        #         class MySection(ConfigSection):
+        #             e_str: str = "a"
+        #             e_opt_int: Optional[int] = 0
+        #             e_opt_str: Optional[str] = "a"
+        #             e_tuple_int: tps.tuple[int, ...] = (0,)
+        #             e_tuple_str: tps.tuple[str, ...] = ("a",)
+        #             e_opt_tuple_int: Optional[tps.tuple[int, ...]] = (0,)
+        #             e_opt_tuple_str: Optional[tps.tuple[str, ...]] = ("a",)
+        #
+        #         class MyConfig(Config):
+        #             sec: MySection
+        #
+        #         cfg = MyConfig()
+        #
+        #         fill_config_w_oracles(
+        #             cfg,
+        #             in_stream=None,
+        #             fmt=None,
+        #             env_prefix=None,
+        #             env_map={
+        #                 "SEC__E_STR": "",
+        #                 "SEC__E_OPT_INT": "",
+        #                 "SEC__E_OPT_STR": "",
+        #                 "SEC__E_TUPLE_INT": "",
+        #                 "SEC__E_TUPLE_STR": "",
+        #                 "SEC__E_OPT_TUPLE_INT": "",
+        #                 "SEC__E_OPT_TUPLE_STR": "",
+        #             },
+        #         )
+        #
+        #         self.assertEqual("", cfg.sec.e_str)
+        #         self.assertEqual("", cfg.sec.e_opt_int)
+        #         self.assertEqual("", cfg.sec.e_opt_str)
+        #         self.assertEqual("", cfg.sec.e_tuple_int)
+        #         self.assertEqual("", cfg.sec.e_tuple_str)
+        #         self.assertEqual("", cfg.sec.e_opt_tuple_int)
+        #         self.assertEqual("", cfg.sec.e_opt_tuple_str)
+
+    def test_fill_boolean_from_string(self):
+        pass  # TODO
+        # class MySection(ConfigSection):
+        #     my_entry: bool
+        #
+        # class MyConfig(Config):
+        #     my_section: MySection
+        #
+        # env_key = "MY_SECTION__MY_ENTRY"
+        #
+        # for value_str in ("True", "true", "TRUE", "Yes", "yes", "YES", "On", "on", "ON", "1"):
+        #     with self.subTest("Truey strings", value_str=value_str):
+        #         cfg = MyConfig()
+        #         fill_config_w_oracles(cfg, in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str})
+        #         self.assertEqual(True, cfg.my_section.my_entry)
+        #
+        # for value_str in ("False", "false", "FALSE", "No", "no", "NO", "Off", "off", "OFF", "0"):
+        #     with self.subTest("Falsey strings", value_str=value_str):
+        #         cfg = MyConfig()
+        #         fill_config_w_oracles(cfg, in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str})
+        #         self.assertEqual(False, cfg.my_section.my_entry)
+        #
+        # for value_str in ("42", "tRUe", "zero", "Schrödinger's cat is dead", ""):
+        #     with self.subTest("Invalid strings", value_str=value_str):
+        #         with self.assertRaises(ParsingError) as ctx:
+        #             fill_config_w_oracles(
+        #                 MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str},
+        #             )
+        #
+        #         msg = str(ctx.exception)
+        #         self.assertIn("'my_section'", msg)
+        #         self.assertIn("'my_entry'", msg)
+        #         self.assertIn(f"'{env_key}'", msg)
+        #         self.assertIn("environment", msg.lower())
+        #         self.assertIn(f"'{value_str}'", msg)
+        #         self.assertIn("bool", msg.lower())
+    ###############################################################
 
     def test_set_simple_types(self):
         class MySection(ConfigSection):
@@ -234,21 +312,27 @@ class FillFromINITestCase(TestCase):
 
     def test_set_path(self):
         class MySection(ConfigSection):
-            entry: Path
+            entry1: Path
+            entry2: Path
 
         class MyConfig(Config):
             sec: MySection
 
+        p1 = "/a/b/c.txt"
+        p2 = "..   this  also   / works..  klmnb"
+
         cfg = MyConfig()
         _fill_in(
             cfg,
-            """
+            f"""
             [sec]
-              entry: /a/b/c.txt
+              entry1: {p1}
+              entry2 = {p2}
             """,
         )
 
-        self.assertEqual(Path("/a/b/c.txt"), cfg.sec.entry)
+        self.assertEqual(Path(p1), cfg.sec.entry1)
+        self.assertEqual(Path(p2), cfg.sec.entry2)
 
     def test_set_uuid(self):
         class MySection(ConfigSection):

@@ -868,6 +868,48 @@ class FillConfigEnvOnlyTestCase(TestCase):
                 self.assertIn(f"''", msg)
                 self.assertIn(f"{base_str.lower()}", msg.lower())
 
+    def test_ultimate_empty_str_value(self):
+        pass  # TODO
+        # for tps in collection_type_holders:
+        #     with self.subTest(types=tps):
+        #         class MySection(ConfigSection):
+        #             e_str: str = "a"
+        #             e_opt_int: Optional[int] = 0
+        #             e_opt_str: Optional[str] = "a"
+        #             e_tuple_int: tps.tuple[int, ...] = (0,)
+        #             e_tuple_str: tps.tuple[str, ...] = ("a",)
+        #             e_opt_tuple_int: Optional[tps.tuple[int, ...]] = (0,)
+        #             e_opt_tuple_str: Optional[tps.tuple[str, ...]] = ("a",)
+        #
+        #         class MyConfig(Config):
+        #             sec: MySection
+        #
+        #         cfg = MyConfig()
+        #
+        #         fill_config_w_oracles(
+        #             cfg,
+        #             in_stream=None,
+        #             fmt=None,
+        #             env_prefix=None,
+        #             env_map={
+        #                 "SEC__E_STR": "",
+        #                 "SEC__E_OPT_INT": "",
+        #                 "SEC__E_OPT_STR": "",
+        #                 "SEC__E_TUPLE_INT": "",
+        #                 "SEC__E_TUPLE_STR": "",
+        #                 "SEC__E_OPT_TUPLE_INT": "",
+        #                 "SEC__E_OPT_TUPLE_STR": "",
+        #             },
+        #         )
+        #
+        #         self.assertEqual("", cfg.sec.e_str)
+        #         self.assertEqual("", cfg.sec.e_opt_int)
+        #         self.assertEqual("", cfg.sec.e_opt_str)
+        #         self.assertEqual("", cfg.sec.e_tuple_int)
+        #         self.assertEqual("", cfg.sec.e_tuple_str)
+        #         self.assertEqual("", cfg.sec.e_opt_tuple_int)
+        #         self.assertEqual("", cfg.sec.e_opt_tuple_str)
+
     def test_custom_env_vars_prefix(self):
         class MySection(ConfigSection):
             my_entry: int
