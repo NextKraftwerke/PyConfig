@@ -137,7 +137,7 @@ def fill_config_w_oracles(
     else:  # fmt == Format.ini
         in_map = ConfigParser()
         in_map.read_file(in_stream)
-        convert = lambda *_: 42
+        convert = _convert_string
 
     if env_prefix is None:
         env_key_prefix = ""
