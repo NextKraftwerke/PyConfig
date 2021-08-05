@@ -112,6 +112,27 @@ class FillFromINITestCase(TestCase):
         )
         self.assertEqual(42, cfg.sec.entry)
 
+    def test_extra_ini_ignored(self):
+        class MySection(ConfigSection):
+            entry: int = 42
+
+        class MyConfig(Config):
+            sec: MySection
+
+        cfg = MyConfig()
+        _fill_in(
+            cfg,
+            """
+            [other]
+            e1: 51
+            e2: 99
+            [sec]
+            entry: 13
+            other: 7
+            """,
+        )
+        self.assertEqual(13, cfg.sec.entry)
+
     # TODO: Check out tests for env-only
 
     def test_set_simple_types(self):
