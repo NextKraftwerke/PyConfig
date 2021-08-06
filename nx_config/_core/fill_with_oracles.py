@@ -84,6 +84,12 @@ def _convert_string(value_str: str, type_info: ConfigTypeInfo) -> Any:
     coll = type_info.collection
     base = type_info.base
 
+    if value_str == "":
+        if type_info.optional:
+            return None
+        elif coll is not None:
+            return coll()
+
     if coll is None:
         try:
             return _convert_string_to_base(value_str, base)

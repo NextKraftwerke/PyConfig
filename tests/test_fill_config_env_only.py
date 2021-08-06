@@ -661,18 +661,10 @@ class FillConfigEnvOnlyTestCase(TestCase):
         for tp, expected in (
             (tp, expected)
             for tps in collection_type_holders
-            for tp, expected in (
-                (tps.tuple[str, ...], ("",)),
-                (tps.frozenset[str], frozenset(("",))),
-                (tps.tuple[Path, ...], (Path(""),)),
-                (tps.frozenset[Path], frozenset((Path(""),))),
-                (tps.tuple[SecretString, ...], ("",)),
-                (tps.frozenset[SecretString], frozenset(("",))),
-                (tps.tuple[URL, ...], ("",)),
-                (tps.frozenset[URL], frozenset(("",))),
-            )
+            for base in (int, float, bool, str, datetime, UUID, Path, SecretString, URL)
+            for tp, expected in ((tps.tuple[base, ...], ()), (tps.frozenset[base], frozenset()))
         ):
-            with self.subTest("Should have single empty element", type=tp):
+            with self.subTest(type=tp, expected=expected):
                 class MySection(ConfigSection):
                     my_entry: tp
 
@@ -684,38 +676,6 @@ class FillConfigEnvOnlyTestCase(TestCase):
                     cfg, in_stream=None, fmt=None, env_prefix=None, env_map={"MY_SECTION__MY_ENTRY": ""}
                 )
                 self.assertEqual(expected, cfg.my_section.my_entry)
-
-        for tp, base_str in (
-            (tp, base_str)
-            for base, base_str in (
-                (int, "int"),
-                (float, "float"),
-                (bool, "bool"),
-                (datetime, "datetime"),
-                (UUID, "UUID"),
-            )
-            for tps in collection_type_holders
-            for tp in (tps.tuple[base, ...], tps.frozenset[base])
-        ):
-            with self.subTest("Should fail", type=tp):
-                class MySection(ConfigSection):
-                    my_entry: tp
-
-                class MyConfig(Config):
-                    my_section: MySection
-
-                env_key = "MY_SECTION__MY_ENTRY"
-
-                with self.assertRaises(ParsingError) as ctx:
-                    fill_config_w_oracles(MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={env_key: ""})
-
-                msg = str(ctx.exception)
-                self.assertIn("'my_section'", msg)
-                self.assertIn("'my_entry'", msg)
-                self.assertIn(f"'{env_key}'", msg)
-                self.assertIn("environment", msg.lower())
-                self.assertIn(f"''", msg)
-                self.assertIn(f"{base_str.lower()}", msg.lower())
 
     def test_optional_types_can_be_set(self):
         for tps in collection_type_holders:
@@ -805,25 +765,32 @@ class FillConfigEnvOnlyTestCase(TestCase):
                 self.assertEqual(MyConfig().sec.float_set_op2, cfg.sec.float_set_op2)
 
     def test_empty_str_for_optional_types(self):
-        for tp, expected in (
-            (tp, expected)
+        for tp in (
+            tp
             for tps in collection_type_holders
-            for tp, expected in (
-                (str, ""),
-                (Path, Path("")),
-                (SecretString, ""),
-                (URL, ""),
-                (tps.tuple[str, ...], ("",)),
-                (tps.frozenset[str], frozenset(("",))),
-                (tps.tuple[Path, ...], (Path(""),)),
-                (tps.frozenset[Path], frozenset((Path(""),))),
-                (tps.tuple[SecretString, ...], ("",)),
-                (tps.frozenset[SecretString], frozenset(("",))),
-                (tps.tuple[URL, ...], ("",)),
-                (tps.frozenset[URL], frozenset(("",))),
+            for tp in (
+                int,
+                float,
+                bool,
+                str,
+                Path,
+                SecretString,
+                URL,
+                tps.tuple[int, ...],
+                tps.tuple[UUID, ...],
+                tps.tuple[str, ...],
+                tps.frozenset[float],
+                tps.frozenset[datetime],
+                tps.frozenset[str],
+                tps.tuple[Path, ...],
+                tps.frozenset[Path],
+                tps.tuple[SecretString, ...],
+                tps.frozenset[SecretString],
+                tps.tuple[URL, ...],
+                tps.frozenset[URL],
             )
         ):
-            with self.subTest("Should have same result as non-optional", type=tp):
+            with self.subTest(type=tp):
                 class MySection(ConfigSection):
                     my_entry: Optional[tp]
 
@@ -834,81 +801,48 @@ class FillConfigEnvOnlyTestCase(TestCase):
                 fill_config_w_oracles(
                     cfg, in_stream=None, fmt=None, env_prefix=None, env_map={"MY_SECTION__MY_ENTRY": ""}
                 )
-                self.assertEqual(expected, cfg.my_section.my_entry)
+                self.assertIsNone(cfg.my_section.my_entry)
 
-        for tp, base_str in (
-            (tp, base_str)
-            for base, base_str in (
-                (int, "int"),
-                (float, "float"),
-                (bool, "bool"),
-                (datetime, "datetime"),
-                (UUID, "UUID"),
-            )
-            for tps in collection_type_holders
-            for tp in (base, tps.tuple[base, ...], tps.frozenset[base])
-        ):
-            with self.subTest("Should fail just as for non-optional", type=tp):
+    def test_ultimate_empty_str_input(self):
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
                 class MySection(ConfigSection):
-                    my_entry: Optional[tp]
+                    e_str: str = "a"
+                    e_opt_int: Optional[int] = 0
+                    e_opt_str: Optional[str] = "a"
+                    e_tuple_int: tps.tuple[int, ...] = (0,)
+                    e_tuple_str: tps.tuple[str, ...] = ("a",)
+                    e_opt_tuple_int: Optional[tps.tuple[int, ...]] = (0,)
+                    e_opt_tuple_str: Optional[tps.tuple[str, ...]] = ("a",)
 
                 class MyConfig(Config):
-                    my_section: MySection
+                    sec: MySection
 
-                env_key = "MY_SECTION__MY_ENTRY"
+                cfg = MyConfig()
 
-                with self.assertRaises(ParsingError) as ctx:
-                    fill_config_w_oracles(MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={env_key: ""})
+                fill_config_w_oracles(
+                    cfg,
+                    in_stream=None,
+                    fmt=None,
+                    env_prefix=None,
+                    env_map={
+                        "SEC__E_STR": "",
+                        "SEC__E_OPT_INT": "",
+                        "SEC__E_OPT_STR": "",
+                        "SEC__E_TUPLE_INT": "",
+                        "SEC__E_TUPLE_STR": "",
+                        "SEC__E_OPT_TUPLE_INT": "",
+                        "SEC__E_OPT_TUPLE_STR": "",
+                    },
+                )
 
-                msg = str(ctx.exception)
-                self.assertIn("'my_section'", msg)
-                self.assertIn("'my_entry'", msg)
-                self.assertIn(f"'{env_key}'", msg)
-                self.assertIn("environment", msg.lower())
-                self.assertIn(f"''", msg)
-                self.assertIn(f"{base_str.lower()}", msg.lower())
-
-    def test_ultimate_empty_str_value(self):
-        pass  # TODO
-        # for tps in collection_type_holders:
-        #     with self.subTest(types=tps):
-        #         class MySection(ConfigSection):
-        #             e_str: str = "a"
-        #             e_opt_int: Optional[int] = 0
-        #             e_opt_str: Optional[str] = "a"
-        #             e_tuple_int: tps.tuple[int, ...] = (0,)
-        #             e_tuple_str: tps.tuple[str, ...] = ("a",)
-        #             e_opt_tuple_int: Optional[tps.tuple[int, ...]] = (0,)
-        #             e_opt_tuple_str: Optional[tps.tuple[str, ...]] = ("a",)
-        #
-        #         class MyConfig(Config):
-        #             sec: MySection
-        #
-        #         cfg = MyConfig()
-        #
-        #         fill_config_w_oracles(
-        #             cfg,
-        #             in_stream=None,
-        #             fmt=None,
-        #             env_prefix=None,
-        #             env_map={
-        #                 "SEC__E_STR": "",
-        #                 "SEC__E_OPT_INT": "",
-        #                 "SEC__E_OPT_STR": "",
-        #                 "SEC__E_TUPLE_INT": "",
-        #                 "SEC__E_TUPLE_STR": "",
-        #                 "SEC__E_OPT_TUPLE_INT": "",
-        #                 "SEC__E_OPT_TUPLE_STR": "",
-        #             },
-        #         )
-        #
-        #         self.assertEqual("", cfg.sec.e_str)
-        #         self.assertEqual("", cfg.sec.e_opt_int)
-        #         self.assertEqual("", cfg.sec.e_opt_str)
-        #         self.assertEqual("", cfg.sec.e_tuple_int)
-        #         self.assertEqual("", cfg.sec.e_tuple_str)
-        #         self.assertEqual("", cfg.sec.e_opt_tuple_int)
-        #         self.assertEqual("", cfg.sec.e_opt_tuple_str)
+                self.assertEqual("", cfg.sec.e_str)
+                self.assertIsNone(cfg.sec.e_opt_int)
+                self.assertIsNone(cfg.sec.e_opt_str)
+                self.assertEqual((), cfg.sec.e_tuple_int)
+                self.assertEqual((), cfg.sec.e_tuple_str)
+                self.assertIsNone(cfg.sec.e_opt_tuple_int)
+                self.assertIsNone(cfg.sec.e_opt_tuple_str)
 
     def test_custom_env_vars_prefix(self):
         class MySection(ConfigSection):

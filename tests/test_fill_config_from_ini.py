@@ -133,47 +133,43 @@ class FillFromINITestCase(TestCase):
         )
         self.assertEqual(13, cfg.sec.entry)
 
-    def test_ultimate_empty_str_value(self):
-        pass  # TODO
-        # for tps in collection_type_holders:
-        #     with self.subTest(types=tps):
-        #         class MySection(ConfigSection):
-        #             e_str: str = "a"
-        #             e_opt_int: Optional[int] = 0
-        #             e_opt_str: Optional[str] = "a"
-        #             e_tuple_int: tps.tuple[int, ...] = (0,)
-        #             e_tuple_str: tps.tuple[str, ...] = ("a",)
-        #             e_opt_tuple_int: Optional[tps.tuple[int, ...]] = (0,)
-        #             e_opt_tuple_str: Optional[tps.tuple[str, ...]] = ("a",)
-        #
-        #         class MyConfig(Config):
-        #             sec: MySection
-        #
-        #         cfg = MyConfig()
-        #
-        #         fill_config_w_oracles(
-        #             cfg,
-        #             in_stream=None,
-        #             fmt=None,
-        #             env_prefix=None,
-        #             env_map={
-        #                 "SEC__E_STR": "",
-        #                 "SEC__E_OPT_INT": "",
-        #                 "SEC__E_OPT_STR": "",
-        #                 "SEC__E_TUPLE_INT": "",
-        #                 "SEC__E_TUPLE_STR": "",
-        #                 "SEC__E_OPT_TUPLE_INT": "",
-        #                 "SEC__E_OPT_TUPLE_STR": "",
-        #             },
-        #         )
-        #
-        #         self.assertEqual("", cfg.sec.e_str)
-        #         self.assertEqual("", cfg.sec.e_opt_int)
-        #         self.assertEqual("", cfg.sec.e_opt_str)
-        #         self.assertEqual("", cfg.sec.e_tuple_int)
-        #         self.assertEqual("", cfg.sec.e_tuple_str)
-        #         self.assertEqual("", cfg.sec.e_opt_tuple_int)
-        #         self.assertEqual("", cfg.sec.e_opt_tuple_str)
+    def test_ultimate_empty_str_input(self):
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    e_str: str = "a"
+                    e_opt_int: Optional[int] = 0
+                    e_opt_str: Optional[str] = "a"
+                    e_tuple_int: tps.tuple[int, ...] = (0,)
+                    e_tuple_str: tps.tuple[str, ...] = ("a",)
+                    e_opt_tuple_int: Optional[tps.tuple[int, ...]] = (0,)
+                    e_opt_tuple_str: Optional[tps.tuple[str, ...]] = ("a",)
+
+                class MyConfig(Config):
+                    sec: MySection
+
+                cfg = MyConfig()
+                _fill_in(
+                    cfg,
+                    """
+                    [sec]
+                    e_str=
+                    e_opt_int=
+                    e_opt_str=
+                    e_tuple_int=
+                    e_tuple_str=
+                    e_opt_tuple_int=
+                    e_opt_tuple_str=
+                    """,
+                )
+
+                self.assertEqual("", cfg.sec.e_str)
+                self.assertIsNone(cfg.sec.e_opt_int)
+                self.assertIsNone(cfg.sec.e_opt_str)
+                self.assertEqual((), cfg.sec.e_tuple_int)
+                self.assertEqual((), cfg.sec.e_tuple_str)
+                self.assertIsNone(cfg.sec.e_opt_tuple_int)
+                self.assertIsNone(cfg.sec.e_opt_tuple_str)
 
     def test_fill_boolean_from_string(self):
         pass  # TODO
@@ -266,7 +262,7 @@ class FillFromINITestCase(TestCase):
         self.assertEqual("Hello, world!", cfg.sec.e_str1)
         self.assertEqual("\"  Goodbye, Dave  \"", cfg.sec.e_str2)
         self.assertEqual("\"\"", cfg.sec.e_str3)
-        self.assertEqual("", cfg.sec.e_str4)
+        self.assertIsNone(cfg.sec.e_str4)
         self.assertEqual("foo-be-doo", cfg.sec.e_str5)
         self.assertEqual(datetime(2021, 5, 4, 9, 15, 0, 9, tzinfo=timezone(timedelta(hours=5))), cfg.sec.e_datetime1)
         self.assertEqual(datetime(2021, 5, 4, 9, 15, 0, 9, tzinfo=timezone(timedelta(hours=-5))), cfg.sec.e_datetime2)
