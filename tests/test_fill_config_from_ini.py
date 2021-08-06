@@ -207,7 +207,6 @@ class FillFromINITestCase(TestCase):
         #         self.assertIn("environment", msg.lower())
         #         self.assertIn(f"'{value_str}'", msg)
         #         self.assertIn("bool", msg.lower())
-    ###############################################################
 
     def test_set_simple_types(self):
         class MySection(ConfigSection):
@@ -573,104 +572,80 @@ class FillFromINITestCase(TestCase):
         self.assertEqual(env_wins, cfg.sec.entry)
 
     def test_optional_collection(self):
-        pass  # TODO
-    #     t = collection_type_holders[0].tuple
-    #     fs = collection_type_holders[0].frozenset
-    #
-    #     class MySection(ConfigSection):
-    #         entry: Optional[t[Path, ...]] = ()
-    #         other: Optional[fs[float]]
-    #         otherer: Optional[t[int, ...]] = None
-    #
-    #     class MyConfig(Config):
-    #         sec: MySection
-    #
-    #     with self.subTest("To none"):
-    #         cfg1 = MyConfig()
-    #         _fill_in(
-    #             cfg1,
-    #             """
-    #             sec:
-    #               entry:
-    #               other:
-    #               otherer:
-    #             """,
-    #         )
-    #         self.assertIsNone(cfg1.sec.entry)
-    #         self.assertIsNone(cfg1.sec.other)
-    #         self.assertIsNone(cfg1.sec.otherer)
-    #
-    #     with self.subTest("To empty"):
-    #         cfg2 = MyConfig()
-    #         _fill_in(
-    #             cfg2,
-    #             """
-    #             sec:
-    #               entry: []
-    #               other: []
-    #               otherer: []
-    #             """,
-    #         )
-    #         self.assertEqual((), cfg2.sec.entry)
-    #         self.assertEqual(frozenset(), cfg2.sec.other)
-    #         self.assertEqual((), cfg2.sec.otherer)
-    #
-    #     with self.subTest("To some"):
-    #         cfg3 = MyConfig()
-    #         _fill_in(
-    #             cfg3,
-    #             """
-    #             sec:
-    #               entry: [/a, b.c, d/e.f]
-    #               other: [3.14, 99.9]
-    #               otherer: [5, 5, 5, 5]
-    #             """,
-    #         )
-    #         self.assertEqual((Path("/a"), Path("b.c"), Path("d/e.f")), cfg3.sec.entry)
-    #         self.assertEqual(frozenset((3.14, 99.9)), cfg3.sec.other)
-    #         self.assertEqual((5, 5, 5, 5), cfg3.sec.otherer)
+        t = collection_type_holders[0].tuple
+        fs = collection_type_holders[0].frozenset
+
+        class MySection(ConfigSection):
+            entry: Optional[t[Path, ...]] = ()
+            other: Optional[fs[float]]
+            otherer: Optional[t[int, ...]] = None
+
+        class MyConfig(Config):
+            sec: MySection
+
+        with self.subTest("To none"):
+            cfg1 = MyConfig()
+            _fill_in(
+                cfg1,
+                """
+                [sec]
+                  entry=
+                  other = \t
+                  otherer:
+                """,
+            )
+            self.assertIsNone(cfg1.sec.entry)
+            self.assertIsNone(cfg1.sec.other)
+            self.assertIsNone(cfg1.sec.otherer)
+
+        with self.subTest("To some"):
+            cfg2 = MyConfig()
+            _fill_in(
+                cfg2,
+                """
+                [sec]
+                  entry: a
+                  other: 5,6.7
+                  otherer: 5,6,7
+                """,
+            )
+            self.assertEqual((Path("a"),), cfg2.sec.entry)
+            self.assertEqual(frozenset((5.0, 6.7)), cfg2.sec.other)
+            self.assertEqual((5, 6, 7), cfg2.sec.otherer)
 
     def test_optional_str_collection(self):
-        pass  # TODO
-    #     t = collection_type_holders[0].tuple
-    #     fs = collection_type_holders[0].frozenset
-    #
-    #     class MySection(ConfigSection):
-    #         e1: Optional[t[str, ...]]
-    #         e2: Optional[t[str, ...]]
-    #         e3: Optional[t[str, ...]]
-    #         e4: Optional[t[str, ...]]
-    #         e5: Optional[fs[str]]
-    #         e6: Optional[fs[str]]
-    #         e7: Optional[fs[str]]
-    #         e8: Optional[fs[str]]
-    #
-    #     class MyConfig(Config):
-    #         sec: MySection
-    #
-    #     cfg = MyConfig()
-    #     several = ["a", "bc", "", "   ", "d e "]
-    #
-    #     _fill_in(
-    #         cfg,
-    #         f"""
-    #         sec:
-    #           e1:
-    #           e2: []
-    #           e3: {several}
-    #           e4: [""]
-    #           e5:
-    #           e6: []
-    #           e7: {several}
-    #           e8: [""]
-    #         """,
-    #     )
-    #
-    #     self.assertIsNone(cfg.sec.e1)
-    #     self.assertEqual((), cfg.sec.e2)
-    #     self.assertEqual(tuple(several), cfg.sec.e3)
-    #     self.assertEqual(("",), cfg.sec.e4)
-    #     self.assertIsNone(cfg.sec.e5)
-    #     self.assertEqual(frozenset(), cfg.sec.e6)
-    #     self.assertEqual(frozenset(several), cfg.sec.e7)
-    #     self.assertEqual(frozenset(("",)), cfg.sec.e8)
+        t = collection_type_holders[0].tuple
+        fs = collection_type_holders[0].frozenset
+
+        class MySection(ConfigSection):
+            e1: Optional[t[str, ...]]
+            e2: Optional[t[str, ...]]
+            e3: Optional[t[str, ...]]
+            e4: Optional[fs[str]]
+            e5: Optional[fs[str]]
+            e6: Optional[fs[str]]
+
+        class MyConfig(Config):
+            sec: MySection
+
+        cfg = MyConfig()
+
+        _fill_in(
+            cfg,
+            """
+            [sec]
+            e1:
+            e2: ,
+            e3: a, bb , ccc
+            e4:
+            e5: ,
+            e6: a, bb , ccc
+            """,
+        )
+
+        self.assertIsNone(cfg.sec.e1)
+        self.assertEqual(("", ""), cfg.sec.e2)
+        self.assertEqual(("a", "bb", "ccc"), cfg.sec.e3)
+        self.assertIsNone(cfg.sec.e4)
+        self.assertEqual(frozenset(("", "")), cfg.sec.e5)
+        self.assertEqual(frozenset(("a", "bb", "ccc")), cfg.sec.e6)
