@@ -172,41 +172,52 @@ class FillFromINITestCase(TestCase):
                 self.assertIsNone(cfg.sec.e_opt_tuple_str)
 
     def test_fill_boolean_from_string(self):
-        pass  # TODO
-        # class MySection(ConfigSection):
-        #     my_entry: bool
-        #
-        # class MyConfig(Config):
-        #     my_section: MySection
-        #
-        # env_key = "MY_SECTION__MY_ENTRY"
-        #
-        # for value_str in ("True", "true", "TRUE", "Yes", "yes", "YES", "On", "on", "ON", "1"):
-        #     with self.subTest("Truey strings", value_str=value_str):
-        #         cfg = MyConfig()
-        #         fill_config_w_oracles(cfg, in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str})
-        #         self.assertEqual(True, cfg.my_section.my_entry)
-        #
-        # for value_str in ("False", "false", "FALSE", "No", "no", "NO", "Off", "off", "OFF", "0"):
-        #     with self.subTest("Falsey strings", value_str=value_str):
-        #         cfg = MyConfig()
-        #         fill_config_w_oracles(cfg, in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str})
-        #         self.assertEqual(False, cfg.my_section.my_entry)
-        #
-        # for value_str in ("42", "tRUe", "zero", "Schrödinger's cat is dead", ""):
-        #     with self.subTest("Invalid strings", value_str=value_str):
-        #         with self.assertRaises(ParsingError) as ctx:
-        #             fill_config_w_oracles(
-        #                 MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str},
-        #             )
-        #
-        #         msg = str(ctx.exception)
-        #         self.assertIn("'my_section'", msg)
-        #         self.assertIn("'my_entry'", msg)
-        #         self.assertIn(f"'{env_key}'", msg)
-        #         self.assertIn("environment", msg.lower())
-        #         self.assertIn(f"'{value_str}'", msg)
-        #         self.assertIn("bool", msg.lower())
+        class MySection(ConfigSection):
+            a_parameter: bool
+
+        class MyConfig(Config):
+            some_section: MySection
+
+        for value_str in ("True", "true", "TRUE", "Yes", "yes", "YES", "On", "on", "ON", "1"):
+            with self.subTest("Truey strings", value_str=value_str):
+                cfg = MyConfig()
+                _fill_in(
+                    cfg,
+                    f"""
+                    [some_section]
+                    a_parameter = {value_str}
+                    """,
+                )
+                self.assertEqual(True, cfg.some_section.a_parameter)
+
+        for value_str in ("False", "false", "FALSE", "No", "no", "NO", "Off", "off", "OFF", "0"):
+            with self.subTest("Falsey strings", value_str=value_str):
+                cfg = MyConfig()
+                _fill_in(
+                    cfg,
+                    f"""
+                    [some_section]
+                    a_parameter = {value_str}
+                    """,
+                )
+                self.assertEqual(False, cfg.some_section.a_parameter)
+
+        for value_str in ("42", "tRUe", "zero", "Schrödinger's cat is dead", ""):
+            with self.subTest("Invalid strings", value_str=value_str):
+                with self.assertRaises(ValueError) as ctx:
+                    _fill_in(
+                        cfg,
+                        f"""
+                        [some_section]
+                        a_parameter = {value_str}
+                        """,
+                    )
+
+                msg = str(ctx.exception)
+                self.assertIn("'some_section'", msg)
+                self.assertIn("'a_parameter'", msg)
+                self.assertIn(f"'{value_str}'", msg)
+                self.assertIn("bool", msg.lower())
 
     def test_set_simple_types(self):
         class MySection(ConfigSection):
@@ -405,55 +416,54 @@ class FillFromINITestCase(TestCase):
         self.assertIn("UUID", msg)
 
     def test_set_collections(self):
-        pass  # TODO
-    #     uuid1 = UUID("ab35dd93-4c8b-485f-b6cd-ba6a6b29daff")
-    #     uuid2 = UUID("d7717fc6-6faa-43a1-b640-675de3115592")
-    #     dt1 = datetime(2021, 5, 4, 9, 15, 14, 111_003)
-    #     dt2 = datetime(2001, 7, 6, tzinfo=timezone.utc)
-    #     secret = "I did nothing last summer"
-    #
-    #     for tps in collection_type_holders:
-    #         with self.subTest(types=tps):
-    #             class MySection(ConfigSection):
-    #                 int_tuple: tps.tuple[int, ...]
-    #                 bool_tuple: tps.tuple[bool, ...] = ()
-    #                 uuid_tuple: tps.tuple[UUID, ...]
-    #                 str_tuple: tps.tuple[str, ...] = ("one", "two", "three")
-    #                 path_tuple: tps.tuple[Path, ...]
-    #                 float_set: tps.frozenset[float] = frozenset()
-    #                 url_set: tps.frozenset[URL] = frozenset(("default.url.com",))
-    #                 datetime_set: tps.frozenset[datetime]
-    #                 secret_set: tps.frozenset[SecretString] = frozenset()
-    #
-    #             class MyConfig(Config):
-    #                 sec: MySection
-    #
-    #             cfg = MyConfig()
-    #             _fill_in(
-    #                 cfg,
-    #                 f"""
-    #                 [sec]
-    #                 int_tuple: 3, 7, 1
-    #                 bool_tuple: true,false,  no ,ON
-    #                 uuid_tuple={uuid1},{uuid2}
-    #                 str_tuple:
-    #                 path_tuple= /a/b/c.txt
-    #                 float_set: 3.14, 4.2, 0.0, 0.0, 0.0
-    #                 url_set=
-    #                 datetime_set = {dt1}, {dt2}
-    #                 secret_set = {secret}
-    #                 """,
-    #             )
-    #
-    #             self.assertEqual((3, 7, 1), cfg.sec.int_tuple)
-    #             self.assertEqual((True, False, False, True), cfg.sec.bool_tuple)
-    #             self.assertEqual((uuid1, uuid2), cfg.sec.uuid_tuple)
-    #             self.assertEqual((), cfg.sec.str_tuple)
-    #             self.assertEqual((Path("/a/b/c.txt"),), cfg.sec.path_tuple)
-    #             self.assertEqual(frozenset((3.14, 0.0, 4.2)), cfg.sec.float_set)
-    #             self.assertEqual(frozenset(), cfg.sec.url_set)
-    #             self.assertEqual(frozenset((dt1, dt2)), cfg.sec.datetime_set)
-    #             self.assertEqual(frozenset((secret,)), cfg.sec.secret_set)
+        uuid1 = UUID("ab35dd93-4c8b-485f-b6cd-ba6a6b29daff")
+        uuid2 = UUID("d7717fc6-6faa-43a1-b640-675de3115592")
+        dt1 = datetime(2021, 5, 4, 9, 15, 14, 111_003)
+        dt2 = datetime(2001, 7, 6, tzinfo=timezone.utc)
+        secret = "I did nothing last summer"
+
+        for tps in collection_type_holders:
+            with self.subTest(types=tps):
+                class MySection(ConfigSection):
+                    int_tuple: tps.tuple[int, ...]
+                    bool_tuple: tps.tuple[bool, ...] = ()
+                    uuid_tuple: tps.tuple[UUID, ...]
+                    str_tuple: tps.tuple[str, ...] = ("one", "two", "three")
+                    path_tuple: tps.tuple[Path, ...]
+                    float_set: tps.frozenset[float] = frozenset()
+                    url_set: tps.frozenset[URL] = frozenset(("default.url.com",))
+                    datetime_set: tps.frozenset[datetime]
+                    secret_set: tps.frozenset[SecretString] = frozenset()
+
+                class MyConfig(Config):
+                    sec: MySection
+
+                cfg = MyConfig()
+                _fill_in(
+                    cfg,
+                    f"""
+                    [sec]
+                    int_tuple: 3, 7, 1
+                    bool_tuple: true,false,  no ,ON
+                    uuid_tuple={uuid1},{uuid2}
+                    str_tuple:
+                    path_tuple= /a/b/c.txt
+                    float_set: 3.14, 4.2, 0.0, 0.0, 0.0
+                    url_set=
+                    datetime_set = {dt1}, {dt2}
+                    secret_set = {secret}
+                    """,
+                )
+
+                self.assertEqual((3, 7, 1), cfg.sec.int_tuple)
+                self.assertEqual((True, False, False, True), cfg.sec.bool_tuple)
+                self.assertEqual((uuid1, uuid2), cfg.sec.uuid_tuple)
+                self.assertEqual((), cfg.sec.str_tuple)
+                self.assertEqual((Path("/a/b/c.txt"),), cfg.sec.path_tuple)
+                self.assertEqual(frozenset((3.14, 0.0, 4.2)), cfg.sec.float_set)
+                self.assertEqual(frozenset(), cfg.sec.url_set)
+                self.assertEqual(frozenset((dt1, dt2)), cfg.sec.datetime_set)
+                self.assertEqual(frozenset((secret,)), cfg.sec.secret_set)
 
     def test_wrong_element_type(self):
         t = collection_type_holders[0].tuple
