@@ -28,6 +28,9 @@ from nx_config._core.section_meta import SectionMeta as _Meta
 
 
 class ConfigSection(_SectionMappingBase, metaclass=_Meta):
+    """
+    TODO
+    """
     _nx_config_internal__root = True
 
     def __init__(self):

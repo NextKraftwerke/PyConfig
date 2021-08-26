@@ -14,6 +14,9 @@ def _indent_new_lines(s: str) -> str:
 
 
 class Config(metaclass=_Meta):
+    """
+    TODO
+    """
     _nx_config_internal__root = True
 
     def __init__(self):

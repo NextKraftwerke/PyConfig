@@ -8,6 +8,13 @@ from nx_config._core.path_with_oracles import resolve_path_w_oracles as _resolve
 
 
 def resolve_config_path(prefix: Optional[str] = None, *, cli_args: Optional[Namespace] = None) -> Optional[Path]:
+    """
+    TODO
+
+    :param prefix:
+    :param cli_args:
+    :return:
+    """
     # WARNING: This function is difficult to test because testing would involve
     #   setting environment variables (which remain set from test to test),
     #   or mocking and patching 'environ' (which is messy).

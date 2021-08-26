@@ -1,5 +1,7 @@
 class URL:
     """
+    TODO
+
     ``URL`` cannot be instantiated. It is not meant to be used
     as an actual type but only as a type **hint** when declaring config
     entries within a config section. It allows the parser to handle those

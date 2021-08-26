@@ -18,6 +18,14 @@ def fill_config(
     fmt: Optional[Format] = None,
     env_prefix: Optional[str] = None,
 ):
+    """
+    TODO
+
+    :param cfg:
+    :param stream:
+    :param fmt:
+    :param env_prefix:
+    """
     # WARNING: This function is difficult to test because testing would involve
     #   setting lots of environment variables (which remain set from test to test),
     #   or mocking and patching 'environ' (which is messy).
@@ -37,6 +45,13 @@ def fill_config_from_path(
     path: Optional[Union[str, PathLike]] = None,
     env_prefix: Optional[str] = None,
 ):
+    """
+    TODO
+
+    :param cfg:
+    :param path:
+    :param env_prefix:
+    """
     # WARNING: This function is difficult to test because testing would involve
     #   setting lots of environment variables (which remain set from test to test),
     #   or mocking and patching 'environ' (which is messy), plus actually using lots of

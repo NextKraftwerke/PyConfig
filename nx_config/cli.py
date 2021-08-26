@@ -33,6 +33,13 @@ def _check_prefix(prefix: str, purpose: str):
 
 
 def add_cli_options(parser: ArgumentParser, *, prefix: Optional[str] = None, config_t: Type[Config]):
+    """
+    TODO
+
+    :param parser:
+    :param prefix:
+    :param config_t:
+    """
     if prefix is None:
         path_option = f"--{_base_cli_path_option}"
         generate_option = f"--{_base_cli_generate_option}"

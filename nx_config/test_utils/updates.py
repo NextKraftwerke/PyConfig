@@ -5,6 +5,12 @@ from nx_config.section import ConfigSection
 
 
 def update_section(section: ConfigSection, **kwargs):
+    """
+    TODO
+
+    :param section:
+    :param kwargs:
+    """
     for entry_name, new_value in kwargs.items():
         entry = getattr(type(section), entry_name)
         # noinspection PyProtectedMember
