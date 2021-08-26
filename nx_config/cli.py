@@ -34,7 +34,9 @@ def _check_prefix(prefix: str, purpose: str):
 
 def add_cli_options(parser: ArgumentParser, *, prefix: Optional[str] = None, config_t: Type[Config]):
     """
-    TODO
+    TODO: incl.: Document each individual CLI option.
+        Also: When documenting config-path and generate-config, refer to the docs of fill_config (e.g. on the
+        limitations of INI and env vars).
 
     :param parser:
     :param prefix:

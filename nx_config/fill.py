@@ -19,7 +19,25 @@ def fill_config(
     env_prefix: Optional[str] = None,
 ):
     """
-    TODO
+    TODO: incl.: Document that env takes precedence over config files and that if an env var is present,
+        it must be a valid value (will not fallback to config file in case of invalid env var) and
+        the corresponding value in the config file (if any) will not be used and therefore will not
+        be validated. So an invalid entry in a config file might go unnoticed if it is overriden by
+        an env var.
+        Also: Document restrictions with env. vars and ini, incl.:
+        - No strings/secrets with commas in collections
+        - No strings/secrets with surrounding spaces in collections
+        - env. vars only: Surrounding whitespace is kept for base types but not for single-element collections
+        - ini only: Surrounding whitespace is trimmed for all types
+        Also: Document behaviour when empty strings are given as input from INI or environment variables:
+        | Typ | `"" -> ??` |
+        | --- | --- |
+        | `int, float, bool, UUID, datetime` | `ValueError` |
+        | `str, SecretString, URL` | `""` |
+        | `Path` | `Path("")` |
+        | `Optional[base_or_collection]` | `None` |
+        | `tuple[base, ...]` | `()` |
+        | `frozenset[base]` | `frozenset()` |
 
     :param cfg:
     :param stream:
@@ -46,7 +64,7 @@ def fill_config_from_path(
     env_prefix: Optional[str] = None,
 ):
     """
-    TODO
+    TODO: incl.: Refer to docs from fill_config
 
     :param cfg:
     :param path:

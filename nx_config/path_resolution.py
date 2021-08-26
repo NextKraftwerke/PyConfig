@@ -9,7 +9,7 @@ from nx_config._core.path_with_oracles import resolve_path_w_oracles as _resolve
 
 def resolve_config_path(prefix: Optional[str] = None, *, cli_args: Optional[Namespace] = None) -> Optional[Path]:
     """
-    TODO
+    TODO: incl.: Document precedence between env var and CLI arg.
 
     :param prefix:
     :param cli_args:
