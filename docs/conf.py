@@ -19,11 +19,9 @@
 
 project = 'PyConfig'
 # noinspection PyShadowingBuiltins
-copyright = '2021, Tomás Silveira Salles'
-author = 'Tomás Silveira Salles'
-
-# The full version, including alpha/beta/rc tags
-release = '0.2.0-beta.1'
+copyright = '2021, Tomás Silveira Salles'  # TODO: Remove? License instead?
+author = 'Tomás Silveira Salles'  # TODO: Get from setup.cfg
+release = '0.2.0-beta.1'  # TODO: Get from setup.cfg
 
 
 # -- General configuration ---------------------------------------------------
