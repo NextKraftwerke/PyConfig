@@ -7,5 +7,12 @@ PyConfig
 ========
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Contents:
+
+   config_objects
+   loading_and_cmdline
+   testing
+   exceptions
+
+.. include:: intro.rst
