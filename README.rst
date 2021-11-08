@@ -1,13 +1,29 @@
-[![License](https://img.shields.io/github/license/NextKraftwerke/PyConfig?style=flat&labelColor=303030&color=c00000)](https://github.com/NextKraftwerke/PyConfig/blob/main/LICENSE)
-[![Status (main)](https://img.shields.io/github/workflow/status/NextKraftwerke/PyConfig/tests+coverage/main?label=tests%2Bcoverage&logo=github&style=flat&labelColor=303030&logoColor=a0a0a0)](https://github.com/NextKraftwerke/PyConfig/actions?query=workflow%3Atests%2Bcoverage+branch%3Amain)
-[![Lines of code](https://img.shields.io/tokei/lines/github/NextKraftwerke/PyConfig?label=lines%20of%20code&style=flat&labelColor=303030&color=606060)](https://github.com/NextKraftwerke/PyConfig)
-[![Coverage](https://img.shields.io/badge/dynamic/json?url=https://raw.githubusercontent.com/NextKraftwerke/PyConfig/main/.github/stats/coverage.latest.json&label=coverage&query=$.totals.rounded_percent_covered&style=flat&labelColor=303030&suffix=%&color=f09030)](https://github.com/NextKraftwerke/PyConfig/blob/main/.github/stats/coverage.latest.json)
-[![GitHub issues](https://img.shields.io/github/issues-raw/NextKraftwerke/PyConfig?style=flat&labelColor=303030)](https://github.com/NextKraftwerke/PyConfig/issues)
-![Python versions](https://img.shields.io/pypi/pyversions/nx-config?style=flat&labelColor=303030)
-[![Latest](https://img.shields.io/github/v/release/NextKraftwerke/PyConfig?include_prereleases&sort=semver&style=flat&labelColor=303030&color=00959f&label=latest)](https://github.com/NextKraftwerke/PyConfig/releases)
-[![PyPI](https://img.shields.io/pypi/v/nx-config?style=flat&labelColor=303030)](https://pypi.org/project/nx-config/)
+.. image:: https://img.shields.io/github/license/NextKraftwerke/PyConfig?style=flat&labelColor=303030&color=c00000
+  :target: https://github.com/NextKraftwerke/PyConfig/blob/main/LICENSE
+  :alt: License
+.. image:: https://img.shields.io/github/workflow/status/NextKraftwerke/PyConfig/tests+coverage/main?label=tests%2Bcoverage&logo=github&style=flat&labelColor=303030&logoColor=a0a0a0
+  :target: https://github.com/NextKraftwerke/PyConfig/actions?query=workflow%3Atests%2Bcoverage+branch%3Amain
+  :alt: Status (main)
+.. image:: https://img.shields.io/tokei/lines/github/NextKraftwerke/PyConfig?label=lines%20of%20code&style=flat&labelColor=303030&color=606060
+  :target: https://github.com/NextKraftwerke/PyConfig
+  :alt: Lines of code
+.. image:: https://img.shields.io/badge/dynamic/json?url=https://raw.githubusercontent.com/NextKraftwerke/PyConfig/main/.github/stats/coverage.latest.json&label=coverage&query=$.totals.rounded_percent_covered&style=flat&labelColor=303030&suffix=%&color=f09030
+  :target: https://github.com/NextKraftwerke/PyConfig/blob/main/.github/stats/coverage.latest.json
+  :alt: Coverage
+.. image:: https://img.shields.io/github/issues-raw/NextKraftwerke/PyConfig?style=flat&labelColor=303030
+  :target: https://github.com/NextKraftwerke/PyConfig/issues
+  :alt: GitHub issues
+.. image:: https://img.shields.io/pypi/pyversions/nx-config?style=flat&labelColor=303030
+  :alt: Python versions
+.. image:: https://img.shields.io/github/v/release/NextKraftwerke/PyConfig?include_prereleases&sort=semver&style=flat&labelColor=303030&color=00959f&label=latest
+  :target: https://github.com/NextKraftwerke/PyConfig/releases
+  :alt: Latest
+.. image:: https://img.shields.io/pypi/v/nx-config?style=flat&labelColor=303030
+  :target: https://pypi.org/project/nx-config/
+  :alt: PyPI
 
-# PyConfig
+PyConfig
+========
 
 **TL;DR:** PyConfig helps you write configurable applications with ease and takes care of config validation at loading time. It allows the end-user to choose their configuration language and whether to use files or environment variables or both. The library is designed to make best practices the natural way to do things and to remove the need to write and maintain documentation of the configuration options.
 
