@@ -23,6 +23,19 @@
   :target: https://pypi.org/project/nx-config/
   :alt: PyPI
 
+.. _configparser: https://docs.python.org/3/library/configparser.html
+
+.. TODO: Add links to the following references once we have a stable docs URL.
+
+.. _Config: TODO
+.. _ConfigSection: TODO
+.. _`URL`: TODO
+.. _`SecretString`: TODO
+.. _`@validate`: TODO
+.. _`fill_config`: TODO
+.. _`fill_config_from_path`: TODO
+.. _`test_utils.update_section`: TODO
+
 ################################################################################
 PyConfig
 ################################################################################
@@ -31,7 +44,7 @@ TL;DR
     PyConfig helps you write configurable applications with ease and takes care of config validation at loading time. It allows the end-user to choose their configuration language and whether to use files or environment variables or both. The library is designed to make best practices the natural way to do things and to remove the need to write and maintain documentation of the configuration options.
 
 STL;INRAOT (Still Too Long; I'm Not Reading All Of That)
-    Like `configparser <https://docs.python.org/3/library/configparser.html>`_ but, like, waaay cooler. And safer. And with dot-autocompletion.
+    Like `configparser`_ but, like, waaay cooler. And safer. And with dot-autocompletion.
 
 Introduction by example
 ================================================================================
@@ -65,67 +78,68 @@ Or with ``poetry``:
 Create a config class and its sections classes
 --------------------------------------------------------------------------------
 
-Start by adding a new file, say `config.py`, to your app. In it, you'll define a few "section classes", which are subclasses of `ConfigSection`, one "config class", which is a subclass of `Config`, and then initialize a global instance of it (see further down why this is okay):
+Start by adding a new file, say *config.py*, to your app. In it, you'll define a few "section classes" (which are subclasses of `ConfigSection`_) and a "config class" (which is a subclass of `Config`_), and then initialize a global instance of it (see further down why this is okay):
 
-```python
-# demo/config.py
-from datetime import timedelta
-from typing import Optional
+.. code-block:: python3
 
-from nx_config import Config, ConfigSection, URL, SecretString, validate
+    # demo/config.py
+    from datetime import timedelta
+    from typing import Optional
 
-
-class GreetingSection(ConfigSection):
-    num_exclamation_marks: int = 1
-    all_caps: bool = False
-
-    @validate
-    def positive_exclamation_marks(self):
-        if self.num_exclamation_marks <= 0:
-            raise ValueError("Number of exclamation marks must be positive!")
+    from nx_config import Config, ConfigSection, URL, SecretString, validate
 
 
-class WeatherSection(ConfigSection):
-    service_url: URL
-    username: Optional[str] = None
-    password: Optional[SecretString] = None
-    timeout_s: float = 70.0
+    class GreetingSection(ConfigSection):
+        num_exclamation_marks: int = 1
+        all_caps: bool = False
 
-    @validate
-    def username_and_password_go_together(self):
-        if (self.username is None) ^ (self.password is None):
-            raise ValueError("Must either provide both username and password or neither of them!")
-
-    def timeout(self) -> timedelta:
-        return timedelta(seconds=self.timeout_s)
+        @validate
+        def positive_exclamation_marks(self):
+            if self.num_exclamation_marks <= 0:
+                raise ValueError("Number of exclamation marks must be positive!")
 
 
-class DemoConfig(Config):
-    greet: GreetingSection
-    weather: WeatherSection
+    class WeatherSection(ConfigSection):
+        service_url: URL
+        username: Optional[str] = None
+        password: Optional[SecretString] = None
+        timeout_s: float = 70.0
+
+        @validate
+        def username_and_password_go_together(self):
+            if (self.username is None) ^ (self.password is None):
+                raise ValueError("Must either provide both username and password or neither of them!")
+
+        def timeout(self) -> timedelta:
+            return timedelta(seconds=self.timeout_s)
 
 
-config = DemoConfig()
-```
+    class DemoConfig(Config):
+        greet: GreetingSection
+        weather: WeatherSection
+
+
+    config = DemoConfig()
 
 Here we make the following configurable:
-- How many exclamation marks are added after "world" or the user's name.
-- Whether the whole greeting is printed in upper case letters or not.
-- Which web service will be used to get the weather data (rain probability).
-- User credentials for the weather service.
-- The client-side timeout for requests to the weather service.
 
-Note that the `username` and `password` are of optional types, i.e., can be None (some weather services might be free). Also, some entries in each section have a default value, while others don't (which means the user must provide a value through a config file or an environment variable).
+* How many exclamation marks are added after "world" or the user's name.
+* Whether the whole greeting is printed in upper case letters or not.
+* Which web service will be used to get the weather data (rain probability).
+* User credentials for the weather service.
+* The client-side timeout for requests to the weather service.
 
-We see here the `URL` and `SecretString` types. The values of such entries are simply strings. These types are used to convey intent to the user and allow PyConfig to perform validations and other special behaviour. For example, an entry of type `SecretString` is not allowed to have a default value (unless it is optional and the default value is `None`). Furthermore, when you print a config or just a section, entries of type `SecretString` will be replaced with asterisks `"*****"`.
+Note that the ``username`` and ``password`` are of optional types, i.e., can be None (some weather services might be free). Also, some entries in each section have a default value, while others don't (which means the user must provide a value through a config file or an environment variable).
 
-The methods annotated with `@validate` will be called automatically right after the config is loaded (ideally at the startup of your app). Each is used to validate an individual section and sections can have multiple validators.
+We see here the `URL`_ and `SecretString`_ types. The values of such entries are just ordinary python strings. These type-hints are used to convey intent to the user and to allow PyConfig to perform validations and other special behaviour. For example, an entry of type `SecretString`_ is not allowed to have a default value (unless it is optional and the default value is ``None``). Furthermore, when you print a config or just a section, entries of type `SecretString`_ will be replaced with asterisks ``"*****"``.
 
-The combination of the entry `timeout_s` and the method `timeout` above helps us avoid ambiguity for the users while being able to work with a unit-agnostic type: The name of the actual config field `timeout_s` clearly tells users they must provide the value _in seconds_, but in our code we instead use the `timeout` method and therefore work with the `timedelta` type, never having to worry about measurement units.
+The methods annotated with `@validate`_ will be called automatically right after the config is loaded (ideally at the startup of your app). Each is used to validate an individual section and sections can have multiple validators.
 
-Finally, the use of a global config object may seem dangerous (especially in python), but `Config` and `ConfigSection` objects are always* immutable, so there's no global _state_ to worry about.
+The combination of the entry ``timeout_s`` and the method ``timeout`` above helps us avoid ambiguity for the users while being able to work with a unit-agnostic type: The name of the actual config field ``timeout_s`` clearly tells users they must provide the value *in seconds*, but in our code we instead use the ``timeout`` method and therefore work only with ``timedelta`` objects, never having to worry about measurement units.
 
-_*: There are two ways in which the contents of the config can be mutated. One is when loading it with `fill_config` or `fill_config_from_path`. The other is with `test_utils.update_section`. You can quickly find all usages of these functions in your repository. Loading functions are ideally used only once and only at startup. Using the `test_utils` module in production code should be entirely forbidden._
+Finally, the use of a global config object may seem dangerous (especially in python), but `Config`_ and `ConfigSection`_ objects are always\* immutable, so there's no global *state* to worry about.
+
+    \*: There are two ways in which the contents of the config can be mutated. One is when loading it with `fill_config`_ or `fill_config_from_path`_. The other is with `test_utils.update_section`_. You can quickly find all usages of these functions in your repository. Loading functions are ideally used only once and only at startup. And using the ``test_utils`` module in production code should be entirely forbidden!
 
 Use the configuration in your code
 --------------------------------------------------------------------------------
