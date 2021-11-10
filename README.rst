@@ -25,7 +25,7 @@
 
 .. _configparser: https://docs.python.org/3/library/configparser.html
 .. _configparser.ConfigParser.read: https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read
-.. _argparse.ArgumentParser: https://docs.python.org/3/library/argparse.html#argumentparser-objects
+.. _argparse.ArgumentParser: https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser
 .. _pathlib.Path: https://docs.python.org/3/library/pathlib.html#pathlib.Path
 
 .. TODO: Add links to the following references once we have a stable docs URL.
@@ -297,32 +297,32 @@ Most importantly, this solution offers a standardized way for users to provide c
 Immutability
 --------------------------------------------------------------------------------
 
-Some might argue that in the example above we shouldn't have created a _global_ `config` object that's just _loaded_ at startup, but instead we should have created and loaded a `config` object in `__main__.py` and then injected it into the `greet` call. In most cases, I'd agree with this advice. But it is aimed at avoiding global _state_, i.e., global variables that can be read and modified from anywhere in the code, usually causing trouble.
+Some might argue that in the example above we shouldn't have created a *global* ``config`` object that's just *loaded* at startup, but instead we should have created and loaded a ``config`` object in *__main__.py* and then injected it into the ``greet`` call. In most cases, I'd agree with this advice. But it is aimed at avoiding global *state*, i.e., global variables that can be read and modified from anywhere in the code, usually causing trouble.
 
-In the case of `Config` instances we don't have to worry*. The config object, each of its sections and each of their entries are all immutable** so an instance is just a namespace for some constants. The supported types for section entries are also all immutable, including the supported collection types `tuple` and `frozenset`.
+In the case of `Config`_ instances we don't have to worry\*. The config object, each of its sections and each of their entries are all immutable\*\* so an instance is just a namespace for some constants. The supported types for section entries are also all immutable, including the supported collection types ``tuple`` and ``frozenset``.
 
-Many configuration libraries allow the config object to be modified freely at any time, which is particularly problematic with long-running services. If a critical error or even a crash occurs, you don't have any guarantees that the configuration you provided at startup is still the one being used. The current configuration might be completely different from the values you see in your config files. This makes it difficult to understand and replicate bugs. With PyConfig it's very easy to check whether the config can ever change by searching for uses of `fill_config` and `fill_config_from_path` in the project. Ideally it will be loaded once and only once at startup but even if your app allows for config updates while running, the logic coordinating this will at least be easy to find. Also, check out the section on 'logging' below, which can be very helpful to make your app easy to debug.
+Many configuration libraries allow the config object to be modified freely at any time, which is particularly problematic with long-running services. If a critical error or even a crash occurs, you don't have any guarantees that the configuration you provided at startup is still the one being used. The current configuration might be completely different from the values you see in your config files. This makes it difficult to understand and replicate bugs. With PyConfig it's very easy to check whether the config can ever change by searching for uses of `fill_config`_ and `fill_config_from_path`_ in the project. Ideally it will be loaded once and only once at startup but even if your app allows for config updates while running, the logic coordinating this will at least be easy to find. Also, check out the section on 'logging' below, which can be very helpful to make your app easy to debug.
 
-To facilitate testing with different configurations, we've added the function `test_utils.update_section` (can only be imported through the module `test_utils`, not directly from `nx_config`):
+To facilitate testing with different configurations, we've added the function `test_utils.update_section`_ (which can only be imported through the module ``test_utils``, not directly from ``nx_config``):
 
-```python
-# tests/test_greeting.py
-from unittest import TestCase
-from nx_config.test_utils import update_section
-from demo.config import config
+.. code-block:: python3
 
-class DemoTests(TestCase):
-    def setUp(self):
-        ...  # load your base config values for testing
+    # tests/test_greeting.py
+    from unittest import TestCase
+    from nx_config.test_utils import update_section
+    from demo.config import config
 
-    def test_something(self):
-        update_section(config.greet, num_exclamation_marks=7)
-        ...  # call code that uses config
-```
+    class DemoTests(TestCase):
+        def setUp(self):
+            ...  # load your base config values for testing
 
-Again, you can easily scan your project for uses of `test_utils`. It should obviously be used only in tests and never in production code. And that's it! `fill_config/fill_config_from_path` and `test_utils.update_section` are the only ways to modify a config instance***.
+        def test_something(self):
+            update_section(config.greet, num_exclamation_marks=7)
+            ...  # call code that uses config
 
-_*, ** and ***: Of course... this is python... There are always dark ways to cheat by messing with the internal attributes of configs and sections. Let's just assume all contributors to your project are well-meaning grown ups._
+Again, you can easily scan your project for uses of ``test_utils``. It should obviously be used only in tests and never in production code. And that's it! `fill_config`_, `fill_config_from_path`_ and `test_utils.update_section`_ are the only ways to modify a config instance\*\*\*.
+
+    \*, \*\* and \*\*\*: Of course... this is python... There are always dark ways to cheat by messing with the internal attributes of configs and sections. Let's just assume all contributors to your project are well-meaning grown ups.
 
 Config file formats
 --------------------------------------------------------------------------------
