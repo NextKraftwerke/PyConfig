@@ -23,14 +23,18 @@
   :target: https://pypi.org/project/nx-config/
   :alt: PyPI
 
+################################################################################
 PyConfig
-========
+################################################################################
 
-**TL;DR:** PyConfig helps you write configurable applications with ease and takes care of config validation at loading time. It allows the end-user to choose their configuration language and whether to use files or environment variables or both. The library is designed to make best practices the natural way to do things and to remove the need to write and maintain documentation of the configuration options.
+TL;DR
+    PyConfig helps you write configurable applications with ease and takes care of config validation at loading time. It allows the end-user to choose their configuration language and whether to use files or environment variables or both. The library is designed to make best practices the natural way to do things and to remove the need to write and maintain documentation of the configuration options.
 
-**STL;INRAOT (Still Too Long; I'm Not Reading All Of That):** Like `configparser` but, like, waaay cooler. And safer. And with dot-autocompletion.
+STL;INRAOT (Still Too Long; I'm Not Reading All Of That)
+    Like :py:module:`configparser` but, like, waaay cooler. And safer. And with dot-autocompletion.
 
-## Introduction by example
+Introduction by example
+================================================================================
 
 You can find a complete guide of the library further down, but for simple use cases it might suffice to just look at an example, so that's how we'll start.
 
@@ -43,7 +47,8 @@ $ python -m demo --name Dave
 Hello, Dave! (you should probably stay home today...)
 ```
 
-### Install PyConfig (package name `nx_config`)
+Install PyConfig (package name `nx_config`)
+--------------------------------------------------------------------------------
 
 With `pip`:
 
@@ -57,7 +62,8 @@ Or with `poetry`:
 $ poetry add nx_config
 ```
 
-### Create a config class and its sections classes
+Create a config class and its sections classes
+--------------------------------------------------------------------------------
 
 Start by adding a new file, say `config.py`, to your app. In it, you'll define a few "section classes", which are subclasses of `ConfigSection`, one "config class", which is a subclass of `Config`, and then initialize a global instance of it (see further down why this is okay):
 
@@ -121,7 +127,8 @@ Finally, the use of a global config object may seem dangerous (especially in pyt
 
 _*: There are two ways in which the contents of the config can be mutated. One is when loading it with `fill_config` or `fill_config_from_path`. The other is with `test_utils.update_section`. You can quickly find all usages of these functions in your repository. Loading functions are ideally used only once and only at startup. Using the `test_utils` module in production code should be entirely forbidden._
 
-### Use the configuration in your code
+Use the configuration in your code
+--------------------------------------------------------------------------------
 
 The core of our app will be implemented in the `greet.py` module, where we use the global config several times:
 
@@ -170,7 +177,8 @@ def greet(name: str):
 
 Your IDE will probably offer auto-completion for section names and entries within sections. In contrast to the usual approach with dictionaries (e.g. with `configparser`), it's very unlikely that you'll make a typing error this way. And even if you do, you'll be trying to get an attribute that doesn't exist and in PyConfig the attributes of configs and sections are determined by the class declaration (they do not depend on the configuration file provided by the user at runtime). This means that if you test your code and don't get an `AttributeError`, you can be certain you won't get an `AttributeError` in production either, regardless of what your users write in their configuration files.
 
-### Load the configuration on startup
+Load the configuration on startup
+--------------------------------------------------------------------------------
 
 ```python
 # demo/__main__.py
@@ -194,7 +202,8 @@ The magic here happens in `fill_config_from_path`. This function will read a con
 
 The format of the config file will be determined by the path's extension (e.g. `.yaml` for YAML). Note that it's fine (and a common practice) to not provide a config file at all (neither through `--config-path` nor through `CONFIG_PATH`). In this case, the configuration values will be read from environment variables named `SECTIONNAME__ENTRYNAME` (double underscore!). Even if a config file is provided, values can still be overriden through these environment variables, as we'll see below.
 
-### Write a configuration file
+Write a configuration file
+--------------------------------------------------------------------------------
 
 The `add_cli_options` function above also adds a `--generate-config` option that prints out a template config file and exits. It is intended to be used as follows:
 
@@ -230,11 +239,13 @@ $ python -m demo --name Dave --config-path demo/config.yaml
 Hello, Dave!!!!! It's a beautiful day outside. Have fun!
 ```
 
-## Why?
+Why?
+================================================================================
 
 What's so great about PyConfig? Why should you bother learning to use yet another library when `configparser` already does a pretty good job? Also: There are **dozens** of configuration libraries for python already! What makes PyConfig different?
 
-### Avoiding hard-coded paths
+Avoiding hard-coded paths
+--------------------------------------------------------------------------------
 
 The `configparser.ConfigParser.read` method takes a string or `PathLike` (or several) as argument. I have seen and worked on many, many projects where this argument was written as a hard-coded, version-controlled string. This is, of course, in most cases a bad idea. It makes it difficult to try out the code locally, or deploy it on multiple servers automatically, can result in clashes with different applications using the same path (and therefore making it impossible to configure them independently), cause headaches due to missing permissions and so on. It also makes it annoying and slow to use different configurations for different runs of the same application.
 
@@ -262,7 +273,8 @@ Now the CLI option `--demo-config-path` and the environment variable `DEMO_CONFI
 
 Most importantly, this solution offers a standardized way for users to provide config files, through arguments that follow a simple naming convention, for _all_ apps using PyConfig.
 
-### Immutability
+Immutability
+--------------------------------------------------------------------------------
 
 Some might argue that in the example above we shouldn't have created a _global_ `config` object that's just _loaded_ at startup, but instead we should have created and loaded a `config` object in `__main__.py` and then injected it into the `greet` call. In most cases, I'd agree with this advice. But it is aimed at avoiding global _state_, i.e., global variables that can be read and modified from anywhere in the code, usually causing trouble.
 
@@ -291,7 +303,8 @@ Again, you can easily scan your project for uses of `test_utils`. It should obvi
 
 _*, ** and ***: Of course... this is python... There are always dark ways to cheat by messing with the internal attributes of configs and sections. Let's just assume all contributors to your project are well-meaning grown ups._
 
-### Config file formats
+Config file formats
+--------------------------------------------------------------------------------
 
 Unlike many configuration libraries, PyConfig completely separates your code (and the modeling of your configuration options) from the input formats the end-user is allowed to choose for configuration. You only write python and don't need to think for a second about YAML, INI, JSON, .ENV or whatever. _Your code is config-format-agnostic_.
 
@@ -299,7 +312,8 @@ PyConfig currently supports YAML, INI and environment variables. However, it is 
 
 This freedom of choice can also be interesting for companies with teams using different programming languages. They have the option of defining a single, company-wide "configuration language" to be used in all projects. This is convenient for everyone and allows, for example, the use of centralized configuration files in production (e.g. with credentials to different services, common URLs and so on). At the same time, individual programmers can still pick a different "configuration language" for local testing if they want.
 
-### Documenting configuration options
+Documenting configuration options
+--------------------------------------------------------------------------------
 
 One of the biggest advantages of using PyConfig is that the contents of the config model (i.e. which sections it should have, which entries each section should have, what their types should be etc) are defined _only_ in code.
 
@@ -327,7 +341,8 @@ This means all the documentation your app needs (in terms of configuration optio
 
 Contributors to your project are even happier: they only have to look at the python code, just the one module (often called `config.py`), without any additional PDFs or markdown files or webpages, and they're guaranteed to find all relevant, current information there.
 
-### Automatic validation and failing at startup
+Automatic validation and failing at startup
+--------------------------------------------------------------------------------
 
 PyConfig always validates the configuration input against the type-hints used in the `ConfigSection` subclass declaration. In the case of environment variables or INI files, the values are initially interpreted as strings, so "checking the type" means checking that the provided strings can be transformed into the intended types (i.e. the string `"3.14"` is fine for a `float`, but no good for a `UUID`). In the case of YAML or JSON files, for example, there are already standard libraries that parse them into python objects of different types, so only smaller conversions will be made (e.g. `str` to `Path` or `list` to `frozenset`) depending on the provided type-hints.
 
@@ -339,7 +354,8 @@ On top of these, you can add validating methods (single parameter `self`, no ret
 
 If you use PyConfig and follow the best practice of loading all configuration at the app's startup (and only then), you'll never have to worry about an invalid configuration value causing trouble days after your long-running service went up, in the middle of the night or during your soon-to-be-cut-short vacation. Can you do the same with other configuration libraries? Certainly. PyConfig is just friendly and convenient.
 
-### Logging (and secrets)
+Logging (and secrets)
+--------------------------------------------------------------------------------
 
 Both `Config` and `ConfigSection` subclasses can be very nicely printed with ease. The `__str__` method produces an inline description, while the `__repr__` method gives a multi-line and indented version. Moreover, secrets (i.e. section entries type-annotated as `SecretString`) are automatically masked with asterisks, including optional secrets and collections of secrets*.
 
@@ -386,7 +402,8 @@ And if you use PyCharm, the "Variables" view on the console and the debugger dis
 
 _*: Secrets are masked only when you use the methods `__str__` and `__repr__` of `Config` and `ConfigSection`. Remember that the actual value of `my_config.my_section.my_secret` is just an ordinary built-in `str`, so if you print it in your logs it will not be masked!_
 
-### Attributes instead of strings
+Attributes instead of strings
+--------------------------------------------------------------------------------
 
 Using attributes for sections and section-entries (`cfg.a_section.an_entry`) instead of the mapping style with strings used in many configuration libraries (`cfg["a_section"]["an_entry"]`) is more than just shorter, prettier and easier to type.
 
@@ -396,7 +413,8 @@ In theory, there's even more the IDE could do. If you make typing errors in such
 
 Still, autocompletion + shorter + prettier is plenty of reason to prefer attributes over mappings.
 
-### Handy configuration through environment variables
+Handy configuration through environment variables
+--------------------------------------------------------------------------------
 
 There are situations in which configuring apps with files can be annoying, such as when doing quick tests and experiments locally on a terminal and changing just one or two configuration options all the time.
 
@@ -406,7 +424,8 @@ If you have several configs in a single app or several apps sharing some environ
 
 Finally, even the path to the configuration file can be provided through an environment variable, namely `CONFIG_PATH`. Again, it's possible to use a prefix to make this name more specific. For example, you could use the variable `BAR_CONFIG_PATH` instead, and get the path with `resolve_config_path("bar", cli_args=...)`. Note: If you use the `cli_args` argument in this case, `resolve_config_path` will look for the option `--bar-config-path` instead of `--config-path`, so make sure you use the same prefix when adding options to the `argparser.ArgumentParser` by calling `add_cli_options(parser, prefix="bar", config_t=type(config))`.
 
-### Support for the most useful types
+Support for the most useful types
+--------------------------------------------------------------------------------
 
 After loading the config values, you should ideally be able to use them without having to first convert them into other types. If you have your own unit-agnostic `Temperature` type, for instance, you'll have to work a little harder: ask your end-users for a unit-bound value (e.g. `surface_temp_celsius: float`) and then convert it yourself (e.g. through a method `def surface_temp(self) -> Temperature:` in the same section). But most use cases should be covered by the types already supported by PyConfig (and there might be more on the way).
 
@@ -414,7 +433,8 @@ After loading the config values, you should ideally be able to use them without 
 * **Collection** supported types are `typing.Tuple[base, ...]` and `typing.FrozenSet[base]` in all python versions, and `tuple[base, ...]` and `frozenset[base]` for python 3.9 and later (where `base` is one of the **base** supported types above). _Note that the Ellipsis (`...`) in the tuple types is meant literally here, i.e., they represent tuples of arbitrary length where all elements are of the same type._
 * **Optional** supported types are `typing.Optional[base_or_coll]` (where `base_or_coll` is either one of the **base** or one of the **collection** supported types listed above). _Note that "Optional" must be the outer-most layer, i.e. you cannot have collections of optional elements, such as `tuple[Optional[int], ...]`._
 
-## A note on imports
+A note on imports
+================================================================================
 
 Everything you need from PyConfig for production code can (and should) be imported directly from the `nx_config` module:
 ```python
@@ -426,7 +446,8 @@ from nx_config.test_utils import update_section
 ```
 _And that's everything._ If you find yourself importing stuff from other submodules: it's probably not meant for you. I've made an effort to keep everything else protected behind underscores, but something may have slipped through, or might slip through in the future.
 
-## A note on configuring libraries vs apps
+A note on configuring libraries vs apps
+================================================================================
 
 It usually doesn't make much sense to use configuration from files and environment variables directly into libraries. Configuration should be required from and received by applications, which can then inject any necessary values into library classes and functions. Libraries should at least offer the application the _possibility_ of injecting all relevant values as input parameters. This makes it easier and more convenient to write tests, and can even be important for performance.
 
@@ -438,7 +459,8 @@ Adding a `Config` subclass to a library is a very bad idea. It would force the a
 
 Keep it simple: Use PyConfig in applications. Use injection in libraries.
 
-## A note on `pydantic`
+A note on `pydantic`
+================================================================================
 
 If you're unfamiliar with [pydantic](https://pypi.org/project/pydantic/): It is a general "modeling" python library that offers pretty much everything that PyConfig does and **much more** (seriously). It is far more powerful and flexible and full of features and can be used brilliantly for configuration. It is also much older and more mature than PyConfig.
 
@@ -448,11 +470,13 @@ I have no criticism about `pydantic` and I honestly don't see other libraries as
 
 If, however, you're just looking specifically for a better and safer way to add configuration to your app, then maybe you should check out PyConfig. It is minimal, single-purpose and simple. There's effectively no learning curve and the package is fairly small, with no unnecessary features. It also enforces immutability, which is optional in `pydantic`. In general, in my opinion, you need to know what you're doing and be disciplined with `pydantic` (specifically in terms of app configuration), while PyConfig naturally guides you towards the best practices. But I'm definitely biased...
 
-## Detailed documentation
+Detailed documentation
+================================================================================
 
 _TBD. Sorry. Really._
 
-## FAQ
+FAQ
+================================================================================
 
 1. _Why can't I nest sections into other sections?_ This was not the easiest design choice. One of the most important requirements when writing PyConfig was that it should support INI files, and those only (really) support 1 level of nesting. In the end, even though this question is asked fairly often, there are barely any use cases for deeper nesting in configs. And in the few such use cases I've seen, the problem could be elegantly solved by using more than one `Config` subclass in the application.
 2. _Why can't I have entries directly in the `Config` subclass? Why must all entries be in a section?_ Firstly, it would add more complexity to the implementation. Secondly, INI doesn't allow entries without sections. Thirdly, this isn't much of an issue, really. You can always just add a `general` section to your config.
