@@ -31,36 +31,36 @@ TL;DR
     PyConfig helps you write configurable applications with ease and takes care of config validation at loading time. It allows the end-user to choose their configuration language and whether to use files or environment variables or both. The library is designed to make best practices the natural way to do things and to remove the need to write and maintain documentation of the configuration options.
 
 STL;INRAOT (Still Too Long; I'm Not Reading All Of That)
-    Like :py:module:`configparser` but, like, waaay cooler. And safer. And with dot-autocompletion.
+    Like `configparser <https://docs.python.org/3/library/configparser.html>`_ but, like, waaay cooler. And safer. And with dot-autocompletion.
 
 Introduction by example
 ================================================================================
 
 You can find a complete guide of the library further down, but for simple use cases it might suffice to just look at an example, so that's how we'll start.
 
-In this example we pretend to build an app that greets the user and exits. The user can provide a name through the `--name` argument. The greeting also includes a suggestion to go out or stay home depending on whether it's going to rain.
+In this example we pretend to build an app that greets the user and exits. The user can provide a name through the ``--name`` argument. The greeting also includes a suggestion to go out or stay home depending on whether it's going to rain.
 
-```commandline
-$ python -m demo
-Hello, world! It's a beautiful day outside. Have fun!
-$ python -m demo --name Dave
-Hello, Dave! (you should probably stay home today...)
-```
+.. code-block:: console
 
-Install PyConfig (package name `nx_config`)
+    $ python -m demo
+    Hello, world! It's a beautiful day outside. Have fun!
+    $ python -m demo --name Dave
+    Hello, Dave! (you should probably stay home today...)
+
+Install PyConfig (package name ``nx_config``)
 --------------------------------------------------------------------------------
 
-With `pip`:
+With ``pip``:
 
-```commandline
-$ pip install nx_config
-```
+.. code-block:: console
 
-Or with `poetry`:
+    $ pip install nx_config
 
-```commandline
-$ poetry add nx_config
-```
+Or with ``poetry``:
+
+.. code-block:: console
+
+    $ poetry add nx_config
 
 Create a config class and its sections classes
 --------------------------------------------------------------------------------
