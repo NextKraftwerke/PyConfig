@@ -336,31 +336,31 @@ This freedom of choice can also be interesting for companies with teams using di
 Documenting configuration options
 --------------------------------------------------------------------------------
 
-One of the biggest advantages of using PyConfig is that the contents of the config model (i.e. which sections it should have, which entries each section should have, what their types should be etc) are defined _only_ in code.
+One of the biggest advantages of using PyConfig is that the contents of the config model (i.e. which sections it should have, which entries each section should have, what their types should be etc) are defined *only* in code.
 
-With `configparser`, for example, it is common practice to have 3 independent "definitions" of the configuration options. One is the _usage_ of the config mapping in the source code, which is spread throughout the repository and not always easy to find. The second is the _documentation_ written for end-users, usually in PDF of markdown format, listing all the sections, entries, types and how to use each entry. The third is sometimes a _template_ INI file that the end-users can copy and then fill out with their chosen values. These 3 "definitions" have to be maintained and kept in sync with each other, which is rarely the case. Very often developers might, for instance, delete some code that used a configuration value, or add code using a brand new config entry, or change the default value of an entry... and forget to update the documentation or the INI template. And even if you're extra careful and put a lot of work into keeping your docs up-to-date, experienced end-users will still not trust your docs because they've fallen into that trap enough times in the past already.
+With `configparser`_, for example, it is common practice to have 3 independent "definitions" of the configuration options. One is the *usage* of the config mapping in the source code, which is spread throughout the repository and not always easy to find. The second is the *documentation* written for end-users, usually in PDF of markdown format, listing all the sections, entries, types and how to use each entry. The third is sometimes a *template* INI file that the end-users can copy and then fill out with their chosen values. These 3 "definitions" have to be maintained and kept in sync with each other, which is rarely the case. Very often developers might, for instance, delete some code that used a configuration value, or add code using a brand new config entry, or change the default value of an entry... and forget to update the documentation or the INI template. And even if you're extra careful and put a lot of work into keeping your docs up-to-date, experienced end-users will still not trust your docs because they've fallen into that trap enough times in the past already.
 
-Enter: PyConfig. The code, i.e. your class definitions, is the only definition of the configuration options. It is the definitive truth, is always up-to-date and documents every detail of the config, including types, default values _and validity criteria_. And if you add docstrings to the config class and the section classes (and some tools also support docstrings directly below class attributes, so feel free), they are much more likely to be kept up-to-date because they're right next to the code they reference.
+Enter: *PyConfig!* The code, i.e. your class definitions, is the only definition of the configuration options. It is the definitive truth, is always up-to-date and documents every detail of the config, including types, default values *and validity criteria*. And if you add docstrings to the config class and the section classes, they are much more likely to be kept up-to-date because they're right next to the code they reference. Some tools even support docstrings directly below class attributes, so feel free to try it out.
 
-If you use the `add_cli_options` function applied to an `argparse.ArgumentParser`, your end-users get the `--generate-config` CLI option for free, with which they can generate config templates for any supported file format, e.g.:
+If you use the `add_cli_options`_ function applied to an `argparse.ArgumentParser`_, your end-users get the ``--generate-config`` CLI option for free, with which they can generate config templates for any supported file format, e.g.:
 
-```commandline
-$ python -m demo --generate-config=yaml
-greet:
-  #num_exclamation_marks:
-  #all_caps:
-weather:
-  service_url:
-  #username:
-  #password:
-  #timeout_s:
-```
+.. code-block:: console
 
-Using `add_cli_options` also adds the `--config-help` CLI option. It shows a message specifically documenting your app's config model, followed by cheat-sheet-style, general instructions for configuring with PyConfig (as an end-user).
+    $ python -m demo --generate-config=yaml
+    greet:
+      #num_exclamation_marks:
+      #all_caps:
+    weather:
+      service_url:
+      #username:
+      #password:
+      #timeout_s:
+
+Using `add_cli_options`_ also adds the ``--config-help`` CLI option. It shows a message specifically documenting *the app's config model*, followed by cheat-sheet-style, general instructions for configuring with PyConfig (aimed at end-users).
 
 This means all the documentation your app needs (in terms of configuration options) is easily, automagically generated from your class definitions and is always up-to-date! Even if you want to have the documentation directly available on your website or on github, you can setup the pipeline to re-generate it after every release. No maintenance needed.
 
-Contributors to your project are even happier: they only have to look at the python code, just the one module (often called `config.py`), without any additional PDFs or markdown files or webpages, and they're guaranteed to find all relevant, current information there.
+Contributors to your project are even happier: they only have to look at the python code, just the one module (often called *config.py*), without any additional PDFs or markdown files or webpages, and they're guaranteed to find all relevant, current information there.
 
 Automatic validation and failing at startup
 --------------------------------------------------------------------------------
