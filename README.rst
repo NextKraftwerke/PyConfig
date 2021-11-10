@@ -34,6 +34,7 @@
 .. _test_utils.update_section: TODO
 .. _add_cli_options: TODO
 .. _resolve_config_path: TODO
+.. _docs: TODO
 
 ################################################################################
 PyConfig
@@ -507,7 +508,9 @@ If, however, you're just looking specifically for a better and safer way to add 
 Detailed documentation
 ================================================================================
 
-_TBD. Sorry. Really._
+The full docs for PyConfig are *still very much under construction* and can be found `here`__.
+
+.. __: docs_
 
 FAQ
 ================================================================================
