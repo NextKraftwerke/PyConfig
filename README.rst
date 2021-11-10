@@ -24,20 +24,24 @@
   :alt: PyPI
 
 .. _configparser: https://docs.python.org/3/library/configparser.html
+.. _configparser.ConfigParser.read: https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read
 .. _argparse.ArgumentParser: https://docs.python.org/3/library/argparse.html#argumentparser-objects
+.. _pathlib.Path: https://docs.python.org/3/library/pathlib.html#pathlib.Path
 
 .. TODO: Add links to the following references once we have a stable docs URL.
 
 .. _Config: TODO
 .. _ConfigSection: TODO
-.. _`URL`: TODO
-.. _`SecretString`: TODO
-.. _`@validate`: TODO
-.. _`fill_config`: TODO
-.. _`fill_config_from_path`: TODO
-.. _`test_utils.update_section`: TODO
-.. _`add_cli_options`: TODO
-.. _`resolve_config_path`: TODO
+.. _URL: TODO
+.. _SecretString: TODO
+.. _@validate: TODO
+.. _fill_config: TODO
+.. _fill_config_from_path: TODO
+.. _test_utils.update_section: TODO
+.. _add_cli_options: TODO
+.. _add_cli_options(<parser>, config_t=<config_class>): add_cli_options_
+.. _resolve_config_path: TODO
+.. _resolve_config_path(): resolve_config_path_
 
 ################################################################################
 PyConfig
@@ -215,7 +219,7 @@ Load the configuration on startup
 
     greet(name=args.name or "world")
 
-The magic here happens in `fill_config_from_path`_. This function will read a configuration file and fill the ``config`` object's entries with the corresponding values. The path can be hard-coded (not recommended) or you can use `resolve_config_path`_ without arguments, in which case the path is provided through the ``CONFIG_PATH`` environment variable (better), or you can use an `argparse.ArgumentParser`_ as above to allow the user to provide the config-path as a CLI argument (best). The helper `add_cli_options`_ will add the option ``--config-path`` (among other things), which `resolve_config_path`_ will try to read. If the user does not provide a path on the command line, `resolve_config_path`_ will still use the ``CONFIG_PATH`` environment variable as a fallback.
+The magic here happens in `fill_config_from_path`_. This function will read a configuration file and fill the ``config`` object's entries with the corresponding values. The path can be hard-coded (not recommended) or you can use `resolve_config_path()`_ without arguments, in which case the path is provided through the ``CONFIG_PATH`` environment variable (better), or you can use an `argparse.ArgumentParser`_ as above to allow the user to provide the config-path as a CLI argument (best). The helper `add_cli_options`_ will add the option ``--config-path`` (among other things), which `resolve_config_path`_ will try to read. If the user does not provide a path on the command line, `resolve_config_path`_ will still use the ``CONFIG_PATH`` environment variable as a fallback.
 
 The format of the config file will be determined by the path's extension (e.g. *.yaml* for YAML). Note that it's fine (and a common practice) to not provide a config file at all (neither through ``--config-path`` nor through ``CONFIG_PATH``). In this case, the configuration values will be read from environment variables named ``SECTIONNAME__ENTRYNAME`` (**double underscore!**). Even if a config file is provided, values can still be overriden through these environment variables, as we'll see below.
 
@@ -259,36 +263,36 @@ and use it to run our app. We can still change other entries (or even override v
 Why?
 ================================================================================
 
-What's so great about PyConfig? Why should you bother learning to use yet another library when `configparser` already does a pretty good job? Also: There are **dozens** of configuration libraries for python already! What makes PyConfig different?
+What's so great about PyConfig? Why should you bother learning to use yet another library when `configparser`_ already does a pretty good job? Also: There are **dozens** of configuration libraries for python already! What makes PyConfig different?
 
 Avoiding hard-coded paths
 --------------------------------------------------------------------------------
 
-The `configparser.ConfigParser.read` method takes a string or `PathLike` (or several) as argument. I have seen and worked on many, many projects where this argument was written as a hard-coded, version-controlled string. This is, of course, in most cases a bad idea. It makes it difficult to try out the code locally, or deploy it on multiple servers automatically, can result in clashes with different applications using the same path (and therefore making it impossible to configure them independently), cause headaches due to missing permissions and so on. It also makes it annoying and slow to use different configurations for different runs of the same application.
+The `configparser.ConfigParser.read`_ method takes a string or ``PathLike`` (or several) as argument. I have seen and worked on many, many projects where this argument was written as a hard-coded, version-controlled string. This is, of course, in most cases a bad idea. It makes it difficult to try out the code locally, or deploy it on multiple servers automatically, can result in clashes with different applications using the same path (and therefore making it impossible to configure them independently), cause headaches due to missing permissions and so on. It also makes it annoying and slow to use different configurations for different runs of the same application.
 
 Most developers working on those projects knew it was a bad idea and knew how to avoid it (e.g. get the path from a CLI argument or from an environment variable) but (a) these solutions would require a bit of extra work and (b) they would require teaching the user how to provide the config path... for each application!
 
-PyConfig offers two really simple solutions to this, making the best practice _nearly_ the easiest thing to do. First, you can use the function `resolve_config_path()` with no arguments. This will return a `pathlib.Path` from the value of the `CONFIG_PATH` environment variable if defined, and `None` otherwise. With a little extra effort, by using an `argparse.ArgumentParser` and the function `add_cli_options(<parser>, config_t=<config_class>)` you can allow your end-users to provide a config path either through the `--config-path` CLI option or the `CONFIG_PATH` environment variable:
+PyConfig offers two really simple solutions to this, making the best practice *nearly* the easiest thing to do. First, you can use the function `resolve_config_path()`_ with no arguments. This will return a `pathlib.Path`_ from the value of the ``CONFIG_PATH`` environment variable if defined, and ``None`` otherwise. With a little extra effort, by using an `argparse.ArgumentParser`_ and the function `add_cli_options(<parser>, config_t=<config_class>)`_ you can allow your end-users to provide a config path either through the ``--config-path`` CLI option or the ``CONFIG_PATH`` environment variable:
 
-```python
-parser = ArgumentParser()
-add_cli_options(parser, config_t=DemoConfig)
-args = parser.parse_args()
-path = resolve_config_path(cli_args=args)
-```
+.. code-block:: python3
+
+    parser = ArgumentParser()
+    add_cli_options(parser, config_t=DemoConfig)
+    args = parser.parse_args()
+    path = resolve_config_path(cli_args=args)
 
 If you have multiple apps sharing environment variables or you use multiple config classes for a single app (should rarely be necessary), you can add a prefix to both the CLI option and the path environment variable:
 
-```python
-parser = ArgumentParser()
-add_cli_options(parser, prefix="demo", config_t=DemoConfig)
-args = parser.parse_args()
-path = resolve_config_path("demo", cli_args=args)
-```
+.. code-block:: python3
 
-Now the CLI option `--demo-config-path` and the environment variable `DEMO_CONFIG_PATH` will be used instead.
+    parser = ArgumentParser()
+    add_cli_options(parser, prefix="demo", config_t=DemoConfig)
+    args = parser.parse_args()
+    path = resolve_config_path("demo", cli_args=args)
 
-Most importantly, this solution offers a standardized way for users to provide config files, through arguments that follow a simple naming convention, for _all_ apps using PyConfig.
+Now the CLI option ``--demo-config-path`` and the environment variable ``DEMO_CONFIG_PATH`` will be used instead.
+
+Most importantly, this solution offers a standardized way for users to provide config files, through arguments that follow a simple naming convention, for *all* apps using PyConfig.
 
 Immutability
 --------------------------------------------------------------------------------
