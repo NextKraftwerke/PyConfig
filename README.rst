@@ -45,10 +45,6 @@ TL;DR
 STL;INRAOT (Still Too Long; I'm Not Reading All Of That)
     Like `configparser`_ but, like, waaay cooler. And safer. And with dot-autocompletion.
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
 .. _configparser: https://docs.python.org/3/library/configparser.html
 .. _configparser.ConfigParser.read: https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read
 .. _argparse.ArgumentParser: https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser
@@ -432,9 +428,9 @@ And if you use PyCharm, the "Variables" view on the console and the debugger dis
 Attributes instead of strings
 --------------------------------------------------------------------------------
 
-Using attributes for sections and section-entries (`cfg.a_section.an_entry`) instead of the mapping style with strings used in many configuration libraries (`cfg["a_section"]["an_entry"]`) is more than just shorter, prettier and easier to type.
+Using attributes for sections and section-entries (``cfg.a_section.an_entry``) instead of the mapping style with strings used in many configuration libraries (``cfg["a_section"]["an_entry"]``) is more than just shorter, prettier and easier to type.
 
-Your IDE can help you with dot-autocompletion to (a) present the available sections and section-entries and (b) avoid typing errors. This is especially important because even if your configuration is thoroughly validated at startup, a typing error when _using_ the configuration might only cause trouble much, much later, when no one is watching and ready to take action. _(Of course, this could never happen in your company, since every one of your projects has 100% code coverage...)_
+Your IDE can help you with dot-autocompletion to (a) present the available sections and section-entries and (b) avoid typing errors. This is especially important because even if your configuration is thoroughly validated at startup, a typing error when *using* the configuration might only cause trouble much, much later, when no one is watching and ready to take action. *(Of course, this could never happen in your company, since every one of your projects has 100% code coverage...)*
 
 In theory, there's even more the IDE could do. If you make typing errors in such attributes (because you didn't use autocompletion), the static analyzer could highlight them and warn you. And if you decide to change the name of a section or section-entry, the IDE could help with automatic refactoring. Unfortunately, we haven't managed to get them to work with PyConfig sections and entries yet. We know this is due to limitations of the IDE and the fact that PyConfig uses a lot of magic behind the scenes, but we're still trying to understand exactly why it doesn't work.
 
