@@ -222,39 +222,39 @@ The format of the config file will be determined by the path's extension (e.g. *
 Write a configuration file
 --------------------------------------------------------------------------------
 
-The `add_cli_options` function above also adds a `--generate-config` option that prints out a template config file and exits. It is intended to be used as follows:
+The `add_cli_options`_ function above also adds a ``--generate-config`` option that prints out a template config file and exits. It is intended to be used as follows:
 
-```commandline
-$ python -m demo --generate-config=yaml > demo/config.yaml
-```
+.. code-block:: console
+
+    $ python -m demo --generate-config=yaml > demo/config.yaml
 
 which in this example results in the following file:
 
-```yaml
-# demo/config.yaml
-greet:
-  #num_exclamation_marks:
-  #all_caps:
-weather:
-  service_url:
-  #username:
-  #password:
-  #timeout_s:
-```
+.. code-block:: yaml
 
-All entries and all sections are present, but entries that have a default value are commented-out, so you know exactly what you _need_ to fill out for the program to run. We can fill out the `service_url` in this file, say 
+    # demo/config.yaml
+    greet:
+      #num_exclamation_marks:
+      #all_caps:
+    weather:
+      service_url:
+      #username:
+      #password:
+      #timeout_s:
 
-```yaml
-  service_url: www.weatherservice24.com/rain
-```
+All entries and all sections are present, but entries that have a default value are commented-out, so you know exactly what you *need* to fill out for the program to run. We can fill out the ``service_url`` in this file, say
 
-and use it to run our app. We can still change other entries (or even override values from this file) using canonically named environment variables such as `GREET__NUM_EXCLAMATION_MARKS`:
+.. code-block:: yaml
 
-```commandline
-$ export GREET__NUM_EXCLAMATION_MARKS=5
-$ python -m demo --name Dave --config-path demo/config.yaml
-Hello, Dave!!!!! It's a beautiful day outside. Have fun!
-```
+      service_url: www.weatherservice24.com/rain
+
+and use it to run our app. We can still change other entries (or even override values from this file) using canonically named environment variables such as ``GREET__NUM_EXCLAMATION_MARKS``:
+
+.. code-block:: console
+
+    $ export GREET__NUM_EXCLAMATION_MARKS=5
+    $ python -m demo --name Dave --config-path demo/config.yaml
+    Hello, Dave!!!!! It's a beautiful day outside. Have fun!
 
 Why?
 ================================================================================
