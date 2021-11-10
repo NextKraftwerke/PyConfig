@@ -24,6 +24,7 @@
   :alt: PyPI
 
 .. _configparser: https://docs.python.org/3/library/configparser.html
+.. _argparse.ArgumentParser: https://docs.python.org/3/library/argparse.html#argumentparser-objects
 
 .. TODO: Add links to the following references once we have a stable docs URL.
 
@@ -35,6 +36,8 @@
 .. _`fill_config`: TODO
 .. _`fill_config_from_path`: TODO
 .. _`test_utils.update_section`: TODO
+.. _`add_cli_options`: TODO
+.. _`resolve_config_path`: TODO
 
 ################################################################################
 PyConfig
@@ -194,27 +197,27 @@ Your IDE will probably offer auto-completion for section names and entries withi
 Load the configuration on startup
 --------------------------------------------------------------------------------
 
-```python
-# demo/__main__.py
-from argparse import ArgumentParser
+.. code-block:: python
 
-from demo.config import config
-from demo.greet import greet
-from nx_config import add_cli_options, resolve_config_path, fill_config_from_path
+    # demo/__main__.py
+    from argparse import ArgumentParser
 
-parser = ArgumentParser()
-parser.add_argument("--name")
-add_cli_options(parser, config_t=type(config))
-args = parser.parse_args()
+    from demo.config import config
+    from demo.greet import greet
+    from nx_config import add_cli_options, resolve_config_path, fill_config_from_path
 
-fill_config_from_path(config, path=resolve_config_path(cli_args=args))
+    parser = ArgumentParser()
+    parser.add_argument("--name")
+    add_cli_options(parser, config_t=type(config))
+    args = parser.parse_args()
 
-greet(name=args.name or "world")
-```
+    fill_config_from_path(config, path=resolve_config_path(cli_args=args))
 
-The magic here happens in `fill_config_from_path`. This function will read a configuration file and fill the `config` object's entries with the corresponding values. The path can be hard-coded (not recommended) or you can use `resolve_config_path()` without arguments, in which case the path is provided through the `CONFIG_PATH` environment variable (better), or you can use an `argparse.ArgumentParser` as above to allow the user to provide the config-path as a CLI argument (best). The helper `add_cli_options` will add the option `--config-path` (among other things), which `resolve_config_path` will try to read. If the user does not provide a path on the command line, `resolve_config_path` will still use the `CONFIG_PATH` environment variable as a fallback.
+    greet(name=args.name or "world")
 
-The format of the config file will be determined by the path's extension (e.g. `.yaml` for YAML). Note that it's fine (and a common practice) to not provide a config file at all (neither through `--config-path` nor through `CONFIG_PATH`). In this case, the configuration values will be read from environment variables named `SECTIONNAME__ENTRYNAME` (double underscore!). Even if a config file is provided, values can still be overriden through these environment variables, as we'll see below.
+The magic here happens in `fill_config_from_path`_. This function will read a configuration file and fill the ``config`` object's entries with the corresponding values. The path can be hard-coded (not recommended) or you can use `resolve_config_path`_ without arguments, in which case the path is provided through the ``CONFIG_PATH`` environment variable (better), or you can use an `argparse.ArgumentParser`_ as above to allow the user to provide the config-path as a CLI argument (best). The helper `add_cli_options`_ will add the option ``--config-path`` (among other things), which `resolve_config_path`_ will try to read. If the user does not provide a path on the command line, `resolve_config_path`_ will still use the ``CONFIG_PATH`` environment variable as a fallback.
+
+The format of the config file will be determined by the path's extension (e.g. *.yaml* for YAML). Note that it's fine (and a common practice) to not provide a config file at all (neither through ``--config-path`` nor through ``CONFIG_PATH``). In this case, the configuration values will be read from environment variables named ``SECTIONNAME__ENTRYNAME`` (**double underscore!**). Even if a config file is provided, values can still be overriden through these environment variables, as we'll see below.
 
 Write a configuration file
 --------------------------------------------------------------------------------
