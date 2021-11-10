@@ -58,7 +58,7 @@ In this example we pretend to build an app that greets the user and exits. The u
     $ python -m demo
     Hello, world! It's a beautiful day outside. Have fun!
     $ python -m demo --name Dave
-    Hello, Dave! (you should probably stay home today...)
+    Hello, Dave! You should probably stay home today...
 
 Install PyConfig (package name ``nx_config``)
 --------------------------------------------------------------------------------
@@ -144,52 +144,52 @@ Finally, the use of a global config object may seem dangerous (especially in pyt
 Use the configuration in your code
 --------------------------------------------------------------------------------
 
-The core of our app will be implemented in the `greet.py` module, where we use the global config several times:
+The core of our app will be implemented in the *greet.py* module, where we use the global config several times:
 
-```python
-# demo/greet.py
-from datetime import timedelta
-from random import random
-from typing import Mapping
+.. code-block:: python3
 
-from demo.config import config
+    # demo/greet.py
+    from datetime import timedelta
+    from random import random
+    from typing import Mapping
 
-
-def _get_rain_probability(
-    url: str, params: Mapping[str, str], timeout: timedelta
-) -> float:
-    return random()  # Just as reliable as a weather service...
+    from demo.config import config
 
 
-def greet(name: str):
-    msg = f"Hello, {name}" + ("!" * config.greet.num_exclamation_marks)  # <= config used here
+    def _get_rain_probability(
+        url: str, params: Mapping[str, str], timeout: timedelta
+    ) -> float:
+        return random()  # Just as reliable as a weather service...
 
-    if config.greet.all_caps:  # <= and here
-        msg = msg.upper()
 
-    if config.weather.username is None:  # <= here too
-        params = {}
-    else:
-        params = {
-            "username": config.weather.username,  # <= and here
-            "password": config.weather.password,  # <= and again
-        }
+    def greet(name: str):
+        msg = f"Hello, {name}" + ("!" * config.greet.num_exclamation_marks)  # <= config used here
 
-    rain_prob = _get_rain_probability(
-        url=config.weather.service_url,  # <= once more
-        params=params,
-        timeout=config.weather.timeout(),  # <= last time
-    )
+        if config.greet.all_caps:  # <= and here
+            msg = msg.upper()
 
-    if rain_prob > 0.5:
-        msg += " (you should probably stay home today...)"
-    else:
-        msg += " It's a beautiful day outside. Have fun!"
+        if config.weather.username is None:  # <= here too
+            params = {}
+        else:
+            params = {
+                "username": config.weather.username,  # <= and here
+                "password": config.weather.password,  # <= and again
+            }
 
-    print(msg)
-```
+        rain_prob = _get_rain_probability(
+            url=config.weather.service_url,  # <= once more
+            params=params,
+            timeout=config.weather.timeout(),  # <= last time
+        )
 
-Your IDE will probably offer auto-completion for section names and entries within sections. In contrast to the usual approach with dictionaries (e.g. with `configparser`), it's very unlikely that you'll make a typing error this way. And even if you do, you'll be trying to get an attribute that doesn't exist and in PyConfig the attributes of configs and sections are determined by the class declaration (they do not depend on the configuration file provided by the user at runtime). This means that if you test your code and don't get an `AttributeError`, you can be certain you won't get an `AttributeError` in production either, regardless of what your users write in their configuration files.
+        if rain_prob > 0.5:
+            msg += " You should probably stay home today..."
+        else:
+            msg += " It's a beautiful day outside. Have fun!"
+
+        print(msg)
+
+Your IDE will probably offer auto-completion for section names and entries within sections. In contrast to the usual approach with dictionaries (e.g. with `configparser`_), it's very unlikely that you'll make a typing error this way. And even if you do, you'll be trying to get an attribute that doesn't exist and in PyConfig the attributes of configs and sections are determined by the class declaration (they do not depend on the configuration file provided by the user at runtime). This means that if you test your code and don't get an ``AttributeError``, you can be certain you won't get an ``AttributeError`` in production either, regardless of what your users write in their configuration files.
 
 Load the configuration on startup
 --------------------------------------------------------------------------------
