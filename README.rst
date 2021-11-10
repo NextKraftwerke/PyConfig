@@ -14,6 +14,7 @@
   :target: https://github.com/NextKraftwerke/PyConfig/issues
   :alt: GitHub issues
 .. image:: https://img.shields.io/pypi/pyversions/nx-config?style=flat&labelColor=303030
+  :target: https://github.com/NextKraftwerke/PyConfig/blob/main/setup.cfg
   :alt: Python versions
 .. image:: https://img.shields.io/github/v/release/NextKraftwerke/PyConfig?include_prereleases&sort=semver&style=flat&labelColor=303030&color=00959f&label=latest
   :target: https://github.com/NextKraftwerke/PyConfig/releases
