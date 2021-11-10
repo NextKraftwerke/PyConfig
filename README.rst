@@ -45,6 +45,10 @@ TL;DR
 STL;INRAOT (Still Too Long; I'm Not Reading All Of That)
     Like `configparser`_ but, like, waaay cooler. And safer. And with dot-autocompletion.
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
 .. _configparser: https://docs.python.org/3/library/configparser.html
 .. _configparser.ConfigParser.read: https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read
 .. _argparse.ArgumentParser: https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser
@@ -382,10 +386,10 @@ If you use PyConfig and follow the best practice of loading all configuration at
 Logging (and secrets)
 --------------------------------------------------------------------------------
 
-Both `Config` and `ConfigSection` subclasses can be very nicely printed with ease. The `__str__` method produces an inline description, while the `__repr__` method gives a multi-line and indented version. Moreover, secrets (i.e. section entries type-annotated as `SecretString`) are automatically masked with asterisks, including optional secrets and collections of secrets*.
+Both `Config`_ and `ConfigSection`_ subclasses can be very nicely printed with ease. The ``__str__`` method produces an inline description, while the ``__repr__`` method gives a multi-line and indented version. Moreover, secrets (i.e. section entries type-annotated as `SecretString`_) are automatically masked with asterisks, including optional secrets and collections of secrets\*.
 
-Here are example outputs using the `DemoConfig` class from above:
-```commandline
+Here are example outputs using the ``DemoConfig`` class from above:
+
 >>> print(str(config))
 DemoConfig(greet=GreetingSection(num_exclamation_marks=1, all_caps=False), weather=WeatherSection(service_url='www.weatherservice24.dummy', username='Dave', password='*****', timeout_s=70.0))
 >>> print(str(config.greet))
@@ -408,12 +412,11 @@ GreetingSection(
     num_exclamation_marks=1,
     all_caps=False,
 )
-```
 
 Having both formats available is very convenient when writing log messages, and indeed you should take advantage of this and log your app's configuration in certain situations. A good idea would be to log the configuration right after it's loaded at startup. Another approach would be to log the configuration whenever a serious error happens (this is more convenient for debugging, since all important information is bundled together with the error message). It's also handy to just always log the entire configuration, instead of trying to guess a subset of its values that you think will be sufficient when debugging. And if you always log entire configs (or at least entire sections), you don't have to worry about accidentally exposing your end-user's secrets.
 
-The choice of which method gets which format was made with debugging in mind. In the REPL, if you just type the object you want to inspect, the result will be printed using `__repr__`:
-```commandline
+The choice of which method gets which format was made with debugging in mind. In the REPL, if you just type the object you want to inspect, the result will be printed using ``__repr__``:
+
 >>> config.weather
 WeatherSection(
     service_url='www.weatherservice24.dummy',
@@ -421,11 +424,10 @@ WeatherSection(
     password='*****',
     timeout_s=70.0,
 )
-```
 
-And if you use PyCharm, the "Variables" view on the console and the debugger displays values next to variable names using `__str__`, and the one-line description is much more suitable in that case.
+And if you use PyCharm, the "Variables" view on the console and the debugger displays values next to variable names using ``__str__``, and the one-line description is much more suitable in that case.
 
-_*: Secrets are masked only when you use the methods `__str__` and `__repr__` of `Config` and `ConfigSection`. Remember that the actual value of `my_config.my_section.my_secret` is just an ordinary built-in `str`, so if you print it in your logs it will not be masked!_
+    \*: Secrets are masked only when you use the methods ``__str__`` and ``__repr__`` of `Config`_ and `ConfigSection`_. Remember that the actual value of ``my_config.my_section.my_secret`` is just an ordinary built-in ``str``, so if you print it in your logs it will **not** be masked!
 
 Attributes instead of strings
 --------------------------------------------------------------------------------
