@@ -327,7 +327,7 @@ Again, you can easily scan your project for uses of ``test_utils``. It should ob
 Config file formats
 --------------------------------------------------------------------------------
 
-Unlike many configuration libraries, PyConfig completely separates your code (and the modeling of your configuration options) from the input formats the end-user is allowed to choose for configuration. You only write python and don't need to think for a second about YAML, INI, JSON, .ENV or whatever. _Your code is config-format-agnostic_.
+Unlike many configuration libraries, PyConfig completely separates your code (and the modeling of your configuration options) from the input formats the end-user is allowed to choose for configuration. You only write python and don't need to think for a second about YAML, INI, JSON, .ENV or whatever. *Your code is config-format-agnostic*.
 
 PyConfig currently supports YAML, INI and environment variables. However, it is designed to be easily extensible and we'll be listening to the community to see what other formats would be good candidates. When new formats are added, all you need to do as a developer is install the latest version and your end-users can start enjoying the extra flexibility, even though your code stays the same. 
 
