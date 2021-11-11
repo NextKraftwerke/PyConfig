@@ -41,17 +41,18 @@
 .. |nx_config.SecretString| replace:: `nx_config.SecretString`_
 
 .. TODO: Add links to the following references once we have a stable docs URL.
-.. _docs: https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
-.. _Config: https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
-.. _ConfigSection: https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
-.. _URL: https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
-.. _SecretString: https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
-.. _@validate(): https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
-.. _fill_config(): https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
-.. _fill_config_from_path(): https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
-.. _test_utils.update_section(): https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
-.. _add_cli_options(): https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
-.. _resolve_config_path(): https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
+.. _placeholder: https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
+.. _docs: `placeholder`_
+.. _Config: `placeholder`_
+.. _ConfigSection: `placeholder`_
+.. _URL: `placeholder`_
+.. _SecretString: `placeholder`_
+.. _@validate(): `placeholder`_
+.. _fill_config(): `placeholder`_
+.. _fill_config_from_path(): `placeholder`_
+.. _test_utils.update_section(): `placeholder`_
+.. _add_cli_options(): `placeholder`_
+.. _resolve_config_path(): `placeholder`_
 
 .. _add_cli_options(<parser>, config_t=<config_class>): `add_cli_options()`_
 .. _add_cli_options(parser, prefix="bar", config_t=type(config)): `add_cli_options()`_
