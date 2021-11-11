@@ -1,14 +1,18 @@
-.. PyConfig documentation master file, created by
-   sphinx-quickstart on Thu Jun 10 22:16:32 2021.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
+################################################################################
 PyConfig
-========
+################################################################################
+
+*Welcome!*
+
+|TLDR|
+
+This guide includes the detailed documentation of the public API in the *topic-pages* listed below, as well as a friendlier introduction in this first page to get warmed up. I did my best. Pour yourself a fresh cup of coffee and have fun!
+
+Topics within this guide
+================================================================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
 
    config_objects
    loading_and_cmdline
