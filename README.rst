@@ -46,6 +46,8 @@ TL;DR
 STL;INRAOT (Still Too Long; I'm Not Reading All Of That)
     Like `configparser`_ but, like, waaay cooler. And safer. And with dot-autocompletion.
 
+.. Start of shared content with docs page -- 4d27310aef2246e393a6f1647d6e9950
+
 .. _configparser: https://docs.python.org/3/library/configparser.html
 .. _configparser.ConfigParser.read: https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read
 .. _argparse.ArgumentParser: https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser
@@ -504,6 +506,8 @@ When I first ran into `pydantic`_, I was actually very surprised with some of th
 I have no criticism about `pydantic`_ and I honestly don't see other libraries as "competition". We're all in this together. But I do think there are times to use `pydantic`_ and times to use PyConfig. If you're already using `pydantic`_ in your project, or you're already very familiar with it, or you actually need it for modeling things other than configuration, please, by all means, go for it.
 
 If, however, you're just looking specifically for a better and safer way to add configuration to your app, then maybe you should check out PyConfig. It is minimal, single-purpose and simple. There's effectively no learning curve and the package is fairly small, with no unnecessary features. It also enforces immutability, which is optional in `pydantic`_. In my opinion, you need to know what you're doing and be disciplined when using `pydantic`_ (specifically in terms of app configuration), while PyConfig just naturally guides you towards the best practices. But hey, I'm definitely biased...
+
+.. End of shared content with docs page -- 4d27310aef2246e393a6f1647d6e9950
 
 Detailed documentation
 ================================================================================
