@@ -1,5 +1,5 @@
 Loading configs
-===============
+================================================================================
 
 This section documents the functions used (usually on app start-up) to load the configuration from a file or from
 environment variables. It also describes functions that can help you add useful command-line arguments to your app

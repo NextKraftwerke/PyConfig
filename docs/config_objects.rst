@@ -1,5 +1,5 @@
 Config objects
-==============
+================================================================================
 
 Here we describe the types and functions you can use to model configuration within your app. Usually each app will
 have a single subclass of :py:class:`~nx_config.Config`.

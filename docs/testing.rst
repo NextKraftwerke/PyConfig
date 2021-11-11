@@ -1,5 +1,5 @@
 Testing with PyConfig
-=====================
+================================================================================
 
 Config objects are made to be mostly immutable (meaning that only the very few loading functions are able to modify
 them). This makes it easier to track at which points in the app the config might possibly change. On the other hand,
