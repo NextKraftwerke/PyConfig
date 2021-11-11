@@ -5,12 +5,10 @@
 .. |@validate| replace:: :py:func:`~nx_config.@validate`
 .. |fill_config| replace:: :py:func:`~nx_config.fill_config`
 .. |fill_config_from_path| replace:: :py:func:`~nx_config.fill_config_from_path`
-.. TODO: Show "test_utils."
-.. |test_utils.update_section| replace:: :py:func:`~nx_config.test_utils.update_section`
+.. |test_utils.update_section| replace:: :py:func:`.test_utils.update_section`
 .. |add_cli_options| replace:: :py:func:`~nx_config.add_cli_options`
 .. |resolve_config_path| replace:: :py:func:`~nx_config.resolve_config_path`
 
-.. TODO
 .. |add_cli_options(<parser>, config_t=<config_class>)| replace:: TODO
 .. |add_cli_options(parser, prefix="bar", config_t=type(config))| replace:: TODO
 .. |resolve_config_path("bar", cli_args=...)| replace:: TODO
@@ -19,4 +17,4 @@
 
 .. include:: ../README.rst
   :start-after: 4d27310aef2246e393a6f1647d6e9950
-  :end-before: 4d27310aef2246e393a6f1647d6e9950
+  :end-before:  4d27310aef2246e393a6f1647d6e9950
