@@ -1,15 +1,21 @@
-.. TODO: Add links to the following references once we have a stable docs URL.
-.. _Config: TODO
-.. _ConfigSection: TODO
-.. _URL: TODO
-.. _SecretString: TODO
-.. _@validate: TODO
-.. _fill_config: TODO
-.. _fill_config_from_path: TODO
-.. _test_utils.update_section: TODO
-.. _add_cli_options: TODO
-.. _resolve_config_path: TODO
-.. _docs: TODO
+.. |Config| replace:: :py:class:`~nx_config.Config`
+.. |ConfigSection| replace:: :py:class:`~nx_config.ConfigSection`
+.. |URL| replace:: :py:class:`~nx_config.URL`
+.. |SecretString| replace:: :py:class:`~nx_config.SecretString`
+.. |@validate| replace:: :py:func:`~nx_config.@validate`
+.. |fill_config| replace:: :py:func:`~nx_config.fill_config`
+.. |fill_config_from_path| replace:: :py:func:`~nx_config.fill_config_from_path`
+.. TODO: Show "test_utils."
+.. |test_utils.update_section| replace:: :py:func:`~nx_config.test_utils.update_section`
+.. |add_cli_options| replace:: :py:func:`~nx_config.add_cli_options`
+.. |resolve_config_path| replace:: :py:func:`~nx_config.resolve_config_path`
+
+.. TODO
+.. |add_cli_options(<parser>, config_t=<config_class>)| replace:: TODO
+.. |add_cli_options(parser, prefix="bar", config_t=type(config))| replace:: TODO
+.. |resolve_config_path("bar", cli_args=...)| replace:: TODO
+.. |fill_config_from_path(config, path=..., env_prefix="FOO")| replace:: TODO
+.. |nx_config.SecretString| replace:: :py:class:`nx_config.SecretString`
 
 .. include:: ../README.rst
   :start-after: 4d27310aef2246e393a6f1647d6e9950
