@@ -36,7 +36,7 @@
 .. |resolve_config_path| replace:: `resolve_config_path()`_
 
 .. TODO: Add links to the following references once we have a stable docs URL.
-.. _placeholder: https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
+.. _placeholder: https://www.youtube.com/watch?v=dQw4w9WgXcQ
 .. _docs: `placeholder`_
 .. _Config: `placeholder`_
 .. _ConfigSection: `placeholder`_
