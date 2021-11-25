@@ -1,0 +1,650 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>PyConfig &#8212; PyConfig 0.2.0-beta.4 documentation</title><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/pydoctheme.css?2021.11.1" />
+    
+    <script data-url_root="#" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex/" />
+    <link rel="search" title="Search" href="search/" />
+    <link rel="next" title="Config objects" href="config_objects/" /><link rel="shortcut icon" type="image/png" href="_static/py.svg" />
+            <script type="text/javascript" src="_static/copybutton.js"></script>
+            <script type="text/javascript" src="_static/menu.js"></script> 
+  </head>
+<body>
+<div class="mobile-nav">
+    <input type="checkbox" id="menuToggler" class="toggler__input" aria-controls="navigation"
+           aria-pressed="false" aria-expanded="false" role="button" aria-label="Menu" />
+    <label for="menuToggler" class="toggler__label">
+        <span></span>
+    </label>
+    <nav class="nav-content" role="navigation">
+         <a href="https://www.python.org/" class="nav-logo">
+             <img src="_static/py.svg" alt="Logo"/>
+         </a>
+        <div class="version_switcher_placeholder"></div>
+        <form role="search" class="search" action="search/" method="get">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="search-icon">
+                <path fill-rule="nonzero"
+                        d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 001.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 00-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 005.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="#444"></path>
+            </svg>
+            <input type="text" name="q" aria-label="Quick search"/>
+            <input type="submit" value="Go"/>
+        </form>
+    </nav>
+    <div class="menu-wrapper">
+        <nav class="menu" role="navigation" aria-label="main navigation">
+            <div class="language_switcher_placeholder"></div>
+  <h3><a href="#">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">PyConfig</a><ul>
+<li><a class="reference internal" href="#topics-within-this-guide">Topics within this guide</a></li>
+<li><a class="reference internal" href="#introduction-by-example">Introduction by example</a><ul>
+<li><a class="reference internal" href="#install-pyconfig-package-name-nx-config">Install PyConfig (package name <code class="docutils literal notranslate"><span class="pre">nx_config</span></code>)</a></li>
+<li><a class="reference internal" href="#create-a-config-class-and-its-sections-classes">Create a config class and its sections classes</a></li>
+<li><a class="reference internal" href="#use-the-configuration-in-your-code">Use the configuration in your code</a></li>
+<li><a class="reference internal" href="#load-the-configuration-on-startup">Load the configuration on startup</a></li>
+<li><a class="reference internal" href="#write-a-configuration-file">Write a configuration file</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#why">Why?</a><ul>
+<li><a class="reference internal" href="#avoiding-hard-coded-paths">Avoiding hard-coded paths</a></li>
+<li><a class="reference internal" href="#immutability">Immutability</a></li>
+<li><a class="reference internal" href="#config-file-formats">Config file formats</a></li>
+<li><a class="reference internal" href="#documenting-configuration-options">Documenting configuration options</a></li>
+<li><a class="reference internal" href="#automatic-validation-and-failing-at-startup">Automatic validation and failing at startup</a></li>
+<li><a class="reference internal" href="#logging-and-secrets">Logging (and secrets)</a></li>
+<li><a class="reference internal" href="#attributes-instead-of-strings">Attributes instead of strings</a></li>
+<li><a class="reference internal" href="#handy-configuration-through-environment-variables">Handy configuration through environment variables</a></li>
+<li><a class="reference internal" href="#support-for-the-most-useful-types">Support for the most useful types</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#a-note-on-imports">A note on imports</a></li>
+<li><a class="reference internal" href="#a-note-on-configuring-libraries-vs-apps">A note on configuring libraries vs apps</a></li>
+<li><a class="reference internal" href="#a-note-on-pydantic">A note on pydantic</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="config_objects/"
+                        title="next chapter">Config objects</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search/" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </nav>
+    </div>
+</div>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex/" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="config_objects/" title="Config objects"
+             accesskey="N">next</a> |</li>
+          <li><img src="_static/py.svg" alt="python logo" style="vertical-align: middle; margin-top: -1px"/></li>
+          <li><a href="https://www.python.org/">Python</a> &#187;</li>
+          <li class="switchers">
+            <div class="language_switcher_placeholder"></div>
+            <div class="version_switcher_placeholder"></div>
+          </li>
+          <li>
+              
+              <a href="#">PyConfig 0.2.0-beta.4 documentation</a> &#187;
+              
+          </li>
+        <li class="nav-item nav-item-this"><a href="">PyConfig</a></li>
+                <li class="right">
+                    
+
+    <div class="inline-search" role="search">
+        <form class="inline-search" action="search/" method="get">
+          <input placeholder="Quick search" aria-label="Quick search" type="text" name="q" />
+          <input type="submit" value="Go" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+                     |
+                </li>
+            
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="pyconfig">
+<h1>PyConfig<a class="headerlink" href="#pyconfig" title="Permalink to this headline">¶</a></h1>
+<p><em>Welcome!</em></p>
+<p>PyConfig helps you write configurable applications with ease and takes care of config validation at loading time. It allows the end-user to choose their configuration language and whether to use files or environment variables or both. The library is designed to make best practices the natural way to do things and to remove the need to write and maintain documentation of the configuration options.</p>
+<p>This guide includes the detailed documentation of the public API in the <em>topic-pages</em> listed below, as well as a friendlier introduction in this first page to get warmed up. I did my best. Pour yourself a fresh cup of coffee and have fun!</p>
+<section id="topics-within-this-guide">
+<h2>Topics within this guide<a class="headerlink" href="#topics-within-this-guide" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="config_objects/">Config objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="loading_and_cmdline/">Loading configs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing/">Testing with PyConfig</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exceptions/">Exceptions</a></li>
+</ul>
+</div>
+</section>
+<section id="introduction-by-example">
+<h2>Introduction by example<a class="headerlink" href="#introduction-by-example" title="Permalink to this headline">¶</a></h2>
+<p>You can find a complete guide of the library further down, but for simple use cases it might suffice to just look at an example, so that’s how we’ll start.</p>
+<p>In this example we pretend to build an app that greets the user and exits. The user can provide a name through the <code class="docutils literal notranslate"><span class="pre">--name</span></code> argument. The greeting also includes a suggestion to go out or stay home depending on whether it’s going to rain.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python -m demo
+<span class="go">Hello, world! It&#39;s a beautiful day outside. Have fun!</span>
+<span class="gp">$ </span>python -m demo --name Dave
+<span class="go">Hello, Dave! You should probably stay home today...</span>
+</pre></div>
+</div>
+<section id="install-pyconfig-package-name-nx-config">
+<h3>Install PyConfig (package name <code class="docutils literal notranslate"><span class="pre">nx_config</span></code>)<a class="headerlink" href="#install-pyconfig-package-name-nx-config" title="Permalink to this headline">¶</a></h3>
+<p>With <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip install nx_config
+</pre></div>
+</div>
+<p>Or with <code class="docutils literal notranslate"><span class="pre">poetry</span></code>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>poetry add nx_config
+</pre></div>
+</div>
+</section>
+<section id="create-a-config-class-and-its-sections-classes">
+<h3>Create a config class and its sections classes<a class="headerlink" href="#create-a-config-class-and-its-sections-classes" title="Permalink to this headline">¶</a></h3>
+<p>Start by adding a new file, say <em>config.py</em>, to your app. In it, you’ll define a few “section classes” (which are subclasses of <a class="reference internal" href="config_objects/#nx_config.ConfigSection" title="nx_config.ConfigSection"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigSection</span></code></a>) and a “config class” (which is a subclass of <a class="reference internal" href="config_objects/#nx_config.Config" title="nx_config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a>), and then initialize a global instance of it (see further down why this is okay):</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># demo/config.py</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">from</span> <span class="nn">nx_config</span> <span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">ConfigSection</span><span class="p">,</span> <span class="n">URL</span><span class="p">,</span> <span class="n">SecretString</span><span class="p">,</span> <span class="n">validate</span>
+
+
+<span class="k">class</span> <span class="nc">GreetingSection</span><span class="p">(</span><span class="n">ConfigSection</span><span class="p">):</span>
+    <span class="n">num_exclamation_marks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">all_caps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="nd">@validate</span>
+    <span class="k">def</span> <span class="nf">positive_exclamation_marks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_exclamation_marks</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Number of exclamation marks must be positive!&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">WeatherSection</span><span class="p">(</span><span class="n">ConfigSection</span><span class="p">):</span>
+    <span class="n">service_url</span><span class="p">:</span> <span class="n">URL</span>
+    <span class="n">username</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">password</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SecretString</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">timeout_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">70.0</span>
+
+    <span class="nd">@validate</span>
+    <span class="k">def</span> <span class="nf">username_and_password_go_together</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">^</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">password</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must either provide both username and password or neither of them!&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">timedelta</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout_s</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">DemoConfig</span><span class="p">(</span><span class="n">Config</span><span class="p">):</span>
+    <span class="n">greet</span><span class="p">:</span> <span class="n">GreetingSection</span>
+    <span class="n">weather</span><span class="p">:</span> <span class="n">WeatherSection</span>
+
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">DemoConfig</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Here we make the following configurable:</p>
+<ul class="simple">
+<li><p>How many exclamation marks are added after “world” or the user’s name.</p></li>
+<li><p>Whether the whole greeting is printed in upper case letters or not.</p></li>
+<li><p>Which web service will be used to get the weather data (rain probability).</p></li>
+<li><p>User credentials for the weather service.</p></li>
+<li><p>The client-side timeout for requests to the weather service.</p></li>
+</ul>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">username</span></code> and <code class="docutils literal notranslate"><span class="pre">password</span></code> are of optional types, i.e., can be None (some weather services might be free). Also, some entries in each section have a default value, while others don’t (which means the user must provide a value through a config file or an environment variable).</p>
+<p>We see here the <a class="reference internal" href="config_objects/#nx_config.URL" title="nx_config.URL"><code class="xref py py-class docutils literal notranslate"><span class="pre">URL</span></code></a> and <a class="reference internal" href="config_objects/#nx_config.SecretString" title="nx_config.SecretString"><code class="xref py py-class docutils literal notranslate"><span class="pre">SecretString</span></code></a> types. The values of such entries are just ordinary python strings. These type-hints are used to convey intent to the user and to allow PyConfig to perform validations and other special behaviour. For example, an entry of type <a class="reference internal" href="config_objects/#nx_config.SecretString" title="nx_config.SecretString"><code class="xref py py-class docutils literal notranslate"><span class="pre">SecretString</span></code></a> is not allowed to have a default value (unless it is optional and the default value is <code class="docutils literal notranslate"><span class="pre">None</span></code>). Furthermore, when you print a config or just a section, entries of type <a class="reference internal" href="config_objects/#nx_config.SecretString" title="nx_config.SecretString"><code class="xref py py-class docutils literal notranslate"><span class="pre">SecretString</span></code></a> will be replaced with asterisks <code class="docutils literal notranslate"><span class="pre">&quot;*****&quot;</span></code>.</p>
+<p>The methods annotated with <code class="xref py py-func docutils literal notranslate"><span class="pre">&#64;validate()</span></code> will be called automatically right after the config is loaded (ideally at the startup of your app). Each is used to validate an individual section and sections can have multiple validators.</p>
+<p>The combination of the entry <code class="docutils literal notranslate"><span class="pre">timeout_s</span></code> and the method <code class="docutils literal notranslate"><span class="pre">timeout</span></code> above helps us avoid ambiguity for the users while being able to work with a unit-agnostic type: The name of the actual config field <code class="docutils literal notranslate"><span class="pre">timeout_s</span></code> clearly tells users they must provide the value <em>in seconds</em>, but in our code we instead use the <code class="docutils literal notranslate"><span class="pre">timeout</span></code> method and therefore work only with <code class="docutils literal notranslate"><span class="pre">timedelta</span></code> objects, never having to worry about measurement units.</p>
+<p>Finally, the use of a global config object may seem dangerous (especially in python), but <a class="reference internal" href="config_objects/#nx_config.Config" title="nx_config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a> and <a class="reference internal" href="config_objects/#nx_config.ConfigSection" title="nx_config.ConfigSection"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigSection</span></code></a> objects are always* immutable, so there’s no global <em>state</em> to worry about.</p>
+<blockquote>
+<div><p>*: There are two ways in which the contents of the config can be mutated. One is when loading it with <a class="reference internal" href="loading_and_cmdline/#nx_config.fill_config" title="nx_config.fill_config"><code class="xref py py-func docutils literal notranslate"><span class="pre">fill_config()</span></code></a> or <a class="reference internal" href="loading_and_cmdline/#nx_config.fill_config_from_path" title="nx_config.fill_config_from_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">fill_config_from_path()</span></code></a>. The other is with <a class="reference internal" href="testing/#nx_config.test_utils.update_section" title="nx_config.test_utils.update_section"><code class="xref py py-func docutils literal notranslate"><span class="pre">test_utils.update_section()</span></code></a>. You can quickly find all usages of these functions in your repository. Loading functions are ideally used only once and only at startup. And using the <code class="docutils literal notranslate"><span class="pre">test_utils</span></code> module in production code should be entirely forbidden!</p>
+</div></blockquote>
+</section>
+<section id="use-the-configuration-in-your-code">
+<h3>Use the configuration in your code<a class="headerlink" href="#use-the-configuration-in-your-code" title="Permalink to this headline">¶</a></h3>
+<p>The core of our app will be implemented in the <em>greet.py</em> module, where we use the global config several times:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># demo/greet.py</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">random</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Mapping</span>
+
+<span class="kn">from</span> <span class="nn">demo.config</span> <span class="kn">import</span> <span class="n">config</span>
+
+
+<span class="k">def</span> <span class="nf">_get_rain_probability</span><span class="p">(</span>
+    <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">timedelta</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">random</span><span class="p">()</span>  <span class="c1"># Just as reliable as a weather service...</span>
+
+
+<span class="k">def</span> <span class="nf">greet</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Hello, </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;!&quot;</span> <span class="o">*</span> <span class="n">config</span><span class="o">.</span><span class="n">greet</span><span class="o">.</span><span class="n">num_exclamation_marks</span><span class="p">)</span>  <span class="c1"># &lt;= config used here</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">greet</span><span class="o">.</span><span class="n">all_caps</span><span class="p">:</span>  <span class="c1"># &lt;= and here</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># &lt;= here too</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>  <span class="c1"># &lt;= and here</span>
+            <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">password</span><span class="p">,</span>  <span class="c1"># &lt;= and again</span>
+        <span class="p">}</span>
+
+    <span class="n">rain_prob</span> <span class="o">=</span> <span class="n">_get_rain_probability</span><span class="p">(</span>
+        <span class="n">url</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">service_url</span><span class="p">,</span>  <span class="c1"># &lt;= once more</span>
+        <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">timeout</span><span class="p">(),</span>  <span class="c1"># &lt;= last time</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">rain_prob</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; You should probably stay home today...&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; It&#39;s a beautiful day outside. Have fun!&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Your IDE will probably offer auto-completion for section names and entries within sections. In contrast to the usual approach with dictionaries (e.g. with <a class="reference external" href="https://docs.python.org/3/library/configparser.html">configparser</a>), it’s very unlikely that you’ll make a typing error this way. And even if you do, you’ll be trying to get an attribute that doesn’t exist and in PyConfig the attributes of configs and sections are determined by the class declaration (they do not depend on the configuration file provided by the user at runtime). This means that if you test your code and don’t get an <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code>, you can be certain you won’t get an <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code> in production either, regardless of what your users write in their configuration files.</p>
+</section>
+<section id="load-the-configuration-on-startup">
+<h3>Load the configuration on startup<a class="headerlink" href="#load-the-configuration-on-startup" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># demo/__main__.py</span>
+<span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">ArgumentParser</span>
+
+<span class="kn">from</span> <span class="nn">demo.config</span> <span class="kn">import</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">demo.greet</span> <span class="kn">import</span> <span class="n">greet</span>
+<span class="kn">from</span> <span class="nn">nx_config</span> <span class="kn">import</span> <span class="n">add_cli_options</span><span class="p">,</span> <span class="n">resolve_config_path</span><span class="p">,</span> <span class="n">fill_config_from_path</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--name&quot;</span><span class="p">)</span>
+<span class="n">add_cli_options</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">config_t</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+<span class="n">fill_config_from_path</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">resolve_config_path</span><span class="p">(</span><span class="n">cli_args</span><span class="o">=</span><span class="n">args</span><span class="p">))</span>
+
+<span class="n">greet</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;world&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The magic here happens in <a class="reference internal" href="loading_and_cmdline/#nx_config.fill_config_from_path" title="nx_config.fill_config_from_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">fill_config_from_path()</span></code></a>. This function will read a configuration file and fill the <code class="docutils literal notranslate"><span class="pre">config</span></code> object’s entries with the corresponding values. The path can be hard-coded (not recommended) or you can use <a class="reference internal" href="loading_and_cmdline/#nx_config.resolve_config_path" title="nx_config.resolve_config_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">resolve_config_path()</span></code></a> without arguments, in which case the path is provided through the <code class="docutils literal notranslate"><span class="pre">CONFIG_PATH</span></code> environment variable (better), or you can use an <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser">argparse.ArgumentParser</a> as above to allow the user to provide the config-path as a CLI argument (best). The helper <a class="reference internal" href="loading_and_cmdline/#nx_config.add_cli_options" title="nx_config.add_cli_options"><code class="xref py py-func docutils literal notranslate"><span class="pre">add_cli_options()</span></code></a> will add the option <code class="docutils literal notranslate"><span class="pre">--config-path</span></code> (among other things), which <a class="reference internal" href="loading_and_cmdline/#nx_config.resolve_config_path" title="nx_config.resolve_config_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">resolve_config_path()</span></code></a> will try to read. If the user does not provide a path on the command line, <a class="reference internal" href="loading_and_cmdline/#nx_config.resolve_config_path" title="nx_config.resolve_config_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">resolve_config_path()</span></code></a> will still use the <code class="docutils literal notranslate"><span class="pre">CONFIG_PATH</span></code> environment variable as a fallback.</p>
+<p>The format of the config file will be determined by the path’s extension (e.g. <em>.yaml</em> for YAML). Note that it’s fine (and a common practice) to not provide a config file at all (neither through <code class="docutils literal notranslate"><span class="pre">--config-path</span></code> nor through <code class="docutils literal notranslate"><span class="pre">CONFIG_PATH</span></code>). In this case, the configuration values will be read from environment variables named <code class="docutils literal notranslate"><span class="pre">SECTIONNAME__ENTRYNAME</span></code> (<strong>double underscore!</strong>). Even if a config file is provided, values can still be overriden through these environment variables, as we’ll see below.</p>
+</section>
+<section id="write-a-configuration-file">
+<h3>Write a configuration file<a class="headerlink" href="#write-a-configuration-file" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference internal" href="loading_and_cmdline/#nx_config.add_cli_options" title="nx_config.add_cli_options"><code class="xref py py-func docutils literal notranslate"><span class="pre">add_cli_options()</span></code></a> function above also adds a <code class="docutils literal notranslate"><span class="pre">--generate-config</span></code> option that prints out a template config file and exits. It is intended to be used as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python -m demo --generate-config<span class="o">=</span>yaml &gt; demo/config.yaml
+</pre></div>
+</div>
+<p>which in this example results in the following file:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># demo/config.yaml</span>
+<span class="nt">greet</span><span class="p">:</span>
+  <span class="c1">#num_exclamation_marks:</span>
+  <span class="c1">#all_caps:</span>
+<span class="nt">weather</span><span class="p">:</span>
+  <span class="nt">service_url</span><span class="p">:</span>
+  <span class="c1">#username:</span>
+  <span class="c1">#password:</span>
+  <span class="c1">#timeout_s:</span>
+</pre></div>
+</div>
+<p>All entries and all sections are present, but entries that have a default value are commented-out, so you know exactly what you <em>need</em> to fill out for the program to run. We can fill out the <code class="docutils literal notranslate"><span class="pre">service_url</span></code> in this file, say</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">service_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">www.weatherservice24.com/rain</span>
+</pre></div>
+</div>
+<p>and use it to run our app. We can still change other entries (or even override values from this file) using canonically named environment variables such as <code class="docutils literal notranslate"><span class="pre">GREET__NUM_EXCLAMATION_MARKS</span></code>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span> <span class="nv">GREET__NUM_EXCLAMATION_MARKS</span><span class="o">=</span><span class="m">5</span>
+<span class="gp">$ </span>python -m demo --name Dave --config-path demo/config.yaml
+<span class="go">Hello, Dave!!!!! It&#39;s a beautiful day outside. Have fun!</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="why">
+<h2>Why?<a class="headerlink" href="#why" title="Permalink to this headline">¶</a></h2>
+<p>What’s so great about PyConfig? Why should you bother learning to use yet another library when <a class="reference external" href="https://docs.python.org/3/library/configparser.html">configparser</a> already does a pretty good job? Also: There are <strong>dozens</strong> of configuration libraries for python already! What makes PyConfig different?</p>
+<section id="avoiding-hard-coded-paths">
+<h3>Avoiding hard-coded paths<a class="headerlink" href="#avoiding-hard-coded-paths" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference external" href="https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read">configparser.ConfigParser.read()</a> method takes a string or <code class="docutils literal notranslate"><span class="pre">PathLike</span></code> (or several) as argument. I have seen and worked on many, many projects where this argument was written as a hard-coded, version-controlled string. This is, of course, in most cases a bad idea. It makes it difficult to try out the code locally, or deploy it on multiple servers automatically, can result in clashes with different applications using the same path (and therefore making it impossible to configure them independently), cause headaches due to missing permissions and so on. It also makes it annoying and slow to use different configurations for different runs of the same application.</p>
+<p>Most developers working on those projects knew it was a bad idea and knew how to avoid it (e.g. get the path from a CLI argument or from an environment variable) but (a) these solutions would require a bit of extra work and (b) they would require teaching the user how to provide the config path… for each application!</p>
+<p>PyConfig offers two really simple solutions to this, making the best practice <em>nearly</em> the easiest thing to do. First, you can use the function <a class="reference internal" href="loading_and_cmdline/#nx_config.resolve_config_path" title="nx_config.resolve_config_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">resolve_config_path()</span></code></a> with no arguments. This will return a <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">pathlib.Path</a> from the value of the <code class="docutils literal notranslate"><span class="pre">CONFIG_PATH</span></code> environment variable if defined, and <code class="docutils literal notranslate"><span class="pre">None</span></code> otherwise. With a little extra effort, by using an <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser">argparse.ArgumentParser</a> and <a class="reference internal" href="loading_and_cmdline/#nx_config.add_cli_options" title="nx_config.add_cli_options"><code class="xref py py-func docutils literal notranslate"><span class="pre">add_cli_options()</span></code></a> you can allow your end-users to provide a config path either through the <code class="docutils literal notranslate"><span class="pre">--config-path</span></code> CLI option or the <code class="docutils literal notranslate"><span class="pre">CONFIG_PATH</span></code> environment variable:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">()</span>
+<span class="n">add_cli_options</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">config_t</span><span class="o">=</span><span class="n">DemoConfig</span><span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">resolve_config_path</span><span class="p">(</span><span class="n">cli_args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you have multiple apps sharing environment variables or you use multiple config classes for a single app (should rarely be necessary), you can add a prefix to both the CLI option and the path environment variable:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">()</span>
+<span class="n">add_cli_options</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;demo&quot;</span><span class="p">,</span> <span class="n">config_t</span><span class="o">=</span><span class="n">DemoConfig</span><span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">resolve_config_path</span><span class="p">(</span><span class="s2">&quot;demo&quot;</span><span class="p">,</span> <span class="n">cli_args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now the CLI option <code class="docutils literal notranslate"><span class="pre">--demo-config-path</span></code> and the environment variable <code class="docutils literal notranslate"><span class="pre">DEMO_CONFIG_PATH</span></code> will be used instead.</p>
+<p>Most importantly, this solution offers a standardized way for users to provide config files, through arguments that follow a simple naming convention, for <em>all</em> apps using PyConfig.</p>
+</section>
+<section id="immutability">
+<h3>Immutability<a class="headerlink" href="#immutability" title="Permalink to this headline">¶</a></h3>
+<p>Some might argue that in the example above we shouldn’t have created a <em>global</em> <code class="docutils literal notranslate"><span class="pre">config</span></code> object that’s just <em>loaded</em> at startup, but instead we should have created and loaded a <code class="docutils literal notranslate"><span class="pre">config</span></code> object in <em>__main__.py</em> and then injected it into the <code class="docutils literal notranslate"><span class="pre">greet</span></code> call. In most cases, I’d agree with this advice. But it is aimed at avoiding global <em>state</em>, i.e., global variables that can be read and modified from anywhere in the code, usually causing trouble.</p>
+<p>In the case of <a class="reference internal" href="config_objects/#nx_config.Config" title="nx_config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a> instances we don’t have to worry*. The config object, each of its sections and each of their entries are all immutable** so an instance is just a namespace for some constants. The supported types for section entries are also all immutable, including the supported collection types <code class="docutils literal notranslate"><span class="pre">tuple</span></code> and <code class="docutils literal notranslate"><span class="pre">frozenset</span></code>.</p>
+<p>Many configuration libraries allow the config object to be modified freely at any time, which is particularly problematic with long-running services. If a critical error or even a crash occurs, you don’t have any guarantees that the configuration you provided at startup is still the one being used. The current configuration might be completely different from the values you see in your config files. This makes it difficult to understand and replicate bugs. With PyConfig it’s very easy to check whether the config can ever change by searching for uses of <a class="reference internal" href="loading_and_cmdline/#nx_config.fill_config" title="nx_config.fill_config"><code class="xref py py-func docutils literal notranslate"><span class="pre">fill_config()</span></code></a> and <a class="reference internal" href="loading_and_cmdline/#nx_config.fill_config_from_path" title="nx_config.fill_config_from_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">fill_config_from_path()</span></code></a> in the project. Ideally it will be loaded once and only once at startup but even if your app allows for config updates while running, the logic coordinating this will at least be easy to find. Also, check out the section on ‘logging’ below, which can be very helpful to make your app easy to debug.</p>
+<p>To facilitate testing with different configurations, we’ve added the function <a class="reference internal" href="testing/#nx_config.test_utils.update_section" title="nx_config.test_utils.update_section"><code class="xref py py-func docutils literal notranslate"><span class="pre">test_utils.update_section()</span></code></a> (which can only be imported through the module <code class="docutils literal notranslate"><span class="pre">test_utils</span></code>, not directly from <code class="docutils literal notranslate"><span class="pre">nx_config</span></code>):</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># tests/test_greeting.py</span>
+<span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
+<span class="kn">from</span> <span class="nn">nx_config.test_utils</span> <span class="kn">import</span> <span class="n">update_section</span>
+<span class="kn">from</span> <span class="nn">demo.config</span> <span class="kn">import</span> <span class="n">config</span>
+
+<span class="k">class</span> <span class="nc">DemoTests</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="o">...</span>  <span class="c1"># load your base config values for testing</span>
+
+    <span class="k">def</span> <span class="nf">test_something</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">update_section</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">greet</span><span class="p">,</span> <span class="n">num_exclamation_marks</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+        <span class="o">...</span>  <span class="c1"># call code that uses config</span>
+</pre></div>
+</div>
+<p>Again, you can easily scan your project for uses of <code class="docutils literal notranslate"><span class="pre">test_utils</span></code>. It should obviously be used only in tests and never in production code. And that’s it! <a class="reference internal" href="loading_and_cmdline/#nx_config.fill_config" title="nx_config.fill_config"><code class="xref py py-func docutils literal notranslate"><span class="pre">fill_config()</span></code></a>, <a class="reference internal" href="loading_and_cmdline/#nx_config.fill_config_from_path" title="nx_config.fill_config_from_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">fill_config_from_path()</span></code></a> and <a class="reference internal" href="testing/#nx_config.test_utils.update_section" title="nx_config.test_utils.update_section"><code class="xref py py-func docutils literal notranslate"><span class="pre">test_utils.update_section()</span></code></a> are the only ways to modify a config instance***.</p>
+<blockquote>
+<div><p>*, ** and ***: Of course… this is python… There are always dark ways to cheat by messing with the internal attributes of configs and sections. Let’s just assume all contributors to your project are well-meaning grown ups.</p>
+</div></blockquote>
+</section>
+<section id="config-file-formats">
+<h3>Config file formats<a class="headerlink" href="#config-file-formats" title="Permalink to this headline">¶</a></h3>
+<p>Unlike many configuration libraries, PyConfig completely separates your code (and the modeling of your configuration options) from the input formats the end-user is allowed to choose for configuration. You only write python and don’t need to think for a second about YAML, INI, JSON, .ENV or whatever. <em>Your code is config-format-agnostic</em>.</p>
+<p>PyConfig currently supports YAML, INI and environment variables. However, it is designed to be easily extensible and we’ll be listening to the community to see what other formats would be good candidates. When new formats are added, all you need to do as a developer is install the latest version and your end-users can start enjoying the extra flexibility, even though your code stays the same.</p>
+<p>This freedom of choice can also be interesting for companies with teams using different programming languages. They have the option of defining a single, company-wide “configuration language” to be used in all projects. This is convenient for everyone and allows, for example, the use of centralized configuration files in production (e.g. with credentials to different services, common URLs and so on). At the same time, individual programmers can still pick a different “configuration language” for local testing if they want.</p>
+</section>
+<section id="documenting-configuration-options">
+<h3>Documenting configuration options<a class="headerlink" href="#documenting-configuration-options" title="Permalink to this headline">¶</a></h3>
+<p>One of the biggest advantages of using PyConfig is that the contents of the config model (i.e. which sections it should have, which entries each section should have, what their types should be etc) are defined <em>only</em> in code.</p>
+<p>With <a class="reference external" href="https://docs.python.org/3/library/configparser.html">configparser</a>, for example, it is common practice to have 3 independent “definitions” of the configuration options. One is the <em>usage</em> of the config mapping in the source code, which is spread throughout the repository and not always easy to find. The second is the <em>documentation</em> written for end-users, usually in PDF of markdown format, listing all the sections, entries, types and how to use each entry. The third is sometimes a <em>template</em> INI file that the end-users can copy and then fill out with their chosen values. These 3 “definitions” have to be maintained and kept in sync with each other, which is rarely the case. Very often developers might, for instance, delete some code that used a configuration value, or add code using a brand new config entry, or change the default value of an entry… and forget to update the documentation or the INI template. And even if you’re extra careful and put a lot of work into keeping your docs up-to-date, experienced end-users will still not trust your docs because they’ve fallen into that trap enough times in the past already.</p>
+<p>Enter: <em>PyConfig!</em> The code, i.e. your class definitions, is the only definition of the configuration options. It is the definitive truth, is always up-to-date and documents every detail of the config, including types, default values <em>and validity criteria</em>. And if you add docstrings to the config class and the section classes, they are much more likely to be kept up-to-date because they’re right next to the code they reference. Some tools even support docstrings directly below class attributes, so feel free to try it out.</p>
+<p>If you use the <a class="reference internal" href="loading_and_cmdline/#nx_config.add_cli_options" title="nx_config.add_cli_options"><code class="xref py py-func docutils literal notranslate"><span class="pre">add_cli_options()</span></code></a> function applied to an <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser">argparse.ArgumentParser</a>, your end-users get the <code class="docutils literal notranslate"><span class="pre">--generate-config</span></code> CLI option for free, with which they can generate config templates for any supported file format, e.g.:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python -m demo --generate-config<span class="o">=</span>yaml
+<span class="go">greet:</span>
+<span class="gp">  #</span>num_exclamation_marks:
+<span class="gp">  #</span>all_caps:
+<span class="go">weather:</span>
+<span class="go">  service_url:</span>
+<span class="gp">  #</span>username:
+<span class="gp">  #</span>password:
+<span class="gp">  #</span>timeout_s:
+</pre></div>
+</div>
+<p>Using <a class="reference internal" href="loading_and_cmdline/#nx_config.add_cli_options" title="nx_config.add_cli_options"><code class="xref py py-func docutils literal notranslate"><span class="pre">add_cli_options()</span></code></a> also adds the <code class="docutils literal notranslate"><span class="pre">--config-help</span></code> CLI option. It shows a message specifically documenting <em>the app’s config model</em>, followed by cheat-sheet-style, general instructions for configuring with PyConfig (aimed at end-users).</p>
+<p>This means all the documentation your app needs (in terms of configuration options) is easily, automagically generated from your class definitions and is always up-to-date! Even if you want to have the documentation directly available on your website or on github, you can setup the pipeline to re-generate it after every release. No maintenance needed.</p>
+<p>Contributors to your project are even happier: they only have to look at the python code, just the one module (often called <em>config.py</em>), without any additional PDFs or markdown files or webpages, and they’re guaranteed to find all relevant, current information there.</p>
+</section>
+<section id="automatic-validation-and-failing-at-startup">
+<h3>Automatic validation and failing at startup<a class="headerlink" href="#automatic-validation-and-failing-at-startup" title="Permalink to this headline">¶</a></h3>
+<p>PyConfig always validates the configuration input against the type-hints used in the <a class="reference internal" href="config_objects/#nx_config.ConfigSection" title="nx_config.ConfigSection"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigSection</span></code></a> subclass declaration. In the case of environment variables or INI files, the values are initially interpreted as strings, so “checking the type” means checking that the provided strings can be transformed into the intended types (i.e. the string <code class="docutils literal notranslate"><span class="pre">&quot;3.14&quot;</span></code> is fine for a <code class="docutils literal notranslate"><span class="pre">float</span></code>, but no good for a <a class="reference external" href="https://docs.python.org/3/library/uuid.html#uuid.UUID">UUID</a>). In the case of YAML or JSON files, for example, there are already standard libraries that parse them into python objects of different types, so only smaller conversions will be made (e.g. <code class="docutils literal notranslate"><span class="pre">str</span></code> to <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a> or <code class="docutils literal notranslate"><span class="pre">list</span></code> to <code class="docutils literal notranslate"><span class="pre">frozenset</span></code>) depending on the provided type-hints.</p>
+<p>Two more out-of-the-box automatic checks are:</p>
+<ul class="simple">
+<li><p>Users must provide a value for every field that doesn’t have a default.</p></li>
+<li><p>Secrets cannot have default values. They must always be provided by the end-user. (But <code class="docutils literal notranslate"><span class="pre">Optional[</span></code><a class="reference internal" href="config_objects/#nx_config.SecretString" title="nx_config.SecretString"><code class="xref py py-class docutils literal notranslate"><span class="pre">SecretString</span></code></a><code class="docutils literal notranslate"><span class="pre">]</span></code> can have default <code class="docutils literal notranslate"><span class="pre">None</span></code>, <code class="docutils literal notranslate"><span class="pre">tuple[</span></code><a class="reference internal" href="config_objects/#nx_config.SecretString" title="nx_config.SecretString"><code class="xref py py-class docutils literal notranslate"><span class="pre">SecretString</span></code></a><code class="docutils literal notranslate"><span class="pre">,</span> <span class="pre">...]</span></code> can have default <code class="docutils literal notranslate"><span class="pre">()</span></code> etc.)</p></li>
+</ul>
+<p>On top of these, you can add validating methods (single parameter <code class="docutils literal notranslate"><span class="pre">self</span></code>, no return value) to your section classes through the <code class="xref py py-func docutils literal notranslate"><span class="pre">&#64;validate()</span></code> annotation. These methods will be called right after filling in the values for the section in <a class="reference internal" href="loading_and_cmdline/#nx_config.fill_config" title="nx_config.fill_config"><code class="xref py py-func docutils literal notranslate"><span class="pre">fill_config()</span></code></a> or <a class="reference internal" href="loading_and_cmdline/#nx_config.fill_config_from_path" title="nx_config.fill_config_from_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">fill_config_from_path()</span></code></a> (see examples above).</p>
+<p>If you use PyConfig and follow the best practice of loading all configuration at the app’s startup (and only then), you’ll never have to worry about an invalid configuration value causing trouble days after your long-running service went up, in the middle of the night or during your soon-to-be-cut-short vacation. Can you do the same with other configuration libraries? Certainly. PyConfig is just friendly and convenient.</p>
+</section>
+<section id="logging-and-secrets">
+<h3>Logging (and secrets)<a class="headerlink" href="#logging-and-secrets" title="Permalink to this headline">¶</a></h3>
+<p>Both <a class="reference internal" href="config_objects/#nx_config.Config" title="nx_config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a> and <a class="reference internal" href="config_objects/#nx_config.ConfigSection" title="nx_config.ConfigSection"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigSection</span></code></a> subclasses can be very nicely printed with ease. The <code class="docutils literal notranslate"><span class="pre">__str__</span></code> method produces an inline description, while the <code class="docutils literal notranslate"><span class="pre">__repr__</span></code> method gives a multi-line and indented version. Moreover, secrets (i.e. section entries type-annotated as <a class="reference internal" href="config_objects/#nx_config.SecretString" title="nx_config.SecretString"><code class="xref py py-class docutils literal notranslate"><span class="pre">SecretString</span></code></a>) are automatically masked with asterisks, including optional secrets and collections of secrets*.</p>
+<p>Here are example outputs using the <code class="docutils literal notranslate"><span class="pre">DemoConfig</span></code> class from above:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+<span class="go">DemoConfig(greet=GreetingSection(num_exclamation_marks=1, all_caps=False), weather=WeatherSection(service_url=&#39;www.weatherservice24.dummy&#39;, username=&#39;Dave&#39;, password=&#39;*****&#39;, timeout_s=70.0))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">greet</span><span class="p">))</span>
+<span class="go">GreetingSection(num_exclamation_marks=1, all_caps=False)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+<span class="go">DemoConfig(</span>
+<span class="go">    greet=GreetingSection(</span>
+<span class="go">        num_exclamation_marks=1,</span>
+<span class="go">        all_caps=False,</span>
+<span class="go">    ),</span>
+<span class="go">    weather=WeatherSection(</span>
+<span class="go">        service_url=&#39;www.weatherservice24.dummy&#39;,</span>
+<span class="go">        username=&#39;Dave&#39;,</span>
+<span class="go">        password=&#39;*****&#39;,</span>
+<span class="go">        timeout_s=70.0,</span>
+<span class="go">    ),</span>
+<span class="go">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">greet</span><span class="p">))</span>
+<span class="go">GreetingSection(</span>
+<span class="go">    num_exclamation_marks=1,</span>
+<span class="go">    all_caps=False,</span>
+<span class="go">)</span>
+</pre></div>
+</div>
+<p>Having both formats available is very convenient when writing log messages, and indeed you should take advantage of this and log your app’s configuration in certain situations. A good idea would be to log the configuration right after it’s loaded at startup. Another approach would be to log the configuration whenever a serious error happens (this is more convenient for debugging, since all important information is bundled together with the error message). It’s also handy to just always log the entire configuration, instead of trying to guess a subset of its values that you think will be sufficient when debugging. And if you always log entire configs (or at least entire sections), you don’t have to worry about accidentally exposing your end-user’s secrets.</p>
+<p>The choice of which method gets which format was made with debugging in mind. In the REPL, if you just type the object you want to inspect, the result will be printed using <code class="docutils literal notranslate"><span class="pre">__repr__</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">config</span><span class="o">.</span><span class="n">weather</span>
+<span class="go">WeatherSection(</span>
+<span class="go">    service_url=&#39;www.weatherservice24.dummy&#39;,</span>
+<span class="go">    username=&#39;Dave&#39;,</span>
+<span class="go">    password=&#39;*****&#39;,</span>
+<span class="go">    timeout_s=70.0,</span>
+<span class="go">)</span>
+</pre></div>
+</div>
+<p>And if you use PyCharm, the “Variables” view on the console and the debugger displays values next to variable names using <code class="docutils literal notranslate"><span class="pre">__str__</span></code>, and the one-line description is much more suitable in that case.</p>
+<blockquote>
+<div><p>*: Secrets are masked only when you use the methods <code class="docutils literal notranslate"><span class="pre">__str__</span></code> and <code class="docutils literal notranslate"><span class="pre">__repr__</span></code> of <a class="reference internal" href="config_objects/#nx_config.Config" title="nx_config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a> and <a class="reference internal" href="config_objects/#nx_config.ConfigSection" title="nx_config.ConfigSection"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigSection</span></code></a>. Remember that the actual value of <code class="docutils literal notranslate"><span class="pre">my_config.my_section.my_secret</span></code> is just an ordinary built-in <code class="docutils literal notranslate"><span class="pre">str</span></code>, so if you print it in your logs it will <strong>not</strong> be masked!</p>
+</div></blockquote>
+</section>
+<section id="attributes-instead-of-strings">
+<h3>Attributes instead of strings<a class="headerlink" href="#attributes-instead-of-strings" title="Permalink to this headline">¶</a></h3>
+<p>Using attributes for sections and section-entries (<code class="docutils literal notranslate"><span class="pre">cfg.a_section.an_entry</span></code>) instead of the mapping style with strings used in many configuration libraries (<code class="docutils literal notranslate"><span class="pre">cfg[&quot;a_section&quot;][&quot;an_entry&quot;]</span></code>) is more than just shorter, prettier and easier to type.</p>
+<p>Your IDE can help you with dot-autocompletion to (a) present the available sections and section-entries and (b) avoid typing errors. This is especially important because even if your configuration is thoroughly validated at startup, a typing error when <em>using</em> the configuration might only cause trouble much, much later, when no one is watching and ready to take action. <em>(Of course, this could never happen in your company, since every one of your projects has 100% code coverage…)</em></p>
+<p>In theory, there’s even more the IDE could do. If you make typing errors in such attributes (because you didn’t use autocompletion), the static analyzer could highlight them and warn you. And if you decide to change the name of a section or section-entry, the IDE could help with automatic refactoring. Unfortunately, we haven’t managed to get them to work with PyConfig sections and entries yet. We know this is due to limitations of the IDE and the fact that PyConfig uses a lot of magic behind the scenes, but we’re still trying to understand exactly why it doesn’t work.</p>
+<p>Still, autocompletion + shorter + prettier is plenty of reason to prefer attributes over mappings.</p>
+</section>
+<section id="handy-configuration-through-environment-variables">
+<h3>Handy configuration through environment variables<a class="headerlink" href="#handy-configuration-through-environment-variables" title="Permalink to this headline">¶</a></h3>
+<p>There are situations in which configuring apps with files can be annoying, such as when doing quick tests and experiments locally on a terminal and changing just one or two configuration options all the time.</p>
+<p>With PyConfig you can <em>always</em> override any configurations from files with environment variables. The standard naming convention is <code class="docutils literal notranslate"><span class="pre">SECTIONNAME__ENTRYNAME</span></code> (yes, double underscore, which makes the separation clearer when the section name or the entry name also contain underscores). In the example above, we’ve seen how to override the <code class="docutils literal notranslate"><span class="pre">config.greet.num_exclamation_marks</span></code> entry by setting the <code class="docutils literal notranslate"><span class="pre">GREET__NUM_EXCLAMATION_MARKS</span></code> environment variable.</p>
+<p>If you have several configs in a single app or several apps sharing some environment variables, it’s also possible to use a prefix to make variable names more specific. For example, you could instead use the environment variable <code class="docutils literal notranslate"><span class="pre">FOO__GREET__NUM_EXCLAMATION_MARKS</span></code> and pass an <code class="docutils literal notranslate"><span class="pre">env_prefix</span></code> argument to <a class="reference internal" href="loading_and_cmdline/#nx_config.fill_config_from_path" title="nx_config.fill_config_from_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">fill_config_from_path()</span></code></a> when loading the configuration, as in <code class="docutils literal notranslate"><span class="pre">fill_config_from_path(config,</span> <span class="pre">path=...,</span> <span class="pre">env_prefix=&quot;FOO&quot;)</span></code>.</p>
+<p>Finally, even the path to the configuration file can be provided through an environment variable, namely <code class="docutils literal notranslate"><span class="pre">CONFIG_PATH</span></code>. Again, it’s possible to use a prefix to make this name more specific. For example, you could use the variable <code class="docutils literal notranslate"><span class="pre">BAR_CONFIG_PATH</span></code> instead, and get the path with <code class="docutils literal notranslate"><span class="pre">resolve_config_path(&quot;bar&quot;,</span> <span class="pre">cli_args=...)</span></code>. Note: If you use the <code class="docutils literal notranslate"><span class="pre">cli_args</span></code> argument in this case, <a class="reference internal" href="loading_and_cmdline/#nx_config.resolve_config_path" title="nx_config.resolve_config_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">resolve_config_path()</span></code></a> will look for the option <code class="docutils literal notranslate"><span class="pre">--bar-config-path</span></code> instead of <code class="docutils literal notranslate"><span class="pre">--config-path</span></code>, so make sure you use the same prefix when adding options to the <a class="reference external" href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser">argparse.ArgumentParser</a> by calling <a class="reference internal" href="loading_and_cmdline/#nx_config.add_cli_options" title="nx_config.add_cli_options"><code class="xref py py-func docutils literal notranslate"><span class="pre">add_cli_options()</span></code></a> with a <code class="docutils literal notranslate"><span class="pre">prefix</span></code> argument, as in <code class="docutils literal notranslate"><span class="pre">add_cli_options(parser,</span> <span class="pre">prefix=&quot;bar&quot;,</span> <span class="pre">config_t=type(config))</span></code>.</p>
+</section>
+<section id="support-for-the-most-useful-types">
+<h3>Support for the most useful types<a class="headerlink" href="#support-for-the-most-useful-types" title="Permalink to this headline">¶</a></h3>
+<p>After loading the config values, you should ideally be able to use them out of the box, without having to first convert them into something else. Most use cases should be covered by the types already supported by PyConfig (and there might be more on the way):</p>
+<ul class="simple">
+<li><p><strong>Base</strong> supported types are <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">bool</span></code>, <code class="docutils literal notranslate"><span class="pre">str</span></code>, <code class="docutils literal notranslate"><span class="pre">datetime.datetime</span></code>, <code class="docutils literal notranslate"><span class="pre">uuid.UUID</span></code>, <code class="docutils literal notranslate"><span class="pre">pathlib.Path</span></code>, <code class="docutils literal notranslate"><span class="pre">nx_config.SecretString</span></code>, and <code class="docutils literal notranslate"><span class="pre">nx_config.URL</span></code>.</p></li>
+<li><p><strong>Collection</strong> supported types are <code class="docutils literal notranslate"><span class="pre">typing.Tuple[base,</span> <span class="pre">...]</span></code> and <code class="docutils literal notranslate"><span class="pre">typing.FrozenSet[base]</span></code> in all python versions, and <code class="docutils literal notranslate"><span class="pre">tuple[base,</span> <span class="pre">...]</span></code> and <code class="docutils literal notranslate"><span class="pre">frozenset[base]</span></code> for python 3.9 and later (where <code class="docutils literal notranslate"><span class="pre">base</span></code> is one of the <em>base</em> supported types above). Note that the Ellipsis (<code class="docutils literal notranslate"><span class="pre">...</span></code>) in the tuple types is meant literally here, i.e., they represent tuples of arbitrary length where all elements are of the same type.</p></li>
+<li><p><strong>Optional</strong> supported types are <code class="docutils literal notranslate"><span class="pre">typing.Optional[base_or_coll]</span></code> (where <code class="docutils literal notranslate"><span class="pre">base_or_coll</span></code> is either one of the <em>base</em> or one of the <em>collection</em> supported types listed above). Note that “Optional” must be the outer-most layer, i.e. you <strong>cannot</strong> have collections of optional elements, such as <code class="docutils literal notranslate"><span class="pre">tuple[Optional[int],</span> <span class="pre">...]</span></code>.</p></li>
+</ul>
+<p>However, if you want to use your own, custom types, you’ll have to work a little harder. For example, if you want to use a unit-agnostic <code class="docutils literal notranslate"><span class="pre">Temperature</span></code> type, your end-users will have to provide a unit-bound value (e.g. <code class="docutils literal notranslate"><span class="pre">surface_temp_celsius:</span> <span class="pre">float</span></code>) and then you’ll have to convert it yourself (e.g. through a method <code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">surface_temp(self)</span> <span class="pre">-&gt;</span> <span class="pre">Temperature</span></code> in the same section).</p>
+</section>
+</section>
+<section id="a-note-on-imports">
+<h2>A note on imports<a class="headerlink" href="#a-note-on-imports" title="Permalink to this headline">¶</a></h2>
+<p>Everything you need from PyConfig for production code can (and should) be imported directly from the <code class="docutils literal notranslate"><span class="pre">nx_config</span></code> module:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nx_config</span> <span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">ConfigSection</span><span class="p">,</span> <span class="n">SecretString</span><span class="p">,</span> <span class="n">fill_config</span><span class="p">,</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>Everything you need from PyConfig for tests can (and should) be imported directly from the <code class="docutils literal notranslate"><span class="pre">nx_config.test_utils</span></code> module:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nx_config.test_utils</span> <span class="kn">import</span> <span class="n">update_section</span>
+</pre></div>
+</div>
+<p><strong>And that’s everything.</strong> If you find yourself importing stuff from other submodules: it’s probably not meant for you. I’ve made an effort to keep everything else protected behind underscores, but something may have slipped through, or might slip through in the future.</p>
+</section>
+<section id="a-note-on-configuring-libraries-vs-apps">
+<h2>A note on configuring libraries vs apps<a class="headerlink" href="#a-note-on-configuring-libraries-vs-apps" title="Permalink to this headline">¶</a></h2>
+<p>It usually doesn’t make much sense to use configuration from files and environment variables directly into libraries. Configuration should be required from and received by applications, which can then <em>inject</em> any necessary values into library classes and functions. Libraries should at least offer the application the <em>possibility</em> of injecting all relevant values as input parameters. This makes it easier and more convenient to write tests, and can even be important for performance.</p>
+<p>I’ve seen libraries offering classes that parsed configuration files when initialized (using default, hard-coded paths). Very well-informed users would initialize such objects rarely in their applications and keep them around for as long as possible. But most users just assumed initialization would have near-zero cost and created a new object whenever one was needed, unknowingly parsing files and throwing the information away over and over again.</p>
+<p>App writers should have the ultimate control over how and when files are read and parsed.</p>
+<p>Adding a <a class="reference internal" href="config_objects/#nx_config.Config" title="nx_config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a> subclass to a library is a very bad idea. It would force the app writers to use that class for that specific library and then use a different class for their own configuration options. Adding a <a class="reference internal" href="config_objects/#nx_config.ConfigSection" title="nx_config.ConfigSection"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigSection</span></code></a> subclass to a library <em>can</em> be a friendly feature for application writers, who can use such sections in their own <a class="reference internal" href="config_objects/#nx_config.Config" title="nx_config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a> classes. But even that might carry some rigidity with it: App writers might only want to give their users <em>some</em> control over the configuration of a library, but the <a class="reference internal" href="config_objects/#nx_config.ConfigSection" title="nx_config.ConfigSection"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigSection</span></code></a> provided by the library would likely give them full control.</p>
+<p>Keep it simple: Use PyConfig in applications. Use injection in libraries.</p>
+</section>
+<section id="a-note-on-pydantic">
+<h2>A note on <a class="reference external" href="https://pypi.org/project/pydantic/">pydantic</a><a class="headerlink" href="#a-note-on-pydantic" title="Permalink to this headline">¶</a></h2>
+<p>If you’re unfamiliar with <a class="reference external" href="https://pypi.org/project/pydantic/">pydantic</a>: It is a general “modeling” python library that offers pretty much everything that PyConfig does and <strong>much more</strong> (seriously). It is far more powerful and flexible and full of features and can be used brilliantly for configuration. It is also much older and more mature than PyConfig.</p>
+<p>When I first ran into <a class="reference external" href="https://pypi.org/project/pydantic/">pydantic</a>, I was actually very surprised with some of the similarities to parts of PyConfig, like the <code class="docutils literal notranslate"><span class="pre">&#64;validator()</span></code> annotation they offer, the <code class="docutils literal notranslate"><span class="pre">NamedTuple</span></code>-style class declaration and even the <code class="docutils literal notranslate"><span class="pre">SecretStr</span></code> type! In this last case, the <a class="reference internal" href="config_objects/#nx_config.SecretString" title="nx_config.SecretString"><code class="xref py py-class docutils literal notranslate"><span class="pre">nx_config.SecretString</span></code></a> type turns into an ordinary <code class="docutils literal notranslate"><span class="pre">str</span></code> at runtime, while the <code class="docutils literal notranslate"><span class="pre">pydantic.SecretStr</span></code> type is a wrapper around <code class="docutils literal notranslate"><span class="pre">str</span></code> and you need to call the <code class="docutils literal notranslate"><span class="pre">get_secret_value()</span></code> method to use the wrapped string. But that was even more interesting to see, because that’s exactly the approach I used in the first version of PyConfig, except my method was called <code class="docutils literal notranslate"><span class="pre">get_value_at_own_peril()</span></code> and it returned the protected member <code class="docutils literal notranslate"><span class="pre">_dont_you_dare_use_me</span></code>. Then some of my colleagues said they found secret strings annoying to use and made me change my mind.</p>
+<p>I have no criticism about <a class="reference external" href="https://pypi.org/project/pydantic/">pydantic</a> and I honestly don’t see other libraries as “competition”. We’re all in this together. But I do think there are times to use <a class="reference external" href="https://pypi.org/project/pydantic/">pydantic</a> and times to use PyConfig. If you’re already using <a class="reference external" href="https://pypi.org/project/pydantic/">pydantic</a> in your project, or you’re already very familiar with it, or you actually need it for modeling things other than configuration, please, by all means, go for it.</p>
+<p>If, however, you’re just looking specifically for a better and safer way to add configuration to your app, then maybe you should check out PyConfig. It is minimal, single-purpose and simple. There’s effectively no learning curve and the package is fairly small, with no unnecessary features. It also enforces immutability, which is optional in <a class="reference external" href="https://pypi.org/project/pydantic/">pydantic</a>. In my opinion, you need to know what you’re doing and be disciplined when using <a class="reference external" href="https://pypi.org/project/pydantic/">pydantic</a> (specifically in terms of app configuration), while PyConfig just naturally guides you towards the best practices. But hey, I’m definitely biased…</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">PyConfig</a><ul>
+<li><a class="reference internal" href="#topics-within-this-guide">Topics within this guide</a></li>
+<li><a class="reference internal" href="#introduction-by-example">Introduction by example</a><ul>
+<li><a class="reference internal" href="#install-pyconfig-package-name-nx-config">Install PyConfig (package name <code class="docutils literal notranslate"><span class="pre">nx_config</span></code>)</a></li>
+<li><a class="reference internal" href="#create-a-config-class-and-its-sections-classes">Create a config class and its sections classes</a></li>
+<li><a class="reference internal" href="#use-the-configuration-in-your-code">Use the configuration in your code</a></li>
+<li><a class="reference internal" href="#load-the-configuration-on-startup">Load the configuration on startup</a></li>
+<li><a class="reference internal" href="#write-a-configuration-file">Write a configuration file</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#why">Why?</a><ul>
+<li><a class="reference internal" href="#avoiding-hard-coded-paths">Avoiding hard-coded paths</a></li>
+<li><a class="reference internal" href="#immutability">Immutability</a></li>
+<li><a class="reference internal" href="#config-file-formats">Config file formats</a></li>
+<li><a class="reference internal" href="#documenting-configuration-options">Documenting configuration options</a></li>
+<li><a class="reference internal" href="#automatic-validation-and-failing-at-startup">Automatic validation and failing at startup</a></li>
+<li><a class="reference internal" href="#logging-and-secrets">Logging (and secrets)</a></li>
+<li><a class="reference internal" href="#attributes-instead-of-strings">Attributes instead of strings</a></li>
+<li><a class="reference internal" href="#handy-configuration-through-environment-variables">Handy configuration through environment variables</a></li>
+<li><a class="reference internal" href="#support-for-the-most-useful-types">Support for the most useful types</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#a-note-on-imports">A note on imports</a></li>
+<li><a class="reference internal" href="#a-note-on-configuring-libraries-vs-apps">A note on configuring libraries vs apps</a></li>
+<li><a class="reference internal" href="#a-note-on-pydantic">A note on pydantic</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="config_objects/"
+                        title="next chapter">Config objects</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search/" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex/" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="config_objects/" title="Config objects"
+             >next</a> |</li>
+          <li><img src="_static/py.svg" alt="python logo" style="vertical-align: middle; margin-top: -1px"/></li>
+          <li><a href="https://www.python.org/">Python</a> &#187;</li>
+          <li class="switchers">
+            <div class="language_switcher_placeholder"></div>
+            <div class="version_switcher_placeholder"></div>
+          </li>
+          <li>
+              
+              <a href="#">PyConfig 0.2.0-beta.4 documentation</a> &#187;
+              
+          </li>
+        <li class="nav-item nav-item-this"><a href="">PyConfig</a></li>
+                <li class="right">
+                    
+
+    <div class="inline-search" role="search">
+        <form class="inline-search" action="search/" method="get">
+          <input placeholder="Quick search" aria-label="Quick search" type="text" name="q" />
+          <input type="submit" value="Go" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+                     |
+                </li>
+            
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; Copyright 2021 by Tomás Silveira Salles.
+    <br />
+    This page is licensed under the Python Software Foundation License Version 2.
+    <br />
+    Examples, recipes, and other code in the documentation are additionally licensed under the Zero Clause BSD License.
+    <br />
+    See <a href="">History and License</a> for more information.
+    <br /><br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    Last updated on None.
+    
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.0.
+    </div>
+
+  </body>
+</html>
