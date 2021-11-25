@@ -23,18 +23,41 @@
   :target: https://pypi.org/project/nx-config/
   :alt: PyPI
 
+.. |Config| replace:: `Config`_
+.. |ConfigSection| replace:: `ConfigSection`_
+.. |URL| replace:: `URL`_
+.. |SecretString| replace:: `SecretString`_
+.. |@validate| replace:: `@validate()`_
+.. |fill_config| replace:: `fill_config()`_
+.. |fill_config_from_path| replace:: `fill_config_from_path()`_
+.. |test_utils.update_section| replace:: `test_utils.update_section()`_
+.. |add_cli_options| replace:: `add_cli_options()`_
+.. |resolve_config_path| replace:: `resolve_config_path()`_
+
+.. |add_cli_options(<parser>, config_t=<config_class>)| replace:: `add_cli_options(<parser>, config_t=<config_class>)`_
+.. |add_cli_options(parser, prefix="bar", config_t=type(config))| replace:: `add_cli_options(parser, prefix="bar", config_t=type(config))`_
+.. |resolve_config_path("bar", cli_args=...)| replace:: `resolve_config_path("bar", cli_args=...)`_
+.. |fill_config_from_path(config, path=..., env_prefix="FOO")| replace:: `fill_config_from_path(config, path=..., env_prefix="FOO")`_
+.. |nx_config.SecretString| replace:: `nx_config.SecretString`_
+
 .. TODO: Add links to the following references once we have a stable docs URL.
-.. _Config: TODO
-.. _ConfigSection: TODO
-.. _URL: TODO
-.. _SecretString: TODO
-.. _@validate: TODO
-.. _fill_config: TODO
-.. _fill_config_from_path: TODO
-.. _test_utils.update_section: TODO
-.. _add_cli_options: TODO
-.. _resolve_config_path: TODO
-.. _docs: TODO
+.. _docs: https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
+.. _Config: https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
+.. _ConfigSection: https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
+.. _URL: https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
+.. _SecretString: https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
+.. _@validate(): https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
+.. _fill_config(): https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
+.. _fill_config_from_path(): https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
+.. _test_utils.update_section(): https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
+.. _add_cli_options(): https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
+.. _resolve_config_path(): https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
+
+.. _add_cli_options(<parser>, config_t=<config_class>): `add_cli_options()`_
+.. _add_cli_options(parser, prefix="bar", config_t=type(config)): `add_cli_options()`_
+.. _resolve_config_path("bar", cli_args=...): `resolve_config_path()`_
+.. _fill_config_from_path(config, path=..., env_prefix="FOO"): `fill_config_from_path()`_
+.. _nx_config.SecretString: `SecretString`_
 
 ################################################################################
 PyConfig
@@ -49,20 +72,13 @@ STL;INRAOT (Still Too Long; I'm Not Reading All Of That)
 .. Start of shared content with docs page -- 4d27310aef2246e393a6f1647d6e9950
 
 .. _configparser: https://docs.python.org/3/library/configparser.html
-.. _configparser.ConfigParser.read: https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read
+.. _configparser.ConfigParser.read(): https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.read
 .. _argparse.ArgumentParser: https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser
 .. _pathlib.Path: https://docs.python.org/3/library/pathlib.html#pathlib.Path
 .. _uuid.UUID: https://docs.python.org/3/library/uuid.html#uuid.UUID
 .. _pydantic: https://pypi.org/project/pydantic/
-
-.. _add_cli_options(<parser>, config_t=<config_class>): add_cli_options_
-.. _add_cli_options(parser, prefix="bar", config_t=type(config)): add_cli_options_
-.. _resolve_config_path(): resolve_config_path_
-.. _resolve_config_path("bar", cli_args=...): resolve_config_path_
-.. _fill_config_from_path(config, path=..., env_prefix="FOO"): fill_config_from_path_
-.. _nx_config.SecretString: SecretString_
-.. _UUID: uuid.UUID_
-.. _Path: pathlib.Path_
+.. _UUID: `uuid.UUID`_
+.. _Path: `pathlib.Path`_
 
 Introduction by example
 ================================================================================
@@ -96,7 +112,7 @@ Or with ``poetry``:
 Create a config class and its sections classes
 --------------------------------------------------------------------------------
 
-Start by adding a new file, say *config.py*, to your app. In it, you'll define a few "section classes" (which are subclasses of `ConfigSection`_) and a "config class" (which is a subclass of `Config`_), and then initialize a global instance of it (see further down why this is okay):
+Start by adding a new file, say *config.py*, to your app. In it, you'll define a few "section classes" (which are subclasses of |ConfigSection|) and a "config class" (which is a subclass of |Config|), and then initialize a global instance of it (see further down why this is okay):
 
 .. code-block:: python3
 
@@ -149,15 +165,15 @@ Here we make the following configurable:
 
 Note that the ``username`` and ``password`` are of optional types, i.e., can be None (some weather services might be free). Also, some entries in each section have a default value, while others don't (which means the user must provide a value through a config file or an environment variable).
 
-We see here the `URL`_ and `SecretString`_ types. The values of such entries are just ordinary python strings. These type-hints are used to convey intent to the user and to allow PyConfig to perform validations and other special behaviour. For example, an entry of type `SecretString`_ is not allowed to have a default value (unless it is optional and the default value is ``None``). Furthermore, when you print a config or just a section, entries of type `SecretString`_ will be replaced with asterisks ``"*****"``.
+We see here the |URL| and |SecretString| types. The values of such entries are just ordinary python strings. These type-hints are used to convey intent to the user and to allow PyConfig to perform validations and other special behaviour. For example, an entry of type |SecretString| is not allowed to have a default value (unless it is optional and the default value is ``None``). Furthermore, when you print a config or just a section, entries of type |SecretString| will be replaced with asterisks ``"*****"``.
 
-The methods annotated with `@validate`_ will be called automatically right after the config is loaded (ideally at the startup of your app). Each is used to validate an individual section and sections can have multiple validators.
+The methods annotated with |@validate| will be called automatically right after the config is loaded (ideally at the startup of your app). Each is used to validate an individual section and sections can have multiple validators.
 
 The combination of the entry ``timeout_s`` and the method ``timeout`` above helps us avoid ambiguity for the users while being able to work with a unit-agnostic type: The name of the actual config field ``timeout_s`` clearly tells users they must provide the value *in seconds*, but in our code we instead use the ``timeout`` method and therefore work only with ``timedelta`` objects, never having to worry about measurement units.
 
-Finally, the use of a global config object may seem dangerous (especially in python), but `Config`_ and `ConfigSection`_ objects are always\* immutable, so there's no global *state* to worry about.
+Finally, the use of a global config object may seem dangerous (especially in python), but |Config| and |ConfigSection| objects are always\* immutable, so there's no global *state* to worry about.
 
-    \*: There are two ways in which the contents of the config can be mutated. One is when loading it with `fill_config`_ or `fill_config_from_path`_. The other is with `test_utils.update_section`_. You can quickly find all usages of these functions in your repository. Loading functions are ideally used only once and only at startup. And using the ``test_utils`` module in production code should be entirely forbidden!
+    \*: There are two ways in which the contents of the config can be mutated. One is when loading it with |fill_config| or |fill_config_from_path|. The other is with |test_utils.update_section|. You can quickly find all usages of these functions in your repository. Loading functions are ideally used only once and only at startup. And using the ``test_utils`` module in production code should be entirely forbidden!
 
 Use the configuration in your code
 --------------------------------------------------------------------------------
@@ -230,14 +246,14 @@ Load the configuration on startup
 
     greet(name=args.name or "world")
 
-The magic here happens in `fill_config_from_path`_. This function will read a configuration file and fill the ``config`` object's entries with the corresponding values. The path can be hard-coded (not recommended) or you can use `resolve_config_path()`_ without arguments, in which case the path is provided through the ``CONFIG_PATH`` environment variable (better), or you can use an `argparse.ArgumentParser`_ as above to allow the user to provide the config-path as a CLI argument (best). The helper `add_cli_options`_ will add the option ``--config-path`` (among other things), which `resolve_config_path`_ will try to read. If the user does not provide a path on the command line, `resolve_config_path`_ will still use the ``CONFIG_PATH`` environment variable as a fallback.
+The magic here happens in |fill_config_from_path|. This function will read a configuration file and fill the ``config`` object's entries with the corresponding values. The path can be hard-coded (not recommended) or you can use |resolve_config_path| without arguments, in which case the path is provided through the ``CONFIG_PATH`` environment variable (better), or you can use an `argparse.ArgumentParser`_ as above to allow the user to provide the config-path as a CLI argument (best). The helper |add_cli_options| will add the option ``--config-path`` (among other things), which |resolve_config_path| will try to read. If the user does not provide a path on the command line, |resolve_config_path| will still use the ``CONFIG_PATH`` environment variable as a fallback.
 
 The format of the config file will be determined by the path's extension (e.g. *.yaml* for YAML). Note that it's fine (and a common practice) to not provide a config file at all (neither through ``--config-path`` nor through ``CONFIG_PATH``). In this case, the configuration values will be read from environment variables named ``SECTIONNAME__ENTRYNAME`` (**double underscore!**). Even if a config file is provided, values can still be overriden through these environment variables, as we'll see below.
 
 Write a configuration file
 --------------------------------------------------------------------------------
 
-The `add_cli_options`_ function above also adds a ``--generate-config`` option that prints out a template config file and exits. It is intended to be used as follows:
+The |add_cli_options| function above also adds a ``--generate-config`` option that prints out a template config file and exits. It is intended to be used as follows:
 
 .. code-block:: console
 
@@ -279,11 +295,11 @@ What's so great about PyConfig? Why should you bother learning to use yet anothe
 Avoiding hard-coded paths
 --------------------------------------------------------------------------------
 
-The `configparser.ConfigParser.read`_ method takes a string or ``PathLike`` (or several) as argument. I have seen and worked on many, many projects where this argument was written as a hard-coded, version-controlled string. This is, of course, in most cases a bad idea. It makes it difficult to try out the code locally, or deploy it on multiple servers automatically, can result in clashes with different applications using the same path (and therefore making it impossible to configure them independently), cause headaches due to missing permissions and so on. It also makes it annoying and slow to use different configurations for different runs of the same application.
+The `configparser.ConfigParser.read()`_ method takes a string or ``PathLike`` (or several) as argument. I have seen and worked on many, many projects where this argument was written as a hard-coded, version-controlled string. This is, of course, in most cases a bad idea. It makes it difficult to try out the code locally, or deploy it on multiple servers automatically, can result in clashes with different applications using the same path (and therefore making it impossible to configure them independently), cause headaches due to missing permissions and so on. It also makes it annoying and slow to use different configurations for different runs of the same application.
 
 Most developers working on those projects knew it was a bad idea and knew how to avoid it (e.g. get the path from a CLI argument or from an environment variable) but (a) these solutions would require a bit of extra work and (b) they would require teaching the user how to provide the config path... for each application!
 
-PyConfig offers two really simple solutions to this, making the best practice *nearly* the easiest thing to do. First, you can use the function `resolve_config_path()`_ with no arguments. This will return a `pathlib.Path`_ from the value of the ``CONFIG_PATH`` environment variable if defined, and ``None`` otherwise. With a little extra effort, by using an `argparse.ArgumentParser`_ and the function `add_cli_options(<parser>, config_t=<config_class>)`_ you can allow your end-users to provide a config path either through the ``--config-path`` CLI option or the ``CONFIG_PATH`` environment variable:
+PyConfig offers two really simple solutions to this, making the best practice *nearly* the easiest thing to do. First, you can use the function |resolve_config_path| with no arguments. This will return a `pathlib.Path`_ from the value of the ``CONFIG_PATH`` environment variable if defined, and ``None`` otherwise. With a little extra effort, by using an `argparse.ArgumentParser`_ and the function |add_cli_options(<parser>, config_t=<config_class>)| you can allow your end-users to provide a config path either through the ``--config-path`` CLI option or the ``CONFIG_PATH`` environment variable:
 
 .. code-block:: python3
 
@@ -310,11 +326,11 @@ Immutability
 
 Some might argue that in the example above we shouldn't have created a *global* ``config`` object that's just *loaded* at startup, but instead we should have created and loaded a ``config`` object in *__main__.py* and then injected it into the ``greet`` call. In most cases, I'd agree with this advice. But it is aimed at avoiding global *state*, i.e., global variables that can be read and modified from anywhere in the code, usually causing trouble.
 
-In the case of `Config`_ instances we don't have to worry\*. The config object, each of its sections and each of their entries are all immutable\*\* so an instance is just a namespace for some constants. The supported types for section entries are also all immutable, including the supported collection types ``tuple`` and ``frozenset``.
+In the case of |Config| instances we don't have to worry\*. The config object, each of its sections and each of their entries are all immutable\*\* so an instance is just a namespace for some constants. The supported types for section entries are also all immutable, including the supported collection types ``tuple`` and ``frozenset``.
 
-Many configuration libraries allow the config object to be modified freely at any time, which is particularly problematic with long-running services. If a critical error or even a crash occurs, you don't have any guarantees that the configuration you provided at startup is still the one being used. The current configuration might be completely different from the values you see in your config files. This makes it difficult to understand and replicate bugs. With PyConfig it's very easy to check whether the config can ever change by searching for uses of `fill_config`_ and `fill_config_from_path`_ in the project. Ideally it will be loaded once and only once at startup but even if your app allows for config updates while running, the logic coordinating this will at least be easy to find. Also, check out the section on 'logging' below, which can be very helpful to make your app easy to debug.
+Many configuration libraries allow the config object to be modified freely at any time, which is particularly problematic with long-running services. If a critical error or even a crash occurs, you don't have any guarantees that the configuration you provided at startup is still the one being used. The current configuration might be completely different from the values you see in your config files. This makes it difficult to understand and replicate bugs. With PyConfig it's very easy to check whether the config can ever change by searching for uses of |fill_config| and |fill_config_from_path| in the project. Ideally it will be loaded once and only once at startup but even if your app allows for config updates while running, the logic coordinating this will at least be easy to find. Also, check out the section on 'logging' below, which can be very helpful to make your app easy to debug.
 
-To facilitate testing with different configurations, we've added the function `test_utils.update_section`_ (which can only be imported through the module ``test_utils``, not directly from ``nx_config``):
+To facilitate testing with different configurations, we've added the function |test_utils.update_section| (which can only be imported through the module ``test_utils``, not directly from ``nx_config``):
 
 .. code-block:: python3
 
@@ -331,7 +347,7 @@ To facilitate testing with different configurations, we've added the function `t
             update_section(config.greet, num_exclamation_marks=7)
             ...  # call code that uses config
 
-Again, you can easily scan your project for uses of ``test_utils``. It should obviously be used only in tests and never in production code. And that's it! `fill_config`_, `fill_config_from_path`_ and `test_utils.update_section`_ are the only ways to modify a config instance\*\*\*.
+Again, you can easily scan your project for uses of ``test_utils``. It should obviously be used only in tests and never in production code. And that's it! |fill_config|, |fill_config_from_path| and |test_utils.update_section| are the only ways to modify a config instance\*\*\*.
 
     \*, \*\* and \*\*\*: Of course... this is python... There are always dark ways to cheat by messing with the internal attributes of configs and sections. Let's just assume all contributors to your project are well-meaning grown ups.
 
@@ -353,7 +369,7 @@ With `configparser`_, for example, it is common practice to have 3 independent "
 
 Enter: *PyConfig!* The code, i.e. your class definitions, is the only definition of the configuration options. It is the definitive truth, is always up-to-date and documents every detail of the config, including types, default values *and validity criteria*. And if you add docstrings to the config class and the section classes, they are much more likely to be kept up-to-date because they're right next to the code they reference. Some tools even support docstrings directly below class attributes, so feel free to try it out.
 
-If you use the `add_cli_options`_ function applied to an `argparse.ArgumentParser`_, your end-users get the ``--generate-config`` CLI option for free, with which they can generate config templates for any supported file format, e.g.:
+If you use the |add_cli_options| function applied to an `argparse.ArgumentParser`_, your end-users get the ``--generate-config`` CLI option for free, with which they can generate config templates for any supported file format, e.g.:
 
 .. code-block:: console
 
@@ -367,7 +383,7 @@ If you use the `add_cli_options`_ function applied to an `argparse.ArgumentParse
       #password:
       #timeout_s:
 
-Using `add_cli_options`_ also adds the ``--config-help`` CLI option. It shows a message specifically documenting *the app's config model*, followed by cheat-sheet-style, general instructions for configuring with PyConfig (aimed at end-users).
+Using |add_cli_options| also adds the ``--config-help`` CLI option. It shows a message specifically documenting *the app's config model*, followed by cheat-sheet-style, general instructions for configuring with PyConfig (aimed at end-users).
 
 This means all the documentation your app needs (in terms of configuration options) is easily, automagically generated from your class definitions and is always up-to-date! Even if you want to have the documentation directly available on your website or on github, you can setup the pipeline to re-generate it after every release. No maintenance needed.
 
@@ -376,21 +392,21 @@ Contributors to your project are even happier: they only have to look at the pyt
 Automatic validation and failing at startup
 --------------------------------------------------------------------------------
 
-PyConfig always validates the configuration input against the type-hints used in the `ConfigSection`_ subclass declaration. In the case of environment variables or INI files, the values are initially interpreted as strings, so "checking the type" means checking that the provided strings can be transformed into the intended types (i.e. the string ``"3.14"`` is fine for a ``float``, but no good for a `UUID`_). In the case of YAML or JSON files, for example, there are already standard libraries that parse them into python objects of different types, so only smaller conversions will be made (e.g. ``str`` to `Path`_ or ``list`` to ``frozenset``) depending on the provided type-hints.
+PyConfig always validates the configuration input against the type-hints used in the |ConfigSection| subclass declaration. In the case of environment variables or INI files, the values are initially interpreted as strings, so "checking the type" means checking that the provided strings can be transformed into the intended types (i.e. the string ``"3.14"`` is fine for a ``float``, but no good for a `UUID`_). In the case of YAML or JSON files, for example, there are already standard libraries that parse them into python objects of different types, so only smaller conversions will be made (e.g. ``str`` to `Path`_ or ``list`` to ``frozenset``) depending on the provided type-hints.
 
 Two more out-of-the-box automatic checks are:
 
 * Users must provide a value for every field that doesn't have a default.
-* Secrets cannot have default values. They must always be provided by the end-user. (But ``Optional[``\ `SecretString`_\ ``]`` can have default ``None``, ``tuple[``\ `SecretString`_\ ``, ...]`` can have default ``()`` etc.)
+* Secrets cannot have default values. They must always be provided by the end-user. (But ``Optional[``\ |SecretString|\ ``]`` can have default ``None``, ``tuple[``\ |SecretString|\ ``, ...]`` can have default ``()`` etc.)
 
-On top of these, you can add validating methods (single parameter ``self``, no return value) to your section classes through the `@validate`_ annotation. These methods will be called right after filling in the values for the section in `fill_config`_ or `fill_config_from_path`_ (see examples above).
+On top of these, you can add validating methods (single parameter ``self``, no return value) to your section classes through the |@validate| annotation. These methods will be called right after filling in the values for the section in |fill_config| or |fill_config_from_path| (see examples above).
 
 If you use PyConfig and follow the best practice of loading all configuration at the app's startup (and only then), you'll never have to worry about an invalid configuration value causing trouble days after your long-running service went up, in the middle of the night or during your soon-to-be-cut-short vacation. Can you do the same with other configuration libraries? Certainly. PyConfig is just friendly and convenient.
 
 Logging (and secrets)
 --------------------------------------------------------------------------------
 
-Both `Config`_ and `ConfigSection`_ subclasses can be very nicely printed with ease. The ``__str__`` method produces an inline description, while the ``__repr__`` method gives a multi-line and indented version. Moreover, secrets (i.e. section entries type-annotated as `SecretString`_) are automatically masked with asterisks, including optional secrets and collections of secrets\*.
+Both |Config| and |ConfigSection| subclasses can be very nicely printed with ease. The ``__str__`` method produces an inline description, while the ``__repr__`` method gives a multi-line and indented version. Moreover, secrets (i.e. section entries type-annotated as |SecretString|) are automatically masked with asterisks, including optional secrets and collections of secrets\*.
 
 Here are example outputs using the ``DemoConfig`` class from above:
 
@@ -431,7 +447,7 @@ WeatherSection(
 
 And if you use PyCharm, the "Variables" view on the console and the debugger displays values next to variable names using ``__str__``, and the one-line description is much more suitable in that case.
 
-    \*: Secrets are masked only when you use the methods ``__str__`` and ``__repr__`` of `Config`_ and `ConfigSection`_. Remember that the actual value of ``my_config.my_section.my_secret`` is just an ordinary built-in ``str``, so if you print it in your logs it will **not** be masked!
+    \*: Secrets are masked only when you use the methods ``__str__`` and ``__repr__`` of |Config| and |ConfigSection|. Remember that the actual value of ``my_config.my_section.my_secret`` is just an ordinary built-in ``str``, so if you print it in your logs it will **not** be masked!
 
 Attributes instead of strings
 --------------------------------------------------------------------------------
@@ -451,9 +467,9 @@ There are situations in which configuring apps with files can be annoying, such 
 
 With PyConfig you can *always* override any configurations from files with environment variables. The standard naming convention is ``SECTIONNAME__ENTRYNAME`` (yes, double underscore, which makes the separation clearer when the section name or the entry name also contain underscores). In the example above, we've seen how to override the ``config.greet.num_exclamation_marks`` entry by setting the ``GREET__NUM_EXCLAMATION_MARKS`` environment variable.
 
-If you have several configs in a single app or several apps sharing some environment variables, it's also possible to use a prefix to make variable names more specific. For example, you could use the environment variable ``FOO__GREET__NUM_EXCLAMATION_MARKS`` instead, and load the configuration with `fill_config_from_path(config, path=..., env_prefix="FOO")`_.
+If you have several configs in a single app or several apps sharing some environment variables, it's also possible to use a prefix to make variable names more specific. For example, you could use the environment variable ``FOO__GREET__NUM_EXCLAMATION_MARKS`` instead, and load the configuration with |fill_config_from_path(config, path=..., env_prefix="FOO")|.
 
-Finally, even the path to the configuration file can be provided through an environment variable, namely ``CONFIG_PATH``. Again, it's possible to use a prefix to make this name more specific. For example, you could use the variable ``BAR_CONFIG_PATH`` instead, and get the path with `resolve_config_path("bar", cli_args=...)`_. Note: If you use the ``cli_args`` argument in this case, `resolve_config_path`_ will look for the option ``--bar-config-path`` instead of ``--config-path``, so make sure you use the same prefix when adding options to the `argparse.ArgumentParser`_ by calling `add_cli_options(parser, prefix="bar", config_t=type(config))`_.
+Finally, even the path to the configuration file can be provided through an environment variable, namely ``CONFIG_PATH``. Again, it's possible to use a prefix to make this name more specific. For example, you could use the variable ``BAR_CONFIG_PATH`` instead, and get the path with |resolve_config_path("bar", cli_args=...)|. Note: If you use the ``cli_args`` argument in this case, |resolve_config_path| will look for the option ``--bar-config-path`` instead of ``--config-path``, so make sure you use the same prefix when adding options to the `argparse.ArgumentParser`_ by calling |add_cli_options(parser, prefix="bar", config_t=type(config))|.
 
 Support for the most useful types
 --------------------------------------------------------------------------------
@@ -492,7 +508,7 @@ I've seen libraries offering classes that parsed configuration files when initia
 
 App writers should have the ultimate control over how and when files are read and parsed.
 
-Adding a `Config`_ subclass to a library is a very bad idea. It would force the app writers to use that class for that specific library and then use a different class for their own configuration options. Adding a `ConfigSection`_ subclass to a library *can* be a friendly feature for application writers, who can use such sections in their own `Config`_ classes. But even that might carry some rigidity with it: App writers might only want to give their users *some* control over the configuration of a library, but the `ConfigSection`_ provided by the library would likely give them full control.
+Adding a |Config| subclass to a library is a very bad idea. It would force the app writers to use that class for that specific library and then use a different class for their own configuration options. Adding a |ConfigSection| subclass to a library *can* be a friendly feature for application writers, who can use such sections in their own |Config| classes. But even that might carry some rigidity with it: App writers might only want to give their users *some* control over the configuration of a library, but the |ConfigSection| provided by the library would likely give them full control.
 
 Keep it simple: Use PyConfig in applications. Use injection in libraries.
 
@@ -501,7 +517,7 @@ A note on `pydantic`_
 
 If you're unfamiliar with `pydantic`_: It is a general "modeling" python library that offers pretty much everything that PyConfig does and **much more** (seriously). It is far more powerful and flexible and full of features and can be used brilliantly for configuration. It is also much older and more mature than PyConfig.
 
-When I first ran into `pydantic`_, I was actually very surprised with some of the similarities to parts of PyConfig, like the ``@validator`` annotation they offer, the ``NamedTuple``-style class declaration and even the ``SecretStr`` type! In this last case, the `nx_config.SecretString`_ type turns into an ordinary ``str`` at runtime, while the ``pydantic.SecretStr`` type is a wrapper around ``str`` and you need to call the ``get_secret_value()`` method to use the wrapped string. But that was even more interesting to see, because that's exactly the approach I used in the first version of PyConfig, except my method was called ``get_value_at_own_peril()`` and it returned the protected member ``_dont_you_dare_use_me``. Then some of my colleagues said they found secret strings annoying to use and made me change my mind.
+When I first ran into `pydantic`_, I was actually very surprised with some of the similarities to parts of PyConfig, like the ``@validator()`` annotation they offer, the ``NamedTuple``-style class declaration and even the ``SecretStr`` type! In this last case, the |nx_config.SecretString| type turns into an ordinary ``str`` at runtime, while the ``pydantic.SecretStr`` type is a wrapper around ``str`` and you need to call the ``get_secret_value()`` method to use the wrapped string. But that was even more interesting to see, because that's exactly the approach I used in the first version of PyConfig, except my method was called ``get_value_at_own_peril()`` and it returned the protected member ``_dont_you_dare_use_me``. Then some of my colleagues said they found secret strings annoying to use and made me change my mind.
 
 I have no criticism about `pydantic`_ and I honestly don't see other libraries as "competition". We're all in this together. But I do think there are times to use `pydantic`_ and times to use PyConfig. If you're already using `pydantic`_ in your project, or you're already very familiar with it, or you actually need it for modeling things other than configuration, please, by all means, go for it.
 
@@ -520,8 +536,8 @@ FAQ
 ================================================================================
 
 1. Why can't I nest sections into other sections?
-    This was not the easiest design choice. One of the most important requirements when writing PyConfig was that it should support INI files, and those only (really) support 1 level of nesting. In the end, even though this question is asked fairly often, there are barely any use cases for deeper nesting in configs. And in the few such use cases I've seen, the problem could be elegantly solved by using more than one `Config`_ subclass in the application.
-2. Why can't I have entries directly in the `Config`_ subclass? Why must all entries be in a section?
+    This was not the easiest design choice. One of the most important requirements when writing PyConfig was that it should support INI files, and those only (really) support 1 level of nesting. In the end, even though this question is asked fairly often, there are barely any use cases for deeper nesting in configs. And in the few such use cases I've seen, the problem could be elegantly solved by using more than one |Config| subclass in the application.
+2. Why can't I have entries directly in the |Config| subclass? Why must all entries be in a section?
     Firstly, it would add more complexity to the implementation. Secondly, INI doesn't allow entries without sections. Thirdly, this isn't much of an issue, really. You can always just add a *general* section to your config.
 3. Why aren't dictionaries supported as types for section-entries?
     INI. The answer is almost always INI. I've chosen to support the iterable types ``tuple`` and ``frozenset`` because it's so common and natural to interpret comma-separated values as sequences, and these types are incredibly helpful in configurations. Moreover, I'd already seen several projects where configuration values were being transformed into sequences via comma-separation, except that developers had to parse the strings themselves.
