@@ -3,6 +3,7 @@
 build/
 demo/
 dist/
+docs/
 docs_src/_build/
 htmlcov_*/
 nx_config.egg-info/
