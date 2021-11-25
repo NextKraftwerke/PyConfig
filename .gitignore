@@ -7,5 +7,6 @@ docs/_build/
 htmlcov_*/
 nx_config.egg-info/
 venv*/
+**/__pycache__/
 .coverage*
 coverage.*
