@@ -2,9 +2,11 @@
 PyConfig
 ################################################################################
 
-.. TODO: Opening words
+*Welcome!*
 
-Foo le-roo bar baz flint buzz bromm. Gravlet?
+|TLDR|
+
+This guide includes the detailed documentation of the public API in the *topic-pages* listed below, as well as a friendlier introduction in this first page to get warmed up. I did my best. Pour yourself a fresh cup of coffee and have fun!
 
 Topics within this guide
 ================================================================================
