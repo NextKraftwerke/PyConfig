@@ -453,11 +453,13 @@ Finally, even the path to the configuration file can be provided through an envi
 Support for the most useful types
 --------------------------------------------------------------------------------
 
-After loading the config values, you should ideally be able to use them without having to first convert them into other types. If you have your own unit-agnostic `Temperature` type, for instance, you'll have to work a little harder: ask your end-users for a unit-bound value (e.g. `surface_temp_celsius: float`) and then convert it yourself (e.g. through a method `def surface_temp(self) -> Temperature:` in the same section). But most use cases should be covered by the types already supported by PyConfig (and there might be more on the way).
+After loading the config values, you should ideally be able to use them out of the box, without having to first convert them into something else. Most use cases should be covered by the types already supported by PyConfig (and there might be more on the way):
 
-* **Base** supported types are `int`, `float`, `bool`, `str`, `datetime.datetime`, `uuid.UUID`, `pathlib.Path`, `nx_config.SecretString`, and `nx_config.URL`.
-* **Collection** supported types are `typing.Tuple[base, ...]` and `typing.FrozenSet[base]` in all python versions, and `tuple[base, ...]` and `frozenset[base]` for python 3.9 and later (where `base` is one of the **base** supported types above). _Note that the Ellipsis (`...`) in the tuple types is meant literally here, i.e., they represent tuples of arbitrary length where all elements are of the same type._
-* **Optional** supported types are `typing.Optional[base_or_coll]` (where `base_or_coll` is either one of the **base** or one of the **collection** supported types listed above). _Note that "Optional" must be the outer-most layer, i.e. you cannot have collections of optional elements, such as `tuple[Optional[int], ...]`._
+* **Base** supported types are ``int``, ``float``, ``bool``, ``str``, ``datetime.datetime``, ``uuid.UUID``, ``pathlib.Path``, ``nx_config.SecretString``, and ``nx_config.URL``.
+* **Collection** supported types are ``typing.Tuple[base, ...]`` and ``typing.FrozenSet[base]`` in all python versions, and ``tuple[base, ...]`` and ``frozenset[base]`` for python 3.9 and later (where ``base`` is one of the *base* supported types above). Note that the Ellipsis (``...``) in the tuple types is meant literally here, i.e., they represent tuples of arbitrary length where all elements are of the same type.
+* **Optional** supported types are ``typing.Optional[base_or_coll]`` (where ``base_or_coll`` is either one of the *base* or one of the *collection* supported types listed above). Note that "Optional" must be the outer-most layer, i.e. you **cannot** have collections of optional elements, such as ``tuple[Optional[int], ...]``.
+
+However, if you want to use your own, custom types, you'll have to work a little harder. For example, if you want to use a unit-agnostic ``Temperature`` type, your end-users will have to provide a unit-bound value (e.g. ``surface_temp_celsius: float``) and then you'll have to convert it yourself (e.g. through a method ``def surface_temp(self) -> Temperature`` in the same section).
 
 A note on imports
 ================================================================================
