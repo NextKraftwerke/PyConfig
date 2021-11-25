@@ -2,6 +2,7 @@
 .. |ConfigSection| replace:: :py:class:`~nx_config.ConfigSection`
 .. |URL| replace:: :py:class:`~nx_config.URL`
 .. |SecretString| replace:: :py:class:`~nx_config.SecretString`
+.. |nx_config.SecretString| replace:: :py:class:`nx_config.SecretString`
 .. |@validate| replace:: :py:func:`~nx_config.@validate`
 .. |fill_config| replace:: :py:func:`~nx_config.fill_config`
 .. |fill_config_from_path| replace:: :py:func:`~nx_config.fill_config_from_path`
@@ -13,7 +14,6 @@
 .. |add_cli_options(parser, prefix="bar", config_t=type(config))| replace:: TODO
 .. |resolve_config_path("bar", cli_args=...)| replace:: TODO
 .. |fill_config_from_path(config, path=..., env_prefix="FOO")| replace:: TODO
-.. |nx_config.SecretString| replace:: :py:class:`nx_config.SecretString`
 
 .. include:: ../README.rst
   :start-after: 4d27310aef2246e393a6f1647d6e9950
