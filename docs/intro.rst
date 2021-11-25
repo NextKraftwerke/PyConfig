@@ -10,11 +10,6 @@
 .. |add_cli_options| replace:: :py:func:`~nx_config.add_cli_options`
 .. |resolve_config_path| replace:: :py:func:`~nx_config.resolve_config_path`
 
-.. |add_cli_options(<parser>, config_t=<config_class>)| replace:: TODO
-.. |add_cli_options(parser, prefix="bar", config_t=type(config))| replace:: TODO
-.. |resolve_config_path("bar", cli_args=...)| replace:: TODO
-.. |fill_config_from_path(config, path=..., env_prefix="FOO")| replace:: TODO
-
 .. include:: ../README.rst
   :start-after: 4d27310aef2246e393a6f1647d6e9950
   :end-before:  4d27310aef2246e393a6f1647d6e9950

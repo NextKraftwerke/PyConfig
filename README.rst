@@ -27,18 +27,13 @@
 .. |ConfigSection| replace:: `ConfigSection`_
 .. |URL| replace:: `URL`_
 .. |SecretString| replace:: `SecretString`_
+.. |nx_config.SecretString| replace:: `nx_config.SecretString`_
 .. |@validate| replace:: `@validate()`_
 .. |fill_config| replace:: `fill_config()`_
 .. |fill_config_from_path| replace:: `fill_config_from_path()`_
 .. |test_utils.update_section| replace:: `test_utils.update_section()`_
 .. |add_cli_options| replace:: `add_cli_options()`_
 .. |resolve_config_path| replace:: `resolve_config_path()`_
-
-.. |add_cli_options(<parser>, config_t=<config_class>)| replace:: `add_cli_options(<parser>, config_t=<config_class>)`_
-.. |add_cli_options(parser, prefix="bar", config_t=type(config))| replace:: `add_cli_options(parser, prefix="bar", config_t=type(config))`_
-.. |resolve_config_path("bar", cli_args=...)| replace:: `resolve_config_path("bar", cli_args=...)`_
-.. |fill_config_from_path(config, path=..., env_prefix="FOO")| replace:: `fill_config_from_path(config, path=..., env_prefix="FOO")`_
-.. |nx_config.SecretString| replace:: `nx_config.SecretString`_
 
 .. TODO: Add links to the following references once we have a stable docs URL.
 .. _placeholder: https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
@@ -47,18 +42,13 @@
 .. _ConfigSection: `placeholder`_
 .. _URL: `placeholder`_
 .. _SecretString: `placeholder`_
+.. _nx_config.SecretString: `SecretString`_
 .. _@validate(): `placeholder`_
 .. _fill_config(): `placeholder`_
 .. _fill_config_from_path(): `placeholder`_
 .. _test_utils.update_section(): `placeholder`_
 .. _add_cli_options(): `placeholder`_
 .. _resolve_config_path(): `placeholder`_
-
-.. _add_cli_options(<parser>, config_t=<config_class>): `add_cli_options()`_
-.. _add_cli_options(parser, prefix="bar", config_t=type(config)): `add_cli_options()`_
-.. _resolve_config_path("bar", cli_args=...): `resolve_config_path()`_
-.. _fill_config_from_path(config, path=..., env_prefix="FOO"): `fill_config_from_path()`_
-.. _nx_config.SecretString: `SecretString`_
 
 ################################################################################
 PyConfig
@@ -300,7 +290,7 @@ The `configparser.ConfigParser.read()`_ method takes a string or ``PathLike`` (o
 
 Most developers working on those projects knew it was a bad idea and knew how to avoid it (e.g. get the path from a CLI argument or from an environment variable) but (a) these solutions would require a bit of extra work and (b) they would require teaching the user how to provide the config path... for each application!
 
-PyConfig offers two really simple solutions to this, making the best practice *nearly* the easiest thing to do. First, you can use the function |resolve_config_path| with no arguments. This will return a `pathlib.Path`_ from the value of the ``CONFIG_PATH`` environment variable if defined, and ``None`` otherwise. With a little extra effort, by using an `argparse.ArgumentParser`_ and the function |add_cli_options(<parser>, config_t=<config_class>)| you can allow your end-users to provide a config path either through the ``--config-path`` CLI option or the ``CONFIG_PATH`` environment variable:
+PyConfig offers two really simple solutions to this, making the best practice *nearly* the easiest thing to do. First, you can use the function |resolve_config_path| with no arguments. This will return a `pathlib.Path`_ from the value of the ``CONFIG_PATH`` environment variable if defined, and ``None`` otherwise. With a little extra effort, by using an `argparse.ArgumentParser`_ and |add_cli_options| you can allow your end-users to provide a config path either through the ``--config-path`` CLI option or the ``CONFIG_PATH`` environment variable:
 
 .. code-block:: python3
 
@@ -468,9 +458,9 @@ There are situations in which configuring apps with files can be annoying, such 
 
 With PyConfig you can *always* override any configurations from files with environment variables. The standard naming convention is ``SECTIONNAME__ENTRYNAME`` (yes, double underscore, which makes the separation clearer when the section name or the entry name also contain underscores). In the example above, we've seen how to override the ``config.greet.num_exclamation_marks`` entry by setting the ``GREET__NUM_EXCLAMATION_MARKS`` environment variable.
 
-If you have several configs in a single app or several apps sharing some environment variables, it's also possible to use a prefix to make variable names more specific. For example, you could use the environment variable ``FOO__GREET__NUM_EXCLAMATION_MARKS`` instead, and load the configuration with |fill_config_from_path(config, path=..., env_prefix="FOO")|.
+If you have several configs in a single app or several apps sharing some environment variables, it's also possible to use a prefix to make variable names more specific. For example, you could instead use the environment variable ``FOO__GREET__NUM_EXCLAMATION_MARKS`` and pass an ``env_prefix`` argument to |fill_config_from_path| when loading the configuration, as in ``fill_config_from_path(config, path=..., env_prefix="FOO")``.
 
-Finally, even the path to the configuration file can be provided through an environment variable, namely ``CONFIG_PATH``. Again, it's possible to use a prefix to make this name more specific. For example, you could use the variable ``BAR_CONFIG_PATH`` instead, and get the path with |resolve_config_path("bar", cli_args=...)|. Note: If you use the ``cli_args`` argument in this case, |resolve_config_path| will look for the option ``--bar-config-path`` instead of ``--config-path``, so make sure you use the same prefix when adding options to the `argparse.ArgumentParser`_ by calling |add_cli_options(parser, prefix="bar", config_t=type(config))|.
+Finally, even the path to the configuration file can be provided through an environment variable, namely ``CONFIG_PATH``. Again, it's possible to use a prefix to make this name more specific. For example, you could use the variable ``BAR_CONFIG_PATH`` instead, and get the path with ``resolve_config_path("bar", cli_args=...)``. Note: If you use the ``cli_args`` argument in this case, |resolve_config_path| will look for the option ``--bar-config-path`` instead of ``--config-path``, so make sure you use the same prefix when adding options to the `argparse.ArgumentParser`_ by calling |add_cli_options| with a ``prefix`` argument, as in ``add_cli_options(parser, prefix="bar", config_t=type(config))``.
 
 Support for the most useful types
 --------------------------------------------------------------------------------
