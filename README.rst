@@ -50,12 +50,14 @@ STL;INRAOT (Still Too Long; I'm Not Reading All Of That)
 .. _argparse.ArgumentParser: https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser
 .. _pathlib.Path: https://docs.python.org/3/library/pathlib.html#pathlib.Path
 .. _uuid.UUID: https://docs.python.org/3/library/uuid.html#uuid.UUID
+.. _pydantic: https://pypi.org/project/pydantic/
 
 .. _add_cli_options(<parser>, config_t=<config_class>): add_cli_options_
 .. _add_cli_options(parser, prefix="bar", config_t=type(config)): add_cli_options_
 .. _resolve_config_path(): resolve_config_path_
 .. _resolve_config_path("bar", cli_args=...): resolve_config_path_
 .. _fill_config_from_path(config, path=..., env_prefix="FOO"): fill_config_from_path_
+.. _nx_config.SecretString: SecretString_
 .. _UUID: uuid.UUID_
 .. _Path: pathlib.Path_
 
@@ -491,16 +493,16 @@ Adding a `Config`_ subclass to a library is a very bad idea. It would force the 
 
 Keep it simple: Use PyConfig in applications. Use injection in libraries.
 
-A note on `pydantic`
+A note on `pydantic`_
 ================================================================================
 
-If you're unfamiliar with [pydantic](https://pypi.org/project/pydantic/): It is a general "modeling" python library that offers pretty much everything that PyConfig does and **much more** (seriously). It is far more powerful and flexible and full of features and can be used brilliantly for configuration. It is also much older and more mature than PyConfig.
+If you're unfamiliar with `pydantic`_: It is a general "modeling" python library that offers pretty much everything that PyConfig does and **much more** (seriously). It is far more powerful and flexible and full of features and can be used brilliantly for configuration. It is also much older and more mature than PyConfig.
 
-When I first ran into `pydantic`, I was actually very surprised with some of the similarities to parts of PyConfig, like the `@validator` annotation they offer, the `NamedTuple`-style class declaration and even the `SecretStr` type! In this last case, the `nx_config.SecretString` type turns into a simple built-in `str` at runtime, while the `pydantic.SecretStr` type is a real wrapper and you need to call the `get_secret_value()` method to use the wrapped string. But that was even more interesting to see, because that's exactly the approach I used in the first version of PyConfig, except my method was called `get_value_at_own_peril()` and it returned the protected member `_dont_you_dare_use_me`. Then some of my colleagues said they found secret strings annoying to use and made me change my mind.
+When I first ran into `pydantic`_, I was actually very surprised with some of the similarities to parts of PyConfig, like the ``@validator`` annotation they offer, the ``NamedTuple``-style class declaration and even the ``SecretStr`` type! In this last case, the `nx_config.SecretString`_ type turns into an ordinary ``str`` at runtime, while the ``pydantic.SecretStr`` type is a wrapper around ``str`` and you need to call the ``get_secret_value()`` method to use the wrapped string. But that was even more interesting to see, because that's exactly the approach I used in the first version of PyConfig, except my method was called ``get_value_at_own_peril()`` and it returned the protected member ``_dont_you_dare_use_me``. Then some of my colleagues said they found secret strings annoying to use and made me change my mind.
 
-I have no criticism about `pydantic` and I honestly don't see other libraries as "competition". We're all in this together. But I do think there are times to use `pydantic` and times to use PyConfig. If you're already using `pydantic` in your project, or you're already very familiar with it, or you actually need it for modeling things other than configuration, please, by all means, go for it.
+I have no criticism about `pydantic`_ and I honestly don't see other libraries as "competition". We're all in this together. But I do think there are times to use `pydantic`_ and times to use PyConfig. If you're already using `pydantic`_ in your project, or you're already very familiar with it, or you actually need it for modeling things other than configuration, please, by all means, go for it.
 
-If, however, you're just looking specifically for a better and safer way to add configuration to your app, then maybe you should check out PyConfig. It is minimal, single-purpose and simple. There's effectively no learning curve and the package is fairly small, with no unnecessary features. It also enforces immutability, which is optional in `pydantic`. In general, in my opinion, you need to know what you're doing and be disciplined with `pydantic` (specifically in terms of app configuration), while PyConfig naturally guides you towards the best practices. But I'm definitely biased...
+If, however, you're just looking specifically for a better and safer way to add configuration to your app, then maybe you should check out PyConfig. It is minimal, single-purpose and simple. There's effectively no learning curve and the package is fairly small, with no unnecessary features. It also enforces immutability, which is optional in `pydantic`_. In my opinion, you need to know what you're doing and be disciplined when using `pydantic`_ (specifically in terms of app configuration), while PyConfig just naturally guides you towards the best practices. But hey, I'm definitely biased...
 
 Detailed documentation
 ================================================================================
