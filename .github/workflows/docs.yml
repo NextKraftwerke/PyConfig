@@ -30,6 +30,12 @@ jobs:
       - name: Merge main into pages branch
         run: |
           git fetch origin
+          echo "++++++++++++++ git status +++++++++++++++" && git status
+          echo "++++++++++++++ git branch +++++++++++++++" && git branch
+          echo "++++++++++++++ git branch all +++++++++++++++" && git branch -a
+          echo "++++++++++++++ git log current +++++++++++++++" && git --no-pager log -n 10
+          echo "++++++++++++++ git log origin/main +++++++++++++++" && git --no-pager log -n 10 origin/main
+          echo "++++++++++++++ git log origin/gh-pages +++++++++++++++" && git --no-pager log -n 10 origin/gh-pages
           git merge origin/main
       - name: Install dependencies
         run: |
