@@ -8,6 +8,8 @@ class SecretString:
     entries differently (e.g. by forbidding the use of default values) and
     conveys their intended usage and their secrecy to the user.
 
+    Just testing the docs workflow... Hi there!
+
     In the end, the actual type of the config entries is simply ``str``.
     """
     __new__ = None

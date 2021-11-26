@@ -19,6 +19,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           ref: ${{env.docs_branch}}
+          fetch-depth: 2
       - name: Set up Python 3.9
         uses: actions/setup-python@v2
         with:
@@ -30,6 +31,12 @@ jobs:
       - name: Merge main into pages branch
         run: |
           git fetch origin
+          echo "++++++++++++++ git status +++++++++++++++" && git status
+          echo "++++++++++++++ git branch +++++++++++++++" && git branch
+          echo "++++++++++++++ git branch all +++++++++++++++" && git branch -a
+          echo "++++++++++++++ git log current +++++++++++++++" && git --no-pager log -n 10
+          echo "++++++++++++++ git log origin/main +++++++++++++++" && git --no-pager log -n 10 origin/main
+          echo "++++++++++++++ git log origin/gh-pages +++++++++++++++" && git --no-pager log -n 10 origin/gh-pages
           git merge origin/main
       - name: Install dependencies
         run: |
