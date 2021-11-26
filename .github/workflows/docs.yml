@@ -35,20 +35,7 @@ jobs:
           git config user.email ''
       - name: Merge main into pages branch
         run: |
-          echo "++++++++++++++ git status +++++++++++++++" && git status
-          echo "++++++++++++++ git branch +++++++++++++++" && git branch
-          echo "++++++++++++++ git branch all +++++++++++++++" && git branch -a
-          echo "++++++++++++++ git log current +++++++++++++++" && git --no-pager log -n 20
-          echo "++++++++++++++ git log origin/main +++++++++++++++" && git --no-pager log -n 20 origin/main
-          echo "++++++++++++++ git log origin/gh-pages +++++++++++++++" && git --no-pager log -n 20 origin/gh-pages
-          echo "+++++++++++++++++++ git fetch origin +++++++++++++++++++" && git fetch origin
-          echo "++++++++++++++ git status +++++++++++++++" && git status
-          echo "++++++++++++++ git branch +++++++++++++++" && git branch
-          echo "++++++++++++++ git branch all +++++++++++++++" && git branch -a
-          echo "++++++++++++++ git log current +++++++++++++++" && git --no-pager log -n 20
-          echo "++++++++++++++ git log origin/main +++++++++++++++" && git --no-pager log -n 20 origin/main
-          echo "++++++++++++++ git log origin/gh-pages +++++++++++++++" && git --no-pager log -n 20 origin/gh-pages
-          echo "+++++++++++++++++++ git merge origin/main +++++++++++++++++++" && git merge origin/main
+          git merge origin/main
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
