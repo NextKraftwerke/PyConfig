@@ -2,6 +2,9 @@
 PyConfig
 ################################################################################
 
+.. image:: construction-tape.png
+  :alt: "Under Construction" Sign
+
 *Welcome!*
 
 |TLDR|

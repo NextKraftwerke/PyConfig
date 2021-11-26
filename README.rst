@@ -35,20 +35,18 @@
 .. |add_cli_options| replace:: `add_cli_options()`_
 .. |resolve_config_path| replace:: `resolve_config_path()`_
 
-.. TODO: Add links to the following references once we have a stable docs URL.
-.. _placeholder: https://i.pinimg.com/736x/d6/0c/7e/d60c7e8983fdbd7c7a27fd42fb3d61ba.jpg
-.. _docs: `placeholder`_
-.. _Config: `placeholder`_
-.. _ConfigSection: `placeholder`_
-.. _URL: `placeholder`_
-.. _SecretString: `placeholder`_
+.. _docs: https://nextkraftwerke.github.io/PyConfig/
+.. _Config: https://nextkraftwerke.github.io/PyConfig/config_objects/#nx_config.Config
+.. _ConfigSection: https://nextkraftwerke.github.io/PyConfig/config_objects/#nx_config.ConfigSection
+.. _URL: https://nextkraftwerke.github.io/PyConfig/config_objects/#nx_config.URL
+.. _SecretString: https://nextkraftwerke.github.io/PyConfig/config_objects/#nx_config.SecretString
 .. _nx_config.SecretString: `SecretString`_
-.. _@validate(): `placeholder`_
-.. _fill_config(): `placeholder`_
-.. _fill_config_from_path(): `placeholder`_
-.. _test_utils.update_section(): `placeholder`_
-.. _add_cli_options(): `placeholder`_
-.. _resolve_config_path(): `placeholder`_
+.. _@validate(): https://nextkraftwerke.github.io/PyConfig/config_objects/#nx_config.validate
+.. _fill_config(): https://nextkraftwerke.github.io/PyConfig/loading_and_cmdline/#nx_config.fill_config
+.. _fill_config_from_path(): https://nextkraftwerke.github.io/PyConfig/loading_and_cmdline/#nx_config.fill_config_from_path
+.. _test_utils.update_section(): https://nextkraftwerke.github.io/PyConfig/testing/#nx_config.test_utils.update_section
+.. _add_cli_options(): https://nextkraftwerke.github.io/PyConfig/loading_and_cmdline/#nx_config.add_cli_options
+.. _resolve_config_path(): https://nextkraftwerke.github.io/PyConfig/loading_and_cmdline/#nx_config.resolve_config_path
 
 ################################################################################
 PyConfig
