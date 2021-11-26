@@ -20,7 +20,7 @@ def _check_prefix(prefix: str, purpose: str):
     if prefix == "":
         raise ValueError(
             f"Invalid empty prefix for configuration path {purpose}. If you don't want to use a custom"
-            f" prefix, use None instead (default). Just testing the docs workflow... Hi there!"
+            f" prefix, use None instead (default)."
         )
 
     if (prefix[0] not in _prefix_first_char) or any(x not in _prefix_chars for x in prefix[1:]):
