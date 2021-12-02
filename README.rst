@@ -388,7 +388,7 @@ PyConfig always validates the configuration input against the type-hints used in
 Two more out-of-the-box automatic checks are:
 
 * Users must provide a value for every field that doesn't have a default.
-* Secrets cannot have default values. They must always be provided by the end-user. (But ``Optional[``\ |SecretString|\ ``]`` can have default ``None``, ``tuple[``\ |SecretString|\ ``, ...]`` can have default ``()`` etc.)
+* Secrets cannot have default values. They must always be provided by the end-user. (But ``Optional[SecretString]`` can have default ``None``, ``tuple[SecretString, ...]`` can have default ``()`` etc.)
 
 On top of these, you can add validating methods (single parameter ``self``, no return value) to your section classes through the |@validate| annotation. These methods will be called right after filling in the values for the section in |fill_config| or |fill_config_from_path| (see examples above).
 
