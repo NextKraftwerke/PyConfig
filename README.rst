@@ -2,8 +2,11 @@
   :target: https://github.com/NextKraftwerke/PyConfig/blob/main/LICENSE
   :alt: License
 .. image:: https://img.shields.io/github/workflow/status/NextKraftwerke/PyConfig/tests+coverage/main?label=tests%2Bcoverage&logo=github&style=flat&labelColor=303030&logoColor=a0a0a0
-  :target: https://github.com/NextKraftwerke/PyConfig/actions?query=workflow%3Atests%2Bcoverage+branch%3Amain
-  :alt: Status (main)
+  :target: https://github.com/NextKraftwerke/PyConfig/actions/workflows/tests+coverage.yml
+  :alt: Tests status (main)
+.. image:: https://img.shields.io/github/workflow/status/NextKraftwerke/PyConfig/docs/main?label=docs&logo=github&style=flat&labelColor=303030&logoColor=a0a0a0
+  :target: docs_
+  :alt: Docs status (main)
 .. image:: https://img.shields.io/tokei/lines/github/NextKraftwerke/PyConfig?label=lines%20of%20code&style=flat&labelColor=303030&color=606060
   :target: https://github.com/NextKraftwerke/PyConfig
   :alt: Lines of code
@@ -388,7 +391,7 @@ PyConfig always validates the configuration input against the type-hints used in
 Two more out-of-the-box automatic checks are:
 
 * Users must provide a value for every field that doesn't have a default.
-* Secrets cannot have default values. They must always be provided by the end-user. (But ``Optional[``\ |SecretString|\ ``]`` can have default ``None``, ``tuple[``\ |SecretString|\ ``, ...]`` can have default ``()`` etc.)
+* Secrets cannot have default values. They must always be provided by the end-user. (But ``Optional[SecretString]`` can have default ``None``, ``tuple[SecretString, ...]`` can have default ``()`` etc.)
 
 On top of these, you can add validating methods (single parameter ``self``, no return value) to your section classes through the |@validate| annotation. These methods will be called right after filling in the values for the section in |fill_config| or |fill_config_from_path| (see examples above).
 
