@@ -3,7 +3,9 @@ from pathlib import Path
 from typing import Optional, TextIO, Union
 
 # noinspection PyProtectedMember
-from nx_config._core.fill_with_oracles import fill_config_w_oracles as _fill_config_w_oracles
+from nx_config._core.fill_with_oracles import (
+    fill_config_w_oracles as _fill_config_w_oracles,
+)
 from nx_config.config import Config
 from nx_config.format import Format
 
@@ -54,7 +56,9 @@ def fill_config(
     #   of additional logic. So please keep this a simple one-liner and make any
     #   necessary changes directly to fill_config_w_oracles instead of here.
     #     Thanks!
-    return _fill_config_w_oracles(cfg, in_stream=stream, fmt=fmt, env_prefix=env_prefix, env_map=environ)
+    return _fill_config_w_oracles(
+        cfg, in_stream=stream, fmt=fmt, env_prefix=env_prefix, env_map=environ
+    )
 
 
 def fill_config_from_path(

@@ -136,6 +136,7 @@ class FillFromINITestCase(TestCase):
     def test_ultimate_empty_str_input(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     e_str: str = "a"
                     e_opt_int: Optional[int] = 0
@@ -178,7 +179,18 @@ class FillFromINITestCase(TestCase):
         class MyConfig(Config):
             some_section: MySection
 
-        for value_str in ("True", "true", "TRUE", "Yes", "yes", "YES", "On", "on", "ON", "1"):
+        for value_str in (
+            "True",
+            "true",
+            "TRUE",
+            "Yes",
+            "yes",
+            "YES",
+            "On",
+            "on",
+            "ON",
+            "1",
+        ):
             with self.subTest("Truey strings", value_str=value_str):
                 cfg = MyConfig()
                 _fill_in(
@@ -190,7 +202,18 @@ class FillFromINITestCase(TestCase):
                 )
                 self.assertEqual(True, cfg.some_section.a_parameter)
 
-        for value_str in ("False", "false", "FALSE", "No", "no", "NO", "Off", "off", "OFF", "0"):
+        for value_str in (
+            "False",
+            "false",
+            "FALSE",
+            "No",
+            "no",
+            "NO",
+            "Off",
+            "off",
+            "OFF",
+            "0",
+        ):
             with self.subTest("Falsey strings", value_str=value_str):
                 cfg = MyConfig()
                 _fill_in(
@@ -270,14 +293,22 @@ class FillFromINITestCase(TestCase):
         self.assertFalse(cfg.sec.e_bool1)
         self.assertTrue(cfg.sec.e_bool2)
         self.assertEqual("Hello, world!", cfg.sec.e_str1)
-        self.assertEqual("\"  Goodbye, Dave  \"", cfg.sec.e_str2)
-        self.assertEqual("\"\"", cfg.sec.e_str3)
+        self.assertEqual('"  Goodbye, Dave  "', cfg.sec.e_str2)
+        self.assertEqual('""', cfg.sec.e_str3)
         self.assertIsNone(cfg.sec.e_str4)
         self.assertEqual("foo-be-doo", cfg.sec.e_str5)
-        self.assertEqual(datetime(2021, 5, 4, 9, 15, 0, 9, tzinfo=timezone(timedelta(hours=5))), cfg.sec.e_datetime1)
-        self.assertEqual(datetime(2021, 5, 4, 9, 15, 0, 9, tzinfo=timezone(timedelta(hours=-5))), cfg.sec.e_datetime2)
+        self.assertEqual(
+            datetime(2021, 5, 4, 9, 15, 0, 9, tzinfo=timezone(timedelta(hours=5))),
+            cfg.sec.e_datetime1,
+        )
+        self.assertEqual(
+            datetime(2021, 5, 4, 9, 15, 0, 9, tzinfo=timezone(timedelta(hours=-5))),
+            cfg.sec.e_datetime2,
+        )
         self.assertEqual(datetime(2021, 5, 4, 9, 15, 0, 9), cfg.sec.e_datetime3)
-        self.assertEqual(datetime(2021, 5, 4, 9, 15, tzinfo=timezone.utc), cfg.sec.e_datetime4)
+        self.assertEqual(
+            datetime(2021, 5, 4, 9, 15, tzinfo=timezone.utc), cfg.sec.e_datetime4
+        )
 
     def test_set_secret(self):
         class MySection(ConfigSection):
@@ -365,11 +396,12 @@ class FillFromINITestCase(TestCase):
             (int, "3.14"),
             (float, "true"),
             (datetime, "1622026088"),
-            (bool, "\"0\""),
+            (bool, '"0"'),
             (UUID, "42"),
             (int, "1,2,3"),
         ):
             with self.subTest(type=t, value_str=value_str):
+
                 class MySection(ConfigSection):
                     my_entry: t
 
@@ -424,6 +456,7 @@ class FillFromINITestCase(TestCase):
 
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     int_tuple: tps.tuple[int, ...]
                     bool_tuple: tps.tuple[bool, ...] = ()

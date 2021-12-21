@@ -26,17 +26,23 @@ def _get_testing_section_cls(tps: CollectionTypeHolder) -> type:
         rel_resources: Path = Path("c/resources")
         secure_mode: bool = True
         growth_factor: float = 1.5
-        cats: Optional[tps.frozenset[str]] = frozenset(("grey", "brown", "black", "white"))
+        cats: Optional[tps.frozenset[str]] = frozenset(
+            ("grey", "brown", "black", "white")
+        )
         dogs: tps.tuple[str, ...] = ("lazy", "happy", "sad")
         sasquatch: tps.tuple[str, ...] = ()
         big_foot: tps.frozenset[str] = frozenset()
-        secret_files: tps.frozenset[Path] = frozenset((Path("hi.txt"), Path("/hello.md")))
+        secret_files: tps.frozenset[Path] = frozenset(
+            (Path("hi.txt"), Path("/hello.md"))
+        )
         more_files: tps.tuple[Path, ...] = (Path("bye.exe"), Path("/see_ya.py"))
         fibonacci: tps.frozenset[int] = frozenset((0, 1, 1, 2, 3, 5))
         more_fibonacci: tps.tuple[int, ...] = (8, 13, 21, 34)
         holidays: tps.frozenset[datetime] = frozenset((datetime(1985, 11, 12),))
         non_holidays: tps.tuple[datetime, ...] = (datetime(1985, 11, 13),)
-        old_tokens: tps.frozenset[UUID] = frozenset((UUID(int=1), UUID(int=9_999_999_999_999)))
+        old_tokens: tps.frozenset[UUID] = frozenset(
+            (UUID(int=1), UUID(int=9_999_999_999_999))
+        )
         future_tokens: tps.tuple[UUID, ...] = (UUID(int=2), UUID(int=7), UUID(int=17))
         needs_escaping: str = "Hello\nWorld\r!\tHowdy?"
 
@@ -85,12 +91,20 @@ class PrettyPrintingTestCase(TestCase):
         cats_str = "{" + ", ".join(f"'{x}'" for x in database_sec.cats) + "}"
         dogs_str = "(" + ", ".join(f"'{x}'" for x in database_sec.dogs) + ")"
         big_foot_str = "{}"
-        secret_files_str = "{" + ", ".join(f"'{x}'" for x in database_sec.secret_files) + "}"
-        more_files_str = "(" + ", ".join(f"'{x}'" for x in database_sec.more_files) + ")"
+        secret_files_str = (
+            "{" + ", ".join(f"'{x}'" for x in database_sec.secret_files) + "}"
+        )
+        more_files_str = (
+            "(" + ", ".join(f"'{x}'" for x in database_sec.more_files) + ")"
+        )
         holidays_str = "{" + ", ".join(str(x) for x in database_sec.holidays) + "}"
-        non_holidays_str = "(" + ", ".join(str(x) for x in database_sec.non_holidays) + ")"
+        non_holidays_str = (
+            "(" + ", ".join(str(x) for x in database_sec.non_holidays) + ")"
+        )
         old_tokens_str = "{" + ", ".join(str(x) for x in database_sec.old_tokens) + "}"
-        future_tokens_str = "(" + ", ".join(str(x) for x in database_sec.future_tokens) + ")"
+        future_tokens_str = (
+            "(" + ", ".join(str(x) for x in database_sec.future_tokens) + ")"
+        )
         needs_escaping_str = "Hello\\nWorld\\r!\\tHowdy?"
 
         self.expected_database_str = (
@@ -176,7 +190,9 @@ class PrettyPrintingTestCase(TestCase):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
                 cfg = _get_big_testing_config_cls(tps)()
-                self.assertEqual(f"BigConfig(database={cfg.database}, empty={cfg.empty})", str(cfg))
+                self.assertEqual(
+                    f"BigConfig(database={cfg.database}, empty={cfg.empty})", str(cfg)
+                )
 
     def test_pretty_empty_config_str(self):
         cfg = EmptyConfig()
@@ -262,6 +278,7 @@ class PrettyPrintingTestCase(TestCase):
     def test_secret_string_masking_in_collections(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     my_tuple: tps.tuple[SecretString, ...]
                     my_frozenset: Optional[tps.frozenset[SecretString]] = None
@@ -287,8 +304,12 @@ class PrettyPrintingTestCase(TestCase):
                     str(cfg.my_section),
                 )
 
-                my_tuple_str = repr((...,)).replace("Ellipsis,", f"{repr('*****')}, ...")
-                my_frozenset_str = repr(frozenset((...,))).replace("Ellipsis", f"{repr('*****')}, ...")
+                my_tuple_str = repr((...,)).replace(
+                    "Ellipsis,", f"{repr('*****')}, ..."
+                )
+                my_frozenset_str = repr(frozenset((...,))).replace(
+                    "Ellipsis", f"{repr('*****')}, ..."
+                )
 
                 self.assertEqual(
                     (

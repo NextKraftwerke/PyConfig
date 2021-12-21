@@ -3,9 +3,11 @@ from typing import Any, Iterator
 
 if version_info.minor < 7:
     from collections.abc import Mapping
+
     _SectionMappingBase = Mapping
 else:
     from typing import Mapping
+
     _SectionMappingBase = Mapping[str, Any]
 
 # noinspection PyProtectedMember
@@ -16,13 +18,16 @@ from nx_config._core.entry_to_text import (
     collection_type2masked_repr as _col2masked_repr,
     value2repr as _val2repr,
 )
+
 # noinspection PyProtectedMember
 from nx_config._core.iteration_utils import get_annotations as _get_annotations
+
 # noinspection PyProtectedMember
 from nx_config._core.naming_utils import (
     internal_name as _internal_name,
     indentation_spaces as _indentation_spaces,
 )
+
 # noinspection PyProtectedMember
 from nx_config._core.section_meta import SectionMeta as _Meta
 
@@ -31,6 +36,7 @@ class ConfigSection(_SectionMappingBase, metaclass=_Meta):
     """
     TODO
     """
+
     _nx_config_internal__root = True
 
     def __init__(self):

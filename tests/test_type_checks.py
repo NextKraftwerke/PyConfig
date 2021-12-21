@@ -26,7 +26,9 @@ class TypeChecksTestCase(TestCase):
             my_uuid_d: UUID = UUID(int=1_234_567_890)
             my_datetime: datetime
             my_datetime_d_naive: datetime = datetime(2020, 5, 4)
-            my_datetime_d_tz: datetime = datetime(2020, 5, 4, tzinfo=timezone(timedelta(hours=2)))
+            my_datetime_d_tz: datetime = datetime(
+                2020, 5, 4, tzinfo=timezone(timedelta(hours=2))
+            )
             my_path: Path
             my_path_d_abs: Path = Path("/a/b/c.txt")
             my_path_d_rel: Path = Path("a/b/c.txt")
@@ -102,6 +104,7 @@ class TypeChecksTestCase(TestCase):
 
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     my_entry: tps.tuple[int, ...]
                     my_other_entry: tps.tuple[bool, ...] = some_bools
@@ -199,6 +202,7 @@ class TypeChecksTestCase(TestCase):
     def test_tuple_can_be_empty(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     my_entry: tps.tuple[int, ...] = ()
 
@@ -310,6 +314,7 @@ class TypeChecksTestCase(TestCase):
     def test_optional_collection_of_secret_strings_can_be_none(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     my_entry: Optional[tps.tuple[SecretString, ...]]
                     my_second_entry: Optional[tps.tuple[SecretString, ...]] = None
@@ -323,6 +328,7 @@ class TypeChecksTestCase(TestCase):
     def test_collection_of_secret_strings_can_be_empty(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     my_entry: tps.tuple[SecretString, ...]
                     my_second_entry: tps.tuple[SecretString, ...] = ()
@@ -340,6 +346,7 @@ class TypeChecksTestCase(TestCase):
     def test_tuple_can_be_optional(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     my_entry: Optional[tps.tuple[int, ...]] = None
                     my_other_entry: Optional[tps.tuple[int, ...]] = (42,)
@@ -353,6 +360,7 @@ class TypeChecksTestCase(TestCase):
 
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     my_entry: tps.frozenset[int]
                     my_other_entry: tps.frozenset[str] = some_strings
@@ -443,6 +451,7 @@ class TypeChecksTestCase(TestCase):
     def test_frozenset_can_be_empty(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     my_entry: tps.frozenset[int] = frozenset()
 
@@ -501,7 +510,9 @@ class TypeChecksTestCase(TestCase):
                 self.assertIn(str(Optional[int]), msg)
                 self.assertIn("element", msg.lower())
 
-    @skipIf(len(collection_type_holders) < 2, "Nothing to mix if there's only one style")
+    @skipIf(
+        len(collection_type_holders) < 2, "Nothing to mix if there's only one style"
+    )
     def test_mixing_typing_and_builtin(self):
         tuple0 = collection_type_holders[0].tuple
         tuple1 = collection_type_holders[1].tuple

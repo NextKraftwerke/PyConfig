@@ -6,6 +6,7 @@ from uuid import UUID
 
 # noinspection PyPackageRequirements
 from yaml import YAMLError
+
 # noinspection PyPackageRequirements
 from yaml.constructor import ConstructorError
 
@@ -204,10 +205,18 @@ class FillFromYAMLTestCase(TestCase):
         self.assertEqual("", cfg.sec.e_str3)
         self.assertIsNone(cfg.sec.e_str4)
         self.assertEqual("foo-be-doo", cfg.sec.e_str5)
-        self.assertEqual(datetime(2021, 5, 4, 9, 15, 0, 9, tzinfo=timezone(timedelta(hours=5))), cfg.sec.e_datetime1)
-        self.assertEqual(datetime(2021, 5, 4, 9, 15, 0, 9, tzinfo=timezone(timedelta(hours=-5))), cfg.sec.e_datetime2)
+        self.assertEqual(
+            datetime(2021, 5, 4, 9, 15, 0, 9, tzinfo=timezone(timedelta(hours=5))),
+            cfg.sec.e_datetime1,
+        )
+        self.assertEqual(
+            datetime(2021, 5, 4, 9, 15, 0, 9, tzinfo=timezone(timedelta(hours=-5))),
+            cfg.sec.e_datetime2,
+        )
         self.assertEqual(datetime(2021, 5, 4, 9, 15, 0, 9), cfg.sec.e_datetime3)
-        self.assertEqual(datetime(2021, 5, 4, 9, 15, tzinfo=timezone.utc), cfg.sec.e_datetime4)
+        self.assertEqual(
+            datetime(2021, 5, 4, 9, 15, tzinfo=timezone.utc), cfg.sec.e_datetime4
+        )
 
     def test_set_secret(self):
         class MySection(ConfigSection):
@@ -297,13 +306,14 @@ class FillFromYAMLTestCase(TestCase):
             (URL, -1),
         ):
             with self.subTest(type=t, value=value):
+
                 class MySection(ConfigSection):
                     my_entry: t
 
                 class MyConfig(Config):
                     my_section: MySection
 
-                value_str = f"\"{value}\"" if isinstance(value, str) else str(value)
+                value_str = f'"{value}"' if isinstance(value, str) else str(value)
 
                 with self.assertRaises(TypeError) as ctx:
                     _fill_in(
@@ -352,6 +362,7 @@ class FillFromYAMLTestCase(TestCase):
 
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     int_tuple: tps.tuple[int, ...]
                     bool_tuple: tps.tuple[bool, ...] = ()

@@ -7,17 +7,19 @@ from nx_config._core.typing_utils import get_origin, get_args
 from nx_config.secret_string import SecretString
 from nx_config.url import URL
 
-_supported_base_types = frozenset((
-    int,
-    float,
-    bool,
-    str,
-    datetime,
-    UUID,
-    Path,
-    SecretString,
-    URL,
-))
+_supported_base_types = frozenset(
+    (
+        int,
+        float,
+        bool,
+        str,
+        datetime,
+        UUID,
+        Path,
+        SecretString,
+        URL,
+    )
+)
 
 _NoneType = type(None)
 
@@ -27,11 +29,7 @@ def _get_optional_and_base(t: type) -> Tuple[bool, type]:
         origin = get_origin(t)
         args = get_args(t)
 
-        if (
-            (origin is Union) and
-            (len(args) == 2) and
-            any(x is _NoneType for x in args)
-        ):
+        if (origin is Union) and (len(args) == 2) and any(x is _NoneType for x in args):
             # 'coverage' complains about not finishing the iteration on the
             # generator expression below. We only want to find the first occurence,
             # and the conditions above guarantee that there is one, hence 'no cover'.
@@ -47,11 +45,11 @@ def _get_collection_and_base(t: type) -> Tuple[Optional[Type[Collection]], type]
         args = get_args(t)
 
         if (
-            isinstance(origin, type) and
-            issubclass(origin, Collection) and
-            (
-                ((len(args) == 1) and (origin is not tuple)) or
-                ((len(args) == 2) and (args[1] is Ellipsis) and (origin is tuple))
+            isinstance(origin, type)
+            and issubclass(origin, Collection)
+            and (
+                ((len(args) == 1) and (origin is not tuple))
+                or ((len(args) == 2) and (args[1] is Ellipsis) and (origin is tuple))
             )
         ):
             return origin, args[0]
@@ -60,7 +58,9 @@ def _get_collection_and_base(t: type) -> Tuple[Optional[Type[Collection]], type]
 
 
 def _nice_type_str(t: type):
-    return t.__name__ if (t.__module__ != "typing" and len(get_args(t)) == 0) else str(t)
+    return (
+        t.__name__ if (t.__module__ != "typing" and len(get_args(t)) == 0) else str(t)
+    )
 
 
 def _expected_value_type(base: type) -> type:
@@ -79,9 +79,13 @@ class ConfigTypeInfo(NamedTuple):
         collection, base = _get_collection_and_base(base_or_collection)
         nice_str = _nice_type_str(t)
 
-        if (base not in _supported_base_types) or (collection not in (None, tuple, frozenset)):
+        if (base not in _supported_base_types) or (
+            collection not in (None, tuple, frozenset)
+        ):
             supported = ", ".join(
-                sorted((x.__name__ for x in _supported_base_types), key=lambda x: x.lower())
+                sorted(
+                    (x.__name__ for x in _supported_base_types), key=lambda x: x.lower()
+                )
             )
             raise TypeError(
                 f"Type(-hint) '{nice_str}' is not supported for config entries. Allowed 'base' types:"
@@ -96,11 +100,11 @@ class ConfigTypeInfo(NamedTuple):
 
         full_str = nice_str.replace(
             "SecretString", "SecretString (a.k.a. str)"
-        ).replace(
-            "URL", "URL (a.k.a. str)"
-        )
+        ).replace("URL", "URL (a.k.a. str)")
 
-        return ConfigTypeInfo(optional=optional, collection=collection, base=base, full_str=full_str)
+        return ConfigTypeInfo(
+            optional=optional, collection=collection, base=base, full_str=full_str
+        )
 
     def __str__(self):
         return self.full_str

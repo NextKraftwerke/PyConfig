@@ -3,6 +3,7 @@ from pathlib import Path
 from unittest import TestCase
 
 from nx_config import resolve_config_path
+
 # noinspection PyProtectedMember
 from nx_config._core.path_with_oracles import resolve_path_w_oracles
 
@@ -15,7 +16,9 @@ class PathResolutionTestCase(TestCase):
         expected = Path("../a/b/c.d")
         self.assertEqual(
             expected,
-            resolve_path_w_oracles(prefix=None, cli_args=None, env_map={"CONFIG_PATH": str(expected)}),
+            resolve_path_w_oracles(
+                prefix=None, cli_args=None, env_map={"CONFIG_PATH": str(expected)}
+            ),
         )
 
     def test_env_var_prefix(self):
@@ -39,7 +42,10 @@ class PathResolutionTestCase(TestCase):
                     resolve_path_w_oracles(
                         prefix=prefix,
                         cli_args=None,
-                        env_map={"CONFIG_PATH": "not_expected", f"{env_key_prefix}_CONFIG_PATH": str(expected)}
+                        env_map={
+                            "CONFIG_PATH": "not_expected",
+                            f"{env_key_prefix}_CONFIG_PATH": str(expected),
+                        },
                     ),
                 )
 
@@ -54,7 +60,18 @@ class PathResolutionTestCase(TestCase):
             self.assertIn("prefix", msg.lower())
             self.assertIn("None", msg)
 
-        for prefix in ("hällo", "H.ELL.O", "HELL'o", "he##o", "HEL LO", "H\tO", "H\nO", "9to5", "-hello", "_HELLO"):
+        for prefix in (
+            "hällo",
+            "H.ELL.O",
+            "HELL'o",
+            "he##o",
+            "HEL LO",
+            "H\tO",
+            "H\nO",
+            "9to5",
+            "-hello",
+            "_HELLO",
+        ):
             with self.subTest(prefix=prefix):
                 with self.assertRaises(ValueError) as ctx:
                     resolve_config_path(prefix)
@@ -93,7 +110,9 @@ class PathResolutionTestCase(TestCase):
             expected = Path("/foo/bar.json")
             self.assertEqual(
                 expected,
-                resolve_path_w_oracles(prefix=None, cli_args=args, env_map={"CONFIG_PATH": str(expected)}),
+                resolve_path_w_oracles(
+                    prefix=None, cli_args=args, env_map={"CONFIG_PATH": str(expected)}
+                ),
             )
 
     def test_argparser_wo_option(self):
@@ -115,7 +134,11 @@ class PathResolutionTestCase(TestCase):
 
         self.assertEqual(
             expected,
-            resolve_path_w_oracles(prefix=None, cli_args=args, env_map={"CONFIG_PATH": "/path/from/env.var"}),
+            resolve_path_w_oracles(
+                prefix=None,
+                cli_args=args,
+                env_map={"CONFIG_PATH": "/path/from/env.var"},
+            ),
         )
 
     def test_cli_args_is_keyword_only(self):
@@ -151,7 +174,10 @@ class PathResolutionTestCase(TestCase):
                 resolve_path_w_oracles(
                     prefix=prefix,
                     cli_args=args,
-                    env_map={"CONFIG_PATH": "not_expected", "CU5T0M__PR3F1X_CONFIG_PATH": str(expected)},
+                    env_map={
+                        "CONFIG_PATH": "not_expected",
+                        "CU5T0M__PR3F1X_CONFIG_PATH": str(expected),
+                    },
                 ),
             )
 

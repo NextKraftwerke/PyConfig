@@ -17,7 +17,9 @@ def _generate_template_yaml(config_t: Type[Config], out_stream: TextIO):
 
 
 def _generate_template_ini(config_t: Type[Config], out_stream: TextIO):
-    for idx, (section_name, section_cls) in enumerate(get_annotations(config_t).items()):
+    for idx, (section_name, section_cls) in enumerate(
+        get_annotations(config_t).items()
+    ):
         if idx != 0:
             out_stream.write("\n")
 

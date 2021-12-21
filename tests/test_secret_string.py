@@ -3,6 +3,7 @@ from typing import Optional
 from unittest import TestCase
 
 from nx_config import SecretString, ConfigSection, Config, Format
+
 # noinspection PyProtectedMember
 from nx_config._core.fill_with_oracles import fill_config_w_oracles
 from tests.typing_test_helpers import collection_type_holders
@@ -42,7 +43,7 @@ class SecretStringTestCase(TestCase):
         self.assertNotIn(str(secret), msg)
 
     def test_not_in_invalid_yaml_err_msg(self):
-        secret = '[0ae133b59ad04211843179e0ae566a10'
+        secret = "[0ae133b59ad04211843179e0ae566a10"
 
         class MySection(ConfigSection):
             entry: SecretString
@@ -63,7 +64,7 @@ class SecretStringTestCase(TestCase):
         self.assertNotIn(secret, msg)
 
     def test_not_in_default_secret_err_msg(self):
-        secret = '0ae133b59ad04211843179e0ae566a10'
+        secret = "0ae133b59ad04211843179e0ae566a10"
         int_secret = 1234
 
         with self.subTest("No collection"):

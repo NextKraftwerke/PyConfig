@@ -10,4 +10,5 @@ class SecretString:
 
     In the end, the actual type of the config entries is simply ``str``.
     """
+
     __new__ = None

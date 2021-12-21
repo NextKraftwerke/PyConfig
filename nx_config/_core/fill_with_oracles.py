@@ -6,6 +6,7 @@ from uuid import UUID
 
 # noinspection PyPackageRequirements
 from dateutil.parser import parse as dateutil_parse
+
 # noinspection PyPackageRequirements
 from yaml import safe_load
 
@@ -19,8 +20,12 @@ from nx_config.exceptions import ValidationError, IncompleteSectionError, Parsin
 from nx_config.format import Format
 from nx_config.section import ConfigSection
 
-_truey_strings = frozenset(("True", "true", "TRUE", "Yes", "yes", "YES", "On", "on", "ON", "1"))
-_falsey_strings = frozenset(("False", "false", "FALSE", "No", "no", "NO", "Off", "off", "OFF", "0"))
+_truey_strings = frozenset(
+    ("True", "true", "TRUE", "Yes", "yes", "YES", "On", "on", "ON", "1")
+)
+_falsey_strings = frozenset(
+    ("False", "false", "FALSE", "No", "no", "NO", "Off", "off", "OFF", "0")
+)
 _upper_ascii_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 _digits = "0123456789"
 _env_prefix_first_char = _upper_ascii_letters + "_"
@@ -31,7 +36,9 @@ def _convert_yaml_str_to_element(yaml_str: str, base: type) -> Any:
     try:
         return base(yaml_str)
     except ValueError as xcp:
-        raise ValueError(f"Cannot convert string '{yaml_str}' into {base.__name__}: {xcp}") from xcp
+        raise ValueError(
+            f"Cannot convert string '{yaml_str}' into {base.__name__}: {xcp}"
+        ) from xcp
 
 
 def _convert_yaml(yaml_value: Any, type_info: ConfigTypeInfo) -> Any:
@@ -42,14 +49,21 @@ def _convert_yaml(yaml_value: Any, type_info: ConfigTypeInfo) -> Any:
         try:
             return base(yaml_value)
         except ValueError as xcp:
-            raise ValueError(f"Cannot convert string '{yaml_value}' into {type_info}: {xcp}") from xcp
+            raise ValueError(
+                f"Cannot convert string '{yaml_value}' into {type_info}: {xcp}"
+            ) from xcp
     elif isinstance(yaml_value, list) and (coll is not None):
         if base in (Path, UUID):
             try:
                 # noinspection PyArgumentList
-                return coll(_convert_yaml_str_to_element(x, base) if isinstance(x, str) else x for x in yaml_value)
+                return coll(
+                    _convert_yaml_str_to_element(x, base) if isinstance(x, str) else x
+                    for x in yaml_value
+                )
             except ValueError as xcp:
-                raise ValueError(f"Failed to convert list into {type_info}: {xcp}") from xcp
+                raise ValueError(
+                    f"Failed to convert list into {type_info}: {xcp}"
+                ) from xcp
         # noinspection PyArgumentList
         return coll(yaml_value)
     else:
@@ -94,20 +108,26 @@ def _convert_string(value_str: str, type_info: ConfigTypeInfo) -> Any:
         try:
             return _convert_string_to_base(value_str, base)
         except ValueError as xcp:
-            raise ValueError(f"Cannot convert string '{value_str}' into {type_info}: {xcp}") from xcp
+            raise ValueError(
+                f"Cannot convert string '{value_str}' into {type_info}: {xcp}"
+            ) from xcp
     else:
         parts = (x.strip() for x in value_str.split(","))
         try:
             # noinspection PyArgumentList
             return coll(_convert_each_string_to_base(parts, base))
         except ValueError as xcp:
-            raise ValueError(f"Cannot convert string '{value_str}' into {type_info}: {xcp}") from xcp
+            raise ValueError(
+                f"Cannot convert string '{value_str}' into {type_info}: {xcp}"
+            ) from xcp
 
 
 def _check_all_entries_were_set(section: ConfigSection):
     for entry_name in get_annotations(section):
         if getattr(section, entry_name) is Unset:
-            raise ValueError(f"Attribute '{entry_name}' has not been set and has no default value.")
+            raise ValueError(
+                f"Attribute '{entry_name}' has not been set and has no default value."
+            )
 
 
 def _check_env_prefix(prefix: str):
@@ -117,7 +137,9 @@ def _check_env_prefix(prefix: str):
             f" prefix, use None instead (default)."
         )
 
-    if (prefix[0] not in _env_prefix_first_char) or any(x not in _env_prefix_chars for x in prefix[1:]):
+    if (prefix[0] not in _env_prefix_first_char) or any(
+        x not in _env_prefix_chars for x in prefix[1:]
+    ):
         raise ValueError(
             f"Invalid prefix {repr(prefix)} for configuration environment variables. The only characters"
             f" allowed in the prefix are upper case ASCII letters '{_upper_ascii_letters}', numerical digits"
@@ -172,7 +194,9 @@ def fill_config_w_oracles(
 
         try:
             for entry_name in get_annotations(section):
-                env_key = f"{env_key_prefix}{section_name.upper()}__{entry_name.upper()}"
+                env_key = (
+                    f"{env_key_prefix}{section_name.upper()}__{entry_name.upper()}"
+                )
                 env_value = env_map.get(env_key)
 
                 if env_value is None:
@@ -212,7 +236,9 @@ def fill_config_w_oracles(
         try:
             _check_all_entries_were_set(section)
         except ValueError as xcp:
-            raise IncompleteSectionError(f"Incomplete section '{section_name}': {xcp}") from xcp
+            raise IncompleteSectionError(
+                f"Incomplete section '{section_name}': {xcp}"
+            ) from xcp
 
         try:
             run_validators(section)

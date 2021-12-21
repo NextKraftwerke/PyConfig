@@ -9,12 +9,14 @@ def _check_default_value(value: Any, entry_name: str, type_info: ConfigTypeInfo)
     try:
         type_info.check_type(value)
     except TypeError as xcp:
-        raise TypeError(f"Invalid default value for attribute '{entry_name}': {xcp}") from xcp
+        raise TypeError(
+            f"Invalid default value for attribute '{entry_name}': {xcp}"
+        ) from xcp
 
     if (
-        (type_info.base is not SecretString) or
-        (value is None) or
-        ((type_info.collection is not None) and (len(value) == 0))
+        (type_info.base is not SecretString)
+        or (value is None)
+        or ((type_info.collection is not None) and (len(value) == 0))
     ):
         return
 
@@ -31,7 +33,13 @@ def _check_default_value(value: Any, entry_name: str, type_info: ConfigTypeInfo)
 class SectionEntry:
     __slots__ = ("default", "entry_name", "_value_attribute", "type_info")
 
-    def __init__(self, default: Any, entry_name: str, value_attribute: str, type_info: ConfigTypeInfo):
+    def __init__(
+        self,
+        default: Any,
+        entry_name: str,
+        value_attribute: str,
+        type_info: ConfigTypeInfo,
+    ):
         self.default = default
         self.entry_name = entry_name
         self._value_attribute = value_attribute

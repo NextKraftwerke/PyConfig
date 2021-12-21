@@ -44,7 +44,9 @@ class AddCLIOptionsTestCase(TestCase):
 
         with self.subTest("With path arg"):
             expected_path = "/a/b/c.txt"
-            args = parser.parse_args(("--foo", "f00", "--config-path", expected_path, "--bar=6aR"))
+            args = parser.parse_args(
+                ("--foo", "f00", "--config-path", expected_path, "--bar=6aR")
+            )
             self.assertEqual("f00", args.foo)
             self.assertEqual(expected_path, args.config_path)
             self.assertEqual("6aR", args.bar)
@@ -110,7 +112,15 @@ class AddCLIOptionsTestCase(TestCase):
 
                 with self.subTest("With path arg"):
                     expected_path = "/a/b/c.txt"
-                    args = parser.parse_args(("--foo", "f00", f"--{prefix}-config-path", expected_path, "--bar=6aR"))
+                    args = parser.parse_args(
+                        (
+                            "--foo",
+                            "f00",
+                            f"--{prefix}-config-path",
+                            expected_path,
+                            "--bar=6aR",
+                        )
+                    )
                     self.assertEqual("f00", args.foo)
                     self.assertEqual(expected_path, getattr(args, args_attr))
                     self.assertEqual("6aR", args.bar)
@@ -150,7 +160,18 @@ class AddCLIOptionsTestCase(TestCase):
             self.assertIn("prefix", msg.lower())
             self.assertIn("None", msg)
 
-        for prefix in ("hällo", "H.ELL.O", "HELL'o", "he##o", "HEL LO", "H\tO", "H\nO", "9to5", "-hello", "_HELLO"):
+        for prefix in (
+            "hällo",
+            "H.ELL.O",
+            "HELL'o",
+            "he##o",
+            "HEL LO",
+            "H\tO",
+            "H\nO",
+            "9to5",
+            "-hello",
+            "_HELLO",
+        ):
             with self.subTest(prefix=prefix):
                 with self.assertRaises(ValueError) as ctx:
                     add_cli_options(ArgumentParser(), config_t=MyConfig, prefix=prefix)

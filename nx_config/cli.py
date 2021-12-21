@@ -23,7 +23,9 @@ def _check_prefix(prefix: str, purpose: str):
             f" prefix, use None instead (default)."
         )
 
-    if (prefix[0] not in _prefix_first_char) or any(x not in _prefix_chars for x in prefix[1:]):
+    if (prefix[0] not in _prefix_first_char) or any(
+        x not in _prefix_chars for x in prefix[1:]
+    ):
         raise ValueError(
             f"Invalid prefix {repr(prefix)} for configuration path {purpose}. The only characters"
             f" allowed in the prefix are lower case ASCII letters '{_lower_ascii_letters}', upper case"
@@ -32,7 +34,9 @@ def _check_prefix(prefix: str, purpose: str):
         )
 
 
-def add_cli_options(parser: ArgumentParser, *, prefix: Optional[str] = None, config_t: Type[Config]):
+def add_cli_options(
+    parser: ArgumentParser, *, prefix: Optional[str] = None, config_t: Type[Config]
+):
     """
     TODO: incl.: Document each individual CLI option.
         Also: When documenting config-path and generate-config, refer to the docs of fill_config (e.g. on the

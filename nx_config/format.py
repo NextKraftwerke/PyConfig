@@ -5,5 +5,6 @@ class Format(Enum):
     """
     TODO
     """
+
     yaml = auto()
     ini = auto()

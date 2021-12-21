@@ -147,6 +147,7 @@ class SectionTestCase(TestCase):
         # noinspection PyUnusedLocal
         class MySection(ConfigSection):
             """This is MySection's docstring."""
+
             pass
 
     def test_entry_mutable_name_collision(self):

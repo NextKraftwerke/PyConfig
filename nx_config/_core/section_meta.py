@@ -1,13 +1,24 @@
 from abc import ABCMeta
 from inspect import isroutine, isclass
 
-from nx_config._core.naming_utils import root_attr, internal_name, section_validators_attr
+from nx_config._core.naming_utils import (
+    root_attr,
+    internal_name,
+    section_validators_attr,
+)
 from nx_config._core.section_entry import SectionEntry
 from nx_config._core.type_checks import ConfigTypeInfo
 from nx_config._core.unset import Unset
 from nx_config._core.validator import Validator
 
-_special_section_keys = ("__module__", "__qualname__", "__annotations__", "__doc__", "__init__", "__orig_bases__")
+_special_section_keys = (
+    "__module__",
+    "__qualname__",
+    "__annotations__",
+    "__doc__",
+    "__init__",
+    "__orig_bases__",
+)
 
 
 class SectionMeta(ABCMeta):
@@ -42,7 +53,9 @@ class SectionMeta(ABCMeta):
             try:
                 type_info = ConfigTypeInfo.from_type_hint(entry_type)
             except TypeError as xcp:
-                raise TypeError(f"Unsupported type-hint for attribute '{entry_name}': {xcp}") from xcp
+                raise TypeError(
+                    f"Unsupported type-hint for attribute '{entry_name}': {xcp}"
+                ) from xcp
 
             default = ns.get(entry_name, Unset)
 

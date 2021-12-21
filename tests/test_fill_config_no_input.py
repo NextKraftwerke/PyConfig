@@ -1,7 +1,14 @@
 from io import StringIO
 from unittest import TestCase
 
-from nx_config import fill_config, Config, ConfigSection, validate, ValidationError, IncompleteSectionError
+from nx_config import (
+    fill_config,
+    Config,
+    ConfigSection,
+    validate,
+    ValidationError,
+    IncompleteSectionError,
+)
 
 
 class FillConfigNoInputTestCase(TestCase):
@@ -110,7 +117,13 @@ class FillConfigNoInputTestCase(TestCase):
         class MyConfig(Config):
             sec: MySection
 
-        for prefix in ("HUBBA_HUBBA", "K", "_", "_1", "ABCDE_FGHIJ_KLMNO_PQRST_UVWXY_Z0123_45678__9_"):
+        for prefix in (
+            "HUBBA_HUBBA",
+            "K",
+            "_",
+            "_1",
+            "ABCDE_FGHIJ_KLMNO_PQRST_UVWXY_Z0123_45678__9_",
+        ):
             with self.subTest(prefix=prefix):
                 cfg = MyConfig()
                 fill_config(cfg, env_prefix=prefix)
@@ -133,7 +146,18 @@ class FillConfigNoInputTestCase(TestCase):
             self.assertIn("prefix", msg.lower())
             self.assertIn("None", msg)
 
-        for prefix in ("Hello", "HElLO", "HÄLLO", "H.ELL.O", "HELL'O", "HE##O", "9TO5", "HEL LO", "H\tO", "H\nO"):
+        for prefix in (
+            "Hello",
+            "HElLO",
+            "HÄLLO",
+            "H.ELL.O",
+            "HELL'O",
+            "HE##O",
+            "9TO5",
+            "HEL LO",
+            "H\tO",
+            "H\nO",
+        ):
             with self.subTest(prefix=prefix):
                 with self.assertRaises(ValueError) as ctx:
                     fill_config(MyConfig(), env_prefix=prefix)

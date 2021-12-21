@@ -4,7 +4,15 @@ from typing import Optional
 from unittest import TestCase
 from uuid import UUID
 
-from nx_config import Config, ConfigSection, SecretString, URL, IncompleteSectionError, ParsingError
+from nx_config import (
+    Config,
+    ConfigSection,
+    SecretString,
+    URL,
+    IncompleteSectionError,
+    ParsingError,
+)
+
 # noinspection PyProtectedMember
 from nx_config._core.fill_with_oracles import fill_config_w_oracles
 from tests.typing_test_helpers import collection_type_holders
@@ -16,10 +24,18 @@ class FillConfigEnvOnlyTestCase(TestCase):
             pass
 
         with self.subTest("Empty env_map"):
-            fill_config_w_oracles(MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={})
+            fill_config_w_oracles(
+                MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={}
+            )
 
         with self.subTest("Extra items in env_map"):
-            fill_config_w_oracles(MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={"a": "A", "b": "B"})
+            fill_config_w_oracles(
+                MyConfig(),
+                in_stream=None,
+                fmt=None,
+                env_prefix=None,
+                env_map={"a": "A", "b": "B"},
+            )
 
     def test_fill_empty_section(self):
         class MySection(ConfigSection):
@@ -29,10 +45,18 @@ class FillConfigEnvOnlyTestCase(TestCase):
             my_section: MySection
 
         with self.subTest("Empty env_map"):
-            fill_config_w_oracles(MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={})
+            fill_config_w_oracles(
+                MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={}
+            )
 
         with self.subTest("Extra items in env_map"):
-            fill_config_w_oracles(MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={"a": "A", "b": "B"})
+            fill_config_w_oracles(
+                MyConfig(),
+                in_stream=None,
+                fmt=None,
+                env_prefix=None,
+                env_map={"a": "A", "b": "B"},
+            )
 
     def test_fill_already_full_empty_env_map(self):
         class MySection1(ConfigSection):
@@ -47,7 +71,9 @@ class FillConfigEnvOnlyTestCase(TestCase):
             my_sec2: MySection2
 
         cfg = MyConfig()
-        fill_config_w_oracles(cfg, in_stream=None, fmt=None, env_prefix=None, env_map={"a": "A"})
+        fill_config_w_oracles(
+            cfg, in_stream=None, fmt=None, env_prefix=None, env_map={"a": "A"}
+        )
 
         self.assertEqual(42, cfg.my_sec1.my_int)
         self.assertEqual(None, cfg.my_sec1.my_opt_str)
@@ -73,9 +99,9 @@ class FillConfigEnvOnlyTestCase(TestCase):
                 env_prefix=None,
                 env_map={
                     "a": "A",
-                    "MY_OPT_STR": "Hello",              # Bad: No section
-                    "MY_SEC1_MY_OPT_STR": "Hello",      # Bad: Single underscore between section and entry
-                    "my_sec1__my_opt_str": "Hello",     # Bad: Lower case
+                    "MY_OPT_STR": "Hello",  # Bad: No section
+                    "MY_SEC1_MY_OPT_STR": "Hello",  # Bad: Single underscore between section and entry
+                    "my_sec1__my_opt_str": "Hello",  # Bad: Lower case
                 },
             )
 
@@ -93,7 +119,11 @@ class FillConfigEnvOnlyTestCase(TestCase):
         new_value = "something"
         cfg = MyConfig()
         fill_config_w_oracles(
-            cfg, in_stream=None, fmt=None, env_prefix=None, env_map={"MY_SECTION__MY_ENTRY": new_value},
+            cfg,
+            in_stream=None,
+            fmt=None,
+            env_prefix=None,
+            env_map={"MY_SECTION__MY_ENTRY": new_value},
         )
 
         self.assertEqual(new_value, cfg.my_section.my_entry)
@@ -140,7 +170,9 @@ class FillConfigEnvOnlyTestCase(TestCase):
             my_float: float = 1.41999
             my_bool: bool = True
             my_str: str = "Yo"
-            my_datetime: datetime = datetime(1955, 11, 5, 6, 15, 0, tzinfo=timezone(offset=timedelta(hours=-7)))
+            my_datetime: datetime = datetime(
+                1955, 11, 5, 6, 15, 0, tzinfo=timezone(offset=timedelta(hours=-7))
+            )
             my_uuid: UUID = UUID(int=987_654_321)
             my_path: Path = Path("/a/b/c/d.txt")
             my_secret: SecretString
@@ -185,7 +217,9 @@ class FillConfigEnvOnlyTestCase(TestCase):
         new_float_as_str = "3.14"
         new_bool = False
         new_str = "Hello there!"
-        new_datetime = datetime(2021, 5, 4, 1, 2, 3, tzinfo=timezone(offset=timedelta(hours=4)))
+        new_datetime = datetime(
+            2021, 5, 4, 1, 2, 3, tzinfo=timezone(offset=timedelta(hours=4))
+        )
         new_uuid_as_str = "5f8ae2f4-906c-4d8d-9d61-69671117027e"
         new_path_as_str = "../some_dir/some_file.some_ext"
         new_secret = "abcd"
@@ -199,6 +233,7 @@ class FillConfigEnvOnlyTestCase(TestCase):
             MySectionWOptionalsAndDefaults,
         ):
             with self.subTest(section_class=section_class):
+
                 class MyConfig(Config):
                     my_section: section_class
 
@@ -240,23 +275,61 @@ class FillConfigEnvOnlyTestCase(TestCase):
 
         env_key = "MY_SECTION__MY_ENTRY"
 
-        for value_str in ("True", "true", "TRUE", "Yes", "yes", "YES", "On", "on", "ON", "1"):
+        for value_str in (
+            "True",
+            "true",
+            "TRUE",
+            "Yes",
+            "yes",
+            "YES",
+            "On",
+            "on",
+            "ON",
+            "1",
+        ):
             with self.subTest("Truey strings", value_str=value_str):
                 cfg = MyConfig()
-                fill_config_w_oracles(cfg, in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str})
+                fill_config_w_oracles(
+                    cfg,
+                    in_stream=None,
+                    fmt=None,
+                    env_prefix=None,
+                    env_map={env_key: value_str},
+                )
                 self.assertEqual(True, cfg.my_section.my_entry)
 
-        for value_str in ("False", "false", "FALSE", "No", "no", "NO", "Off", "off", "OFF", "0"):
+        for value_str in (
+            "False",
+            "false",
+            "FALSE",
+            "No",
+            "no",
+            "NO",
+            "Off",
+            "off",
+            "OFF",
+            "0",
+        ):
             with self.subTest("Falsey strings", value_str=value_str):
                 cfg = MyConfig()
-                fill_config_w_oracles(cfg, in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str})
+                fill_config_w_oracles(
+                    cfg,
+                    in_stream=None,
+                    fmt=None,
+                    env_prefix=None,
+                    env_map={env_key: value_str},
+                )
                 self.assertEqual(False, cfg.my_section.my_entry)
 
         for value_str in ("42", "tRUe", "zero", "Schrödinger's cat is dead", ""):
             with self.subTest("Invalid strings", value_str=value_str):
                 with self.assertRaises(ParsingError) as ctx:
                     fill_config_w_oracles(
-                        MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str},
+                        MyConfig(),
+                        in_stream=None,
+                        fmt=None,
+                        env_prefix=None,
+                        env_map={env_key: value_str},
                     )
 
                 msg = str(ctx.exception)
@@ -335,7 +408,11 @@ class FillConfigEnvOnlyTestCase(TestCase):
 
         cfg = MyConfig()
         fill_config_w_oracles(
-            cfg, in_stream=None, fmt=None, env_prefix=None, env_map={"SEC__MY_UUID": str(new_value).replace("-", "")}
+            cfg,
+            in_stream=None,
+            fmt=None,
+            env_prefix=None,
+            env_map={"SEC__MY_UUID": str(new_value).replace("-", "")},
         )
 
         self.assertEqual(new_value, cfg.sec.my_uuid)
@@ -353,7 +430,11 @@ class FillConfigEnvOnlyTestCase(TestCase):
             with self.subTest("Invalid strings", value_str=value_str):
                 with self.assertRaises(ParsingError) as ctx:
                     fill_config_w_oracles(
-                        MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str}
+                        MyConfig(),
+                        in_stream=None,
+                        fmt=None,
+                        env_prefix=None,
+                        env_map={env_key: value_str},
                     )
 
                 msg = str(ctx.exception)
@@ -377,7 +458,11 @@ class FillConfigEnvOnlyTestCase(TestCase):
             with self.subTest("Invalid strings", value_str=value_str):
                 with self.assertRaises(ParsingError) as ctx:
                     fill_config_w_oracles(
-                        MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str}
+                        MyConfig(),
+                        in_stream=None,
+                        fmt=None,
+                        env_prefix=None,
+                        env_map={env_key: value_str},
                     )
 
                 msg = str(ctx.exception)
@@ -401,7 +486,11 @@ class FillConfigEnvOnlyTestCase(TestCase):
             with self.subTest("Invalid strings", value_str=value_str):
                 with self.assertRaises(ParsingError) as ctx:
                     fill_config_w_oracles(
-                        MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str}
+                        MyConfig(),
+                        in_stream=None,
+                        fmt=None,
+                        env_prefix=None,
+                        env_map={env_key: value_str},
                     )
 
                 msg = str(ctx.exception)
@@ -426,7 +515,11 @@ class FillConfigEnvOnlyTestCase(TestCase):
             with self.subTest("Invalid strings", value_str=value_str):
                 with self.assertRaises(ParsingError) as ctx:
                     fill_config_w_oracles(
-                        MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str}
+                        MyConfig(),
+                        in_stream=None,
+                        fmt=None,
+                        env_prefix=None,
+                        env_map={env_key: value_str},
                     )
 
                 msg = str(ctx.exception)
@@ -440,6 +533,7 @@ class FillConfigEnvOnlyTestCase(TestCase):
     def test_can_parse_collections(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     int_tuple: tps.tuple[int, ...]
                     int_set: tps.frozenset[int]
@@ -467,12 +561,30 @@ class FillConfigEnvOnlyTestCase(TestCase):
 
                 expected = {
                     "int_tuple": ("  1, 2, 3  ,    42 ,-5", (1, 2, 3, 42, -5)),
-                    "int_set": ("  1, 2, 3  ,2,    42 ,-5", frozenset((1, 2, 3, 42, -5))),
-                    "float_tuple": ("1,   2.2, 3.14   ,0,0.001,  -9  ", (1.0, 2.2, 3.14, 0.0, 0.001, -9.0)),
-                    "float_set": ("1,   2.2, 3.14   ,0,1,0.001,  -9  ", frozenset((1.0, 2.2, 3.14, 0.0, 0.001, -9.0))),
-                    "bool_tuple": (" True, 0   , No,Yes,on, ON  ", (True, False, False, True, True, True)),
-                    "bool_set": (" True, 0   , No,Yes,on, ON  ", frozenset((True, False))),
-                    "str_tuple": ("Hello, wörld!  ,foO,,baR    ", ("Hello", "wörld!", "foO", "", "baR")),
+                    "int_set": (
+                        "  1, 2, 3  ,2,    42 ,-5",
+                        frozenset((1, 2, 3, 42, -5)),
+                    ),
+                    "float_tuple": (
+                        "1,   2.2, 3.14   ,0,0.001,  -9  ",
+                        (1.0, 2.2, 3.14, 0.0, 0.001, -9.0),
+                    ),
+                    "float_set": (
+                        "1,   2.2, 3.14   ,0,1,0.001,  -9  ",
+                        frozenset((1.0, 2.2, 3.14, 0.0, 0.001, -9.0)),
+                    ),
+                    "bool_tuple": (
+                        " True, 0   , No,Yes,on, ON  ",
+                        (True, False, False, True, True, True),
+                    ),
+                    "bool_set": (
+                        " True, 0   , No,Yes,on, ON  ",
+                        frozenset((True, False)),
+                    ),
+                    "str_tuple": (
+                        "Hello, wörld!  ,foO,,baR    ",
+                        ("Hello", "wörld!", "foO", "", "baR"),
+                    ),
                     "str_set": (
                         "Hello, wörld!  ,hello,   ,,baR    ",
                         frozenset(("Hello", "wörld!", "hello", "", "baR")),
@@ -480,18 +592,34 @@ class FillConfigEnvOnlyTestCase(TestCase):
                     "datetime_tuple": (
                         "2021-05-04T06:15:00+01:00,2001-11-1 5:12:9,    1982-1-1 00:00:00+00:00    ",
                         (
-                            datetime(2021, 5, 4, 6, 15, tzinfo=timezone(offset=timedelta(hours=1))),
+                            datetime(
+                                2021,
+                                5,
+                                4,
+                                6,
+                                15,
+                                tzinfo=timezone(offset=timedelta(hours=1)),
+                            ),
                             datetime(2001, 11, 1, 5, 12, 9),
                             datetime(1982, 1, 1, tzinfo=timezone.utc),
                         ),
                     ),
                     "datetime_set": (
                         "2001-11-01T05:12:09.0000,2021-05-04T06:15:00+01:00,2001-11-1 5:12:9,1982-1-1 00:00:00+00:00",
-                        frozenset((
-                            datetime(2021, 5, 4, 6, 15, tzinfo=timezone(offset=timedelta(hours=1))),
-                            datetime(2001, 11, 1, 5, 12, 9),
-                            datetime(1982, 1, 1, tzinfo=timezone.utc),
-                        )),
+                        frozenset(
+                            (
+                                datetime(
+                                    2021,
+                                    5,
+                                    4,
+                                    6,
+                                    15,
+                                    tzinfo=timezone(offset=timedelta(hours=1)),
+                                ),
+                                datetime(2001, 11, 1, 5, 12, 9),
+                                datetime(1982, 1, 1, tzinfo=timezone.utc),
+                            )
+                        ),
                     ),
                     "uuid_tuple": (
                         (
@@ -512,21 +640,40 @@ class FillConfigEnvOnlyTestCase(TestCase):
                             "  \tc31a9e10-fb5e-4b99-8689-5e9017121bad\t,"
                             "   72fa850e62a04ae38e704e9e14b6bd49 "
                         ),
-                        frozenset((
-                            UUID("c544d643-5db3-452b-8594-4042b01b21fb"),
-                            UUID("c31a9e10-fb5e-4b99-8689-5e9017121bad"),
-                            UUID("72fa850e-62a0-4ae3-8e70-4e9e14b6bd49"),
-                        )),
+                        frozenset(
+                            (
+                                UUID("c544d643-5db3-452b-8594-4042b01b21fb"),
+                                UUID("c31a9e10-fb5e-4b99-8689-5e9017121bad"),
+                                UUID("72fa850e-62a0-4ae3-8e70-4e9e14b6bd49"),
+                            )
+                        ),
                     ),
                     "path_tuple": (
                         "\t\t /a/b/c.d  \n  , .., g, ../e/../../f,g,..    \n",
-                        (Path("/a/b/c.d"), Path(".."), Path("g"), Path("../e/../../f"), Path("g"), Path("..")),
+                        (
+                            Path("/a/b/c.d"),
+                            Path(".."),
+                            Path("g"),
+                            Path("../e/../../f"),
+                            Path("g"),
+                            Path(".."),
+                        ),
                     ),
                     "path_set": (
                         "\t\t /a/b/c.d  \n  , .., g, ../e/../../f,g,..    \n",
-                        frozenset((Path("/a/b/c.d"), Path(".."), Path("g"), Path("../e/../../f"))),
+                        frozenset(
+                            (
+                                Path("/a/b/c.d"),
+                                Path(".."),
+                                Path("g"),
+                                Path("../e/../../f"),
+                            )
+                        ),
                     ),
-                    "secret_tuple": ("Hello, wörld!  ,foO,,baR    ", ("Hello", "wörld!", "foO", "", "baR")),
+                    "secret_tuple": (
+                        "Hello, wörld!  ,foO,,baR    ",
+                        ("Hello", "wörld!", "foO", "", "baR"),
+                    ),
                     "secret_set": (
                         "Hello, wörld!  ,hello,   ,,baR    ",
                         frozenset(("Hello", "wörld!", "hello", "", "baR")),
@@ -537,7 +684,9 @@ class FillConfigEnvOnlyTestCase(TestCase):
                     ),
                     "url_set": (
                         "www.a.b, http://127.0.0.1:2222   ,f,f,f, huh?whah=ok      ,f",
-                        frozenset(("www.a.b", "http://127.0.0.1:2222", "f", "huh?whah=ok")),
+                        frozenset(
+                            ("www.a.b", "http://127.0.0.1:2222", "f", "huh?whah=ok")
+                        ),
                     ),
                 }
 
@@ -555,6 +704,7 @@ class FillConfigEnvOnlyTestCase(TestCase):
     def test_can_parse_single_element_collections(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     int_tuple: tps.tuple[int, ...]
                     int_set: tps.frozenset[int]
@@ -589,8 +739,14 @@ class FillConfigEnvOnlyTestCase(TestCase):
                     "bool_set": ("0 ", frozenset((False,))),
                     "str_tuple": ("foO", ("foO",)),
                     "str_set": ("baR    ", frozenset(("baR",))),
-                    "datetime_tuple": ("1982-1-1 00:00:00+00:00", (datetime(1982, 1, 1, tzinfo=timezone.utc),)),
-                    "datetime_set": ("1982-1-1 00:00:00", frozenset((datetime(1982, 1, 1),))),
+                    "datetime_tuple": (
+                        "1982-1-1 00:00:00+00:00",
+                        (datetime(1982, 1, 1, tzinfo=timezone.utc),),
+                    ),
+                    "datetime_set": (
+                        "1982-1-1 00:00:00",
+                        frozenset((datetime(1982, 1, 1),)),
+                    ),
                     "uuid_tuple": (
                         "c544d643-5db3-452b-8594-4042b01b21fb",
                         (UUID("c544d643-5db3-452b-8594-4042b01b21fb"),),
@@ -604,7 +760,10 @@ class FillConfigEnvOnlyTestCase(TestCase):
                     "secret_tuple": ("foO", ("foO",)),
                     "secret_set": ("Hello   ", frozenset(("Hello",))),
                     "url_tuple": ("http://127.0.0.1:2222", ("http://127.0.0.1:2222",)),
-                    "url_set": (" http://127.0.0.1:2222", frozenset(("http://127.0.0.1:2222",))),
+                    "url_set": (
+                        " http://127.0.0.1:2222",
+                        frozenset(("http://127.0.0.1:2222",)),
+                    ),
                 }
 
                 fill_config_w_oracles(
@@ -627,14 +786,30 @@ class FillConfigEnvOnlyTestCase(TestCase):
                 (int, "  1, 2, 3  ,2,    42 ,-5,", "", "int"),
                 (int, "1.111", "1.111", "int"),
                 (float, "1,   2.2, pi   ,0,1,0.001,  -9  ", "pi", "float"),
-                (bool, " True, 0   , No,Yes,on, Schrödinger's cat is dead", "Schrödinger's cat is dead", "bool"),
-                (datetime, "2001-11-41T05:12:09,2021-05-04T06:15:00+01:00", "2001-11-41T05:12:09", "datetime"),
-                (UUID, "72fa850e-62a0-4ae3-8e70-4e9e14b6bd49, abc, 72fa850e62a04ae38e704e9e14b6bd49 ", "abc", "UUID"),
+                (
+                    bool,
+                    " True, 0   , No,Yes,on, Schrödinger's cat is dead",
+                    "Schrödinger's cat is dead",
+                    "bool",
+                ),
+                (
+                    datetime,
+                    "2001-11-41T05:12:09,2021-05-04T06:15:00+01:00",
+                    "2001-11-41T05:12:09",
+                    "datetime",
+                ),
+                (
+                    UUID,
+                    "72fa850e-62a0-4ae3-8e70-4e9e14b6bd49, abc, 72fa850e62a04ae38e704e9e14b6bd49 ",
+                    "abc",
+                    "UUID",
+                ),
             )
             for tps in collection_type_holders
             for tp in (tps.tuple[base, ...], tps.frozenset[base])
         ):
             with self.subTest(type=tp, value_str=value_str):
+
                 class MySection(ConfigSection):
                     my_entry: tp
 
@@ -645,7 +820,11 @@ class FillConfigEnvOnlyTestCase(TestCase):
 
                 with self.assertRaises(ParsingError) as ctx:
                     fill_config_w_oracles(
-                        MyConfig(), in_stream=None, fmt=None, env_prefix=None, env_map={env_key: value_str}
+                        MyConfig(),
+                        in_stream=None,
+                        fmt=None,
+                        env_prefix=None,
+                        env_map={env_key: value_str},
                     )
 
                 msg = str(ctx.exception)
@@ -662,9 +841,13 @@ class FillConfigEnvOnlyTestCase(TestCase):
             (tp, expected)
             for tps in collection_type_holders
             for base in (int, float, bool, str, datetime, UUID, Path, SecretString, URL)
-            for tp, expected in ((tps.tuple[base, ...], ()), (tps.frozenset[base], frozenset()))
+            for tp, expected in (
+                (tps.tuple[base, ...], ()),
+                (tps.frozenset[base], frozenset()),
+            )
         ):
             with self.subTest(type=tp, expected=expected):
+
                 class MySection(ConfigSection):
                     my_entry: tp
 
@@ -673,13 +856,18 @@ class FillConfigEnvOnlyTestCase(TestCase):
 
                 cfg = MyConfig()
                 fill_config_w_oracles(
-                    cfg, in_stream=None, fmt=None, env_prefix=None, env_map={"MY_SECTION__MY_ENTRY": ""}
+                    cfg,
+                    in_stream=None,
+                    fmt=None,
+                    env_prefix=None,
+                    env_map={"MY_SECTION__MY_ENTRY": ""},
                 )
                 self.assertEqual(expected, cfg.my_section.my_entry)
 
     def test_optional_types_can_be_set(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     int_op: Optional[int]
                     float_op: Optional[float] = None
@@ -690,13 +878,20 @@ class FillConfigEnvOnlyTestCase(TestCase):
                     uuid_tuple_op: Optional[tps.tuple[UUID, ...]] = ()
                     uuid_tuple_op2: Optional[tps.tuple[UUID, ...]] = ()
                     bool_nop: bool = False
-                    path_tuple_op: Optional[tps.tuple[Path, ...]] = (Path("/a"), Path("/b.c"))
+                    path_tuple_op: Optional[tps.tuple[Path, ...]] = (
+                        Path("/a"),
+                        Path("/b.c"),
+                    )
                     secret_set_op: Optional[tps.frozenset[SecretString]]
                     url_set_op: Optional[tps.frozenset[URL]] = None
                     bool_tuple: tps.tuple[bool, ...]
                     int_set_op: Optional[tps.frozenset[int]] = frozenset()
-                    float_set_op: Optional[tps.frozenset[float]] = frozenset((3.100, 31.00, 310.0))
-                    float_set_op2: Optional[tps.frozenset[float]] = frozenset((3.100, 31.00, 310.0))
+                    float_set_op: Optional[tps.frozenset[float]] = frozenset(
+                        (3.100, 31.00, 310.0)
+                    )
+                    float_set_op2: Optional[tps.frozenset[float]] = frozenset(
+                        (3.100, 31.00, 310.0)
+                    )
 
                 class MyConfig(Config):
                     sec: MySection
@@ -707,11 +902,21 @@ class FillConfigEnvOnlyTestCase(TestCase):
                     "int_op": ("42", 42),
                     "float_op": ("1.21", 1.21),
                     "bool_op": ("false", False),
-                    "str_tuple_op": ("Hello, wörld!  ,foO,,baR    ", ("Hello", "wörld!", "foO", "", "baR")),
+                    "str_tuple_op": (
+                        "Hello, wörld!  ,foO,,baR    ",
+                        ("Hello", "wörld!", "foO", "", "baR"),
+                    ),
                     "datetime_tuple_op": (
                         "2021-05-04T06:15:00+01:00,2001-11-1 5:12:9,    1982-1-1 00:00:00+00:00    ",
                         (
-                            datetime(2021, 5, 4, 6, 15, tzinfo=timezone(offset=timedelta(hours=1))),
+                            datetime(
+                                2021,
+                                5,
+                                4,
+                                6,
+                                15,
+                                tzinfo=timezone(offset=timedelta(hours=1)),
+                            ),
                             datetime(2001, 11, 1, 5, 12, 9),
                             datetime(1982, 1, 1, tzinfo=timezone.utc),
                         ),
@@ -731,7 +936,14 @@ class FillConfigEnvOnlyTestCase(TestCase):
                     "bool_nop": ("Yes", True),
                     "path_tuple_op": (
                         "\t\t /a/b/c.d  \n  , .., g, ../e/../../f,g,..    \n",
-                        (Path("/a/b/c.d"), Path(".."), Path("g"), Path("../e/../../f"), Path("g"), Path("..")),
+                        (
+                            Path("/a/b/c.d"),
+                            Path(".."),
+                            Path("g"),
+                            Path("../e/../../f"),
+                            Path("g"),
+                            Path(".."),
+                        ),
                     ),
                     "secret_set_op": (
                         "Hello, wörld!  ,hello,   ,,baR    ",
@@ -739,13 +951,21 @@ class FillConfigEnvOnlyTestCase(TestCase):
                     ),
                     "url_set_op": (
                         "www.a.b, http://127.0.0.1:2222   ,f,f,f, huh?whah=ok      ,f",
-                        frozenset(("www.a.b", "http://127.0.0.1:2222", "f", "huh?whah=ok")),
+                        frozenset(
+                            ("www.a.b", "http://127.0.0.1:2222", "f", "huh?whah=ok")
+                        ),
                     ),
-                    "bool_tuple": (" True, 0   , No,Yes,on, ON  ", (True, False, False, True, True, True)),
-                    "int_set_op": ("  1, 2, 3  ,2,    42 ,-5", frozenset((1, 2, 3, 42, -5))),
+                    "bool_tuple": (
+                        " True, 0   , No,Yes,on, ON  ",
+                        (True, False, False, True, True, True),
+                    ),
+                    "int_set_op": (
+                        "  1, 2, 3  ,2,    42 ,-5",
+                        frozenset((1, 2, 3, 42, -5)),
+                    ),
                     "float_set_op": (
                         "1,   2.2, 3.14   ,0,1,0.001,  -9  ",
-                        frozenset((1.0, 2.2, 3.14, 0.0, 0.001, -9.0))
+                        frozenset((1.0, 2.2, 3.14, 0.0, 0.001, -9.0)),
                     ),
                 }
 
@@ -791,6 +1011,7 @@ class FillConfigEnvOnlyTestCase(TestCase):
             )
         ):
             with self.subTest(type=tp):
+
                 class MySection(ConfigSection):
                     my_entry: Optional[tp]
 
@@ -799,13 +1020,18 @@ class FillConfigEnvOnlyTestCase(TestCase):
 
                 cfg = MyConfig()
                 fill_config_w_oracles(
-                    cfg, in_stream=None, fmt=None, env_prefix=None, env_map={"MY_SECTION__MY_ENTRY": ""}
+                    cfg,
+                    in_stream=None,
+                    fmt=None,
+                    env_prefix=None,
+                    env_map={"MY_SECTION__MY_ENTRY": ""},
                 )
                 self.assertIsNone(cfg.my_section.my_entry)
 
     def test_ultimate_empty_str_input(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     e_str: str = "a"
                     e_opt_int: Optional[int] = 0
@@ -862,9 +1088,13 @@ class FillConfigEnvOnlyTestCase(TestCase):
         }
 
         cfg1 = MyConfig()
-        fill_config_w_oracles(cfg1, in_stream=None, fmt=None, env_prefix=None, env_map=env_map)
+        fill_config_w_oracles(
+            cfg1, in_stream=None, fmt=None, env_prefix=None, env_map=env_map
+        )
         self.assertEqual(no_prefix_value, cfg1.my_section.my_entry)
 
         cfg2 = MyConfig()
-        fill_config_w_oracles(cfg2, in_stream=None, fmt=None, env_prefix=prefix, env_map=env_map)
+        fill_config_w_oracles(
+            cfg2, in_stream=None, fmt=None, env_prefix=prefix, env_map=env_map
+        )
         self.assertEqual(prefix_value, cfg2.my_section.my_entry)

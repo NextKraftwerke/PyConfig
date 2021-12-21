@@ -11,6 +11,7 @@ if _python_minor < 7:
 
     def get_args(t: type) -> Sequence[type]:
         return getattr(t, "__args__", ())
+
 elif _python_minor < 8:
     from typing import Optional, Sequence
 
@@ -19,6 +20,7 @@ elif _python_minor < 8:
 
     def get_args(t: type) -> Sequence[type]:
         return getattr(t, "__args__", ())
+
 else:
     # noinspection PyUnresolvedReferences
     from typing import get_origin, get_args

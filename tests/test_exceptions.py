@@ -1,6 +1,11 @@
 from unittest import TestCase
 
-from nx_config import NxConfigError, ValidationError, IncompleteSectionError, ParsingError
+from nx_config import (
+    NxConfigError,
+    ValidationError,
+    IncompleteSectionError,
+    ParsingError,
+)
 
 
 class ExceptionsTestCase(TestCase):

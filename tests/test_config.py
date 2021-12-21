@@ -42,6 +42,7 @@ class ConfigTestCase(TestCase):
 
         class MyConfig(Config):
             """This is MyConfig's docstring."""
+
             pass
 
         _ = MyConfig()
@@ -238,7 +239,9 @@ class ConfigTestCase(TestCase):
                 return timedelta(minutes=self.my_section.delta_in_minutes)
 
         cfg = MyConfig()
-        self.assertEqual(timedelta(minutes=cfg.my_section.delta_in_minutes), cfg.delta())
+        self.assertEqual(
+            timedelta(minutes=cfg.my_section.delta_in_minutes), cfg.delta()
+        )
 
     def test_nested_types_are_okay(self):
         class MySection(ConfigSection):
@@ -259,7 +262,9 @@ class ConfigTestCase(TestCase):
                     return cls(kelvin=celsius + 273.15)
 
             def temp(self) -> Temperature:
-                return MyConfig.Temperature.from_celsius(self.my_section.temp_in_celsius)
+                return MyConfig.Temperature.from_celsius(
+                    self.my_section.temp_in_celsius
+                )
 
         cfg = MyConfig()
         self.assertEqual(cfg.my_section.temp_in_celsius, cfg.temp().celsius())

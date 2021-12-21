@@ -4,10 +4,14 @@ from pathlib import Path
 from typing import Optional
 
 # noinspection PyProtectedMember
-from nx_config._core.path_with_oracles import resolve_path_w_oracles as _resolve_path_w_oracles
+from nx_config._core.path_with_oracles import (
+    resolve_path_w_oracles as _resolve_path_w_oracles,
+)
 
 
-def resolve_config_path(prefix: Optional[str] = None, *, cli_args: Optional[Namespace] = None) -> Optional[Path]:
+def resolve_config_path(
+    prefix: Optional[str] = None, *, cli_args: Optional[Namespace] = None
+) -> Optional[Path]:
     """
     TODO: incl.: Document precedence between env var and CLI arg.
 

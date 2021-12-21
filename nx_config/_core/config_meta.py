@@ -3,7 +3,13 @@ from inspect import isroutine, isclass
 from nx_config._core.naming_utils import root_attr, internal_name
 from nx_config.section import ConfigSection
 
-_special_config_keys = ("__module__", "__qualname__", "__annotations__", "__doc__", "__init__")
+_special_config_keys = (
+    "__module__",
+    "__qualname__",
+    "__annotations__",
+    "__doc__",
+    "__init__",
+)
 _forbidden_default_section = "default"
 
 
@@ -31,9 +37,7 @@ class ConfigMeta(type):
             )
 
         if "__slots__" in ns:
-            raise ValueError(
-                "Subclass of 'Config' cannot define its own '__slots__'."
-            )
+            raise ValueError("Subclass of 'Config' cannot define its own '__slots__'.")
 
         sections = ns.get("__annotations__", {})
         lower_sections = {x.lower() for x in sections}

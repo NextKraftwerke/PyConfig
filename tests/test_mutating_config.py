@@ -3,7 +3,14 @@ from typing import Optional
 from unittest import TestCase
 from uuid import UUID
 
-from nx_config import Config, ConfigSection, validate, URL, SecretString, ValidationError
+from nx_config import (
+    Config,
+    ConfigSection,
+    validate,
+    URL,
+    SecretString,
+    ValidationError,
+)
 from nx_config.test_utils import update_section
 from tests.typing_test_helpers import collection_type_holders
 
@@ -257,6 +264,7 @@ class MutableConfigTestCase(TestCase):
     def test_can_assign_to_tuple_and_frozenset(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     my_tuple: tps.tuple[datetime, ...]
                     my_other_tuple: tps.tuple[float, ...] = (5.5,)
@@ -289,6 +297,7 @@ class MutableConfigTestCase(TestCase):
     def test_assigned_tuple_elements_must_have_base_type(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     my_entry: tps.tuple[int, ...]
 
@@ -309,6 +318,7 @@ class MutableConfigTestCase(TestCase):
     def test_cannot_assign_list_to_tuple(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     my_entry: tps.tuple[int, ...]
 
@@ -329,6 +339,7 @@ class MutableConfigTestCase(TestCase):
     def test_cannot_assign_int_to_tuple(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     my_entry: tps.tuple[int, ...]
 
@@ -349,6 +360,7 @@ class MutableConfigTestCase(TestCase):
     def test_cannot_assign_none_to_tuple(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     my_entry: tps.tuple[int, ...]
 
@@ -369,6 +381,7 @@ class MutableConfigTestCase(TestCase):
     def test_cannot_assign_tuple_to_frozenset(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     my_entry: tps.frozenset[int]
 
@@ -389,6 +402,7 @@ class MutableConfigTestCase(TestCase):
     def test_can_assign_str_to_secret_string(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     my_entry: SecretString
                     my_other_entry: tps.tuple[SecretString, ...] = ()
@@ -449,6 +463,7 @@ class MutableConfigTestCase(TestCase):
     def test_cannot_assign_int_to_url_tuple(self):
         for tps in collection_type_holders:
             with self.subTest(types=tps):
+
                 class MySection(ConfigSection):
                     my_entry: tps.tuple[URL, ...]
 
