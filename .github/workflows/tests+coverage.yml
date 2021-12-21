@@ -12,7 +12,40 @@ env:
   cov_json_path: .github/stats/coverage.latest.json
 
 jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install .[format]
+        black --version
+    - name: Show format diff with black
+      if: github.event_name == 'pull_request'
+      run: |
+        black --diff --color --verbose .
+    - name: Format with black
+      if: github.event_name == 'push'
+      run: |
+        # black --verbose .
+        black --diff --color --verbose .
+    - name: Push formatting changes
+      if: github.event_name == 'push'
+      run: |
+          git config user.name 'GitHub CI'
+          git config user.email ''
+          git add --all
+          if git commit -m "(CI:) Auto-format with black from workflow ${{github.workflow}} (run ${{github.run_id}})."
+          then git push
+          else echo "No changes to commit"
+          fi
   tests:
+    needs: format
     runs-on: ubuntu-latest
     strategy:
       matrix:
