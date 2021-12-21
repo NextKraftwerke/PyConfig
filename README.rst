@@ -25,6 +25,9 @@
 .. image:: https://img.shields.io/pypi/v/nx-config?style=flat&labelColor=303030
   :target: https://pypi.org/project/nx-config/
   :alt: PyPI
+.. image:: https://img.shields.io/static/v1?label=code%20style&message=black&style=flat&labelColor=303030&color=101010
+  :target: https://github.com/psf/black
+  :alt: Code style
 
 .. |Config| replace:: `Config`_
 .. |ConfigSection| replace:: `ConfigSection`_
