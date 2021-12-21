@@ -32,18 +32,16 @@ jobs:
     - name: Format with black
       if: github.event_name == 'push'
       run: |
-        # black --verbose .
-        black --diff --color --verbose .
+        black --verbose .
     - name: Push formatting changes
       if: github.event_name == 'push'
       run: |
-          git config user.name 'GitHub CI'
-          git config user.email ''
-          git add --all
-          if git commit -m "(CI:) Auto-format with black from workflow ${{github.workflow}} (run ${{github.run_id}})."
-          then git push
-          else echo "No changes to commit"
-          fi
+        git config user.name 'GitHub CI'
+        git config user.email ''
+        git add --all
+        if git commit -m "(CI:) Auto-format with black from workflow ${{github.workflow}} (run ${{github.run_id}})."
+        then git push
+        fi
   tests:
     needs: format
     runs-on: ubuntu-latest
@@ -58,7 +56,6 @@ jobs:
         python-version: ${{matrix.python-version}}
     - name: Install dependencies
       run: |
-        git log -n 3
         python -m pip install --upgrade pip
         pip install .[tests]
         pip install .[coverage]
@@ -103,8 +100,8 @@ jobs:
     - name: Push changes to stats file
       if: ${{github.event_name == 'push' && always()}}
       run: |
-          git config user.name 'GitHub CI'
-          git config user.email ''
-          git add ${{env.cov_json_path}}
-          git commit -m "(CI:) Update coverage JSON from workflow ${{github.workflow}} (run ${{github.run_id}})."
-          git push
+        git config user.name 'GitHub CI'
+        git config user.email ''
+        git add ${{env.cov_json_path}}
+        git commit -m "(CI:) Update coverage JSON from workflow ${{github.workflow}} (run ${{github.run_id}})."
+        git push
