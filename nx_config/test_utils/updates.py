@@ -6,7 +6,7 @@ from nx_config.section import ConfigSection
 
 def update_section(section: ConfigSection, **kwargs):
     """
-    TODO
+    TODO ...
 
     :param section:
     :param kwargs:
